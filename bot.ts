@@ -1,3 +1,5 @@
+// start of the app
+
 require('dotenv').config();
 
 const Discord = require('discord.js');
