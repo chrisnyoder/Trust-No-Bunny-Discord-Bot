@@ -37,6 +37,8 @@ client.commands = new Collection<string, CommandData>();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
+console.log(`Token: ${BOT_TOKEN}`);
+
 client.once('ready', () => {
     console.log('Bot is online!');
 });
