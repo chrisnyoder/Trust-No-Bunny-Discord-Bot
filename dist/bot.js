@@ -44,7 +44,7 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
     throw new Error("Missing BOT_TOKEN in .env file.");
 }
-const token = process.env.TOKEN;
+const token = process.env.BOT_TOKEN;
 const client = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.Guilds,
