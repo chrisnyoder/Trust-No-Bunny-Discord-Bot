@@ -1,23 +1,39 @@
-// start of the app
+import { Client, GatewayIntentBits, Message } from 'discord.js';
+import dotenv from 'dotenv';
+import { handleClaimCommand } from './commands/claim'; // You might need to create a handleClaimCommand function in claim.ts
 
-require('dotenv').config();
+dotenv.config();
 
-const Discord = require('discord.js');
-const bot = new Discord.Client();
-const PREFIX = '/';
+const BOT_TOKEN = process.env.BOT_TOKEN;
+if (!BOT_TOKEN) {
+    throw new Error("Missing BOT_TOKEN in .env file.");
+}
 
-const claimCommand = require('./commands/claim');
-
-bot.on('message', async message => {
-    if (message.author.bot) return;
-    if (!message.content.startsWith(PREFIX)) return;
-
-    const [command, ...args] = message.content.trim().substring(PREFIX.length).split(/\s+/);
-
-    if (command === "claim") {
-        claimCommand.handle(message);
-    }
-    // ... other commands
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
 });
 
-bot.login(process.env.DISCORD_TOKEN);
+client.once('ready', () => {
+    console.log('Bot is online!');
+});
+
+client.on('messageCreate', async (message: Message) => {
+    if (message.author.bot) return;
+
+    // Assuming commands start with '/'
+    if (message.content.startsWith('/')) {
+        const command: string = message.content.split(' ')[0].slice(1); // remove the slash
+        switch (command) {
+            case 'claim':
+                handleClaimCommand(message);
+                break;
+            // you can add other command handlers here
+        }
+    }
+});
+
+client.login(BOT_TOKEN);
