@@ -42,15 +42,17 @@ const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)(); // This will load our .env file
 const clientId = process.env.CLIENT_ID;
-const token = process.env.TOKEN;
+const token = process.env.BOT_TOKEN;
 const commands = [];
-const commandsPath = path_1.default.join(__dirname, 'commands'); // Assuming you have a directory named 'commands'
-const commandFiles = fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
+const commandsPath = path_1.default.join(__dirname, 'commands');
+const commandFiles = fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 function loadCommands() {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log(`Loading command files from path ${commandsPath}..`);
         for (const file of commandFiles) {
             const command = yield Promise.resolve(`${path_1.default.join(commandsPath, file)}`).then(s => __importStar(require(s)));
             if (command.data && command.execute) {
+                console.log(`Loading command ` + command.data.name + `..`);
                 commands.push(command.data.toJSON());
             }
             else {
@@ -59,9 +61,9 @@ function loadCommands() {
         }
     });
 }
-loadCommands();
 const rest = new discord_js_1.REST().setToken(token);
 (() => __awaiter(void 0, void 0, void 0, function* () {
+    yield loadCommands();
     try {
         console.log(`Started refreshing ${commands.length} application (/) commands.`);
         const data = yield rest.put(discord_js_2.Routes.applicationCommands(clientId), { body: commands });
