@@ -36,62 +36,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
+const discord_js_2 = require("discord.js");
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)();
-const node_fs_1 = __importDefault(require("node:fs"));
-const node_path_1 = __importDefault(require("node:path"));
-const BOT_TOKEN = process.env.BOT_TOKEN;
-if (!BOT_TOKEN) {
-    throw new Error("Missing BOT_TOKEN in .env file.");
-}
+(0, dotenv_1.config)(); // This will load our .env file
+const clientId = process.env.CLIENT_ID;
 const token = process.env.TOKEN;
-const client = new discord_js_1.Client({
-    intents: [
-        discord_js_1.GatewayIntentBits.Guilds,
-        discord_js_1.GatewayIntentBits.GuildMessages,
-        discord_js_1.GatewayIntentBits.MessageContent
-    ]
-});
-client.commands = new discord_js_1.Collection();
-const commandsPath = node_path_1.default.join(__dirname, 'commands');
-const commandFiles = node_fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
-client.once('ready', () => {
-    console.log('Bot is online!');
-});
+const commands = [];
+const commandsPath = path_1.default.join(__dirname, 'commands'); // Assuming you have a directory named 'commands'
+const commandFiles = fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
 function loadCommands() {
     return __awaiter(this, void 0, void 0, function* () {
         for (const file of commandFiles) {
-            const filePath = node_path_1.default.join(commandsPath, file);
-            const command = yield Promise.resolve(`${filePath}`).then(s => __importStar(require(s)));
-            if ('data' in command && 'execute' in command) {
-                client.commands.set(command.data.name, command);
+            const command = yield Promise.resolve(`${path_1.default.join(commandsPath, file)}`).then(s => __importStar(require(s)));
+            if (command.data && command.execute) {
+                commands.push(command.data.toJSON());
             }
             else {
-                console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+                console.log(`[WARNING] The command ${file} is missing a required "data" or "execute" property.`);
             }
         }
     });
 }
 loadCommands();
-client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!interaction.isCommand())
-        return; // Check if it's a command interaction
-    const command = client.commands.get(interaction.commandName);
-    if (!command) {
-        console.error(`No command matching ${interaction.commandName} was found.`);
-        return;
-    }
+const rest = new discord_js_1.REST().setToken(token);
+(() => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield command.execute(interaction);
+        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+        const data = yield rest.put(discord_js_2.Routes.applicationCommands(clientId), { body: commands });
+        console.log(`Successfully reloaded application (/) commands.`);
     }
     catch (error) {
         console.error(error);
-        if (interaction.replied || interaction.deferred) {
-            yield interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-        }
-        else {
-            yield interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-        }
     }
-}));
-client.login(token);
+}))();
