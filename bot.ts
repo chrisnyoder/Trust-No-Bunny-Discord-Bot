@@ -9,7 +9,7 @@ if (!BOT_TOKEN) {
     throw new Error("Missing BOT_TOKEN in .env file.");
 }
 
-const token: string = process.env.TOKEN as string; 
+const token: string = process.env.BOT_TOKEN as string; 
 
 const client = new Client({
     intents: [
