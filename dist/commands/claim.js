@@ -9,23 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleClaimCommand = void 0;
-const queries_1 = require("../database/queries"); // Assuming you have these functions in your queries.ts file.
-function handleClaimCommand(message) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const userId = message.author.id;
-        // Check if the user has claimed in the last 24 hours
-        const lastClaimDate = yield (0, queries_1.checkLastClaim)(userId);
-        if (lastClaimDate && (Date.now() - lastClaimDate.getTime()) < 24 * 60 * 60 * 1000) {
-            message.reply("You've already used claim in the last 24 hours.");
-            return;
-        }
-        // Generate a random drop (example for now)
-        const items = ['item1', 'item2', 'item3', 'item4'];
-        const randomItem = items[Math.floor(Math.random() * items.length)];
-        // Add this claim to the database
-        yield (0, queries_1.addNewClaim)(userId, randomItem);
-        message.reply(`You received: ${randomItem}`);
-    });
-}
-exports.handleClaimCommand = handleClaimCommand;
+exports.commandData = void 0;
+const discord_js_1 = require("discord.js");
+exports.commandData = {
+    data: new discord_js_1.SlashCommandBuilder()
+        .setName('claim')
+        .setDescription('Claim your reward!'),
+    execute(interaction) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const items = ['item1', 'item2', 'item3', 'item4'];
+            const randomItem = items[Math.floor(Math.random() * items.length)];
+            // await addNewClaim(interaction.user.id, randomItem);
+            console.log('Claim successful for ' + interaction.user.id + ' with item ' + randomItem + '.');
+            yield interaction.reply('Claim successful! You earned ' + randomItem);
+        });
+    }
+};
