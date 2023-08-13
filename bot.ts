@@ -35,7 +35,7 @@ type CommandData = {
 client.commands = new Collection<string, CommandData>();
 
 const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 client.once('ready', () => {
     console.log('Bot is online!');
