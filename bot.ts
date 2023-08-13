@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits, Message } from 'discord.js';
 import { config } from 'dotenv';
-config({ path: 'C:\\FriendlyPixel\\discord_bot\\.env' });
+config({ path: '.env' });
 import { handleClaimCommand } from './commands/claim'; // You might need to create a handleClaimCommand function in claim.ts
 
 const BOT_TOKEN = process.env.BOT_TOKEN;

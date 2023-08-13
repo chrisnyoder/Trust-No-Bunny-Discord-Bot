@@ -8,14 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
-const dotenv_1 = __importDefault(require("dotenv"));
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)({ path: '.env' });
 const claim_1 = require("./commands/claim"); // You might need to create a handleClaimCommand function in claim.ts
-dotenv_1.default.config();
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
     throw new Error("Missing BOT_TOKEN in .env file.");
