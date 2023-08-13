@@ -8,10 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.commandData = void 0;
 const discord_js_1 = require("discord.js");
-exports.commandData = {
+const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('claim')
         .setDescription('Claim your reward!'),
@@ -25,3 +23,4 @@ exports.commandData = {
         });
     }
 };
+module.exports = command;
