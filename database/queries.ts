@@ -23,13 +23,7 @@ export async function checkLastClaim(userId: string): Promise<Date | null> {
 // Add a new claim to the database for a user.
 export async function addNewClaim(userId: string, dropItem: string): Promise<void> {
 
-    try {
-        const connection = await mysql.createConnection(dbConfig);
-    } catch (error) { 
-        console.error("Could not establish connection with current credentials "
-            + dbConfig.user + "@" + dbConfig.host + " for database: " +
-            dbConfig.database + " with passowrd: " +    dbConfig.password + " error:" + error);
-    }
+    const connection = await mysql.createConnection(dbConfig);
 
     try {
         await connection.execute('INSERT INTO `claims` (`user_id`, `drop_name`, `has_been_claimed`) VALUES (?, ?, false)', [userId, dropItem]);
