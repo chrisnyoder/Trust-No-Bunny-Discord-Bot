@@ -26,7 +26,7 @@ export async function addNewClaim(userId: string, dropItem: string): Promise<voi
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `claims` (`user_id`, `drop_name`, `has_been_claimed`) VALUES (?, ?, false)', [userId, dropItem]);
+        await connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_claimed`) VALUES (?, ?, false)', [userId, dropItem]);
     } finally {
         await connection.end();
     }
