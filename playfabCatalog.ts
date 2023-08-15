@@ -11,7 +11,8 @@ async function getEntityToken() {
     try {
         const response = await axios.post(PLAYFAB_URL_GET_TOKEN, {}, {
             headers: {
-                'X-SecretKey': SECRET_KEY
+                'X-SecretKey': SECRET_KEY,
+                'Content-Type': 'application/json'
             }
         });
 
