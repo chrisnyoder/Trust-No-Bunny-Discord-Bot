@@ -15,6 +15,7 @@ async function getEntityToken() {
             }
         });
 
+        console.log(`PlayFab entity token: ${response.data.EntityToken}`);
         return response.data.EntityToken;
     } catch (error) {
         console.error(`Error retrieving PlayFab entity token: ${error}`);
