@@ -10,14 +10,13 @@ const command = {
     async execute(interaction: CommandInteraction) {
         const items = getItems();
         const randomItem = items[Math.floor(Math.random() * items.length)];
-        await addNewClaim(interaction.user.id, randomItem);
+       
+        await addNewClaim(interaction.user.id, randomItem.Title.NEUTRAL);
         console.log('Claim successful for ' + interaction.user.id + ' with item ' + randomItem + '.');
         
-        const item = items[0];
-
         // Retrieve the title and the image URL
-        const title = item.Title.NEUTRAL;
-        const imageUrl = item.Images[0].Url;
+        const title = randomItem.Title.NEUTRAL;
+        const imageUrl = randomItem.Images[0].Url;
     
         // Construct the response message
         const responseMessage = `You earned a ${title}`;
