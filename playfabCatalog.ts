@@ -16,11 +16,7 @@ async function getEntityToken() {
                 'Content-Type': 'application/json'
             }
         });
-        console.log(`PlayFab entity token response: ${response.status}`)
-        console.log(`PlayFab entity token response: ${response.statusText}`)
-        console.log(`PlayFab entity token response: ${response.data}`)
-        console.log(`PlayFab entity token: ${response.data.EntityToken}`);
-        return response.data.EntityToken;
+        return response.data.data.EntityToken;
     } catch (error) {
         console.error(`Error retrieving PlayFab entity token: ${error}`);
         throw error;
