@@ -8,6 +8,7 @@ const PLAYFAB_URL_SEARCH_ITEMS = 'https://DDD75.playfabapi.com/Catalog/SearchIte
 const SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 
 async function getEntityToken() {
+    console.log(`PlayFab secret key: ${SECRET_KEY}`)
     try {
         const response = await axios.post(PLAYFAB_URL_GET_TOKEN, {}, {
             headers: {
