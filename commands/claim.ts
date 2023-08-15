@@ -1,17 +1,27 @@
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, MessagePayload } from 'discord.js';
 import { checkLastClaim, addNewClaim } from '../database/queries'; 
 import { SlashCommandBuilder } from 'discord.js';
+import { getItems } from '../playfabCatalog';
 
 const command = {
     data: new SlashCommandBuilder()
         .setName('claim')
         .setDescription('Claim your reward!'),
     async execute(interaction: CommandInteraction) {
-        const items = ['item1', 'item2', 'item3', 'item4'];
+        const items = getItems();
         const randomItem = items[Math.floor(Math.random() * items.length)];
         await addNewClaim(interaction.user.id, randomItem);
         console.log('Claim successful for ' + interaction.user.id + ' with item ' + randomItem + '.');
-        await interaction.reply('Claim successful! You earned ' + randomItem);
+        
+        const item = items[0];
+
+        // Retrieve the title and the image URL
+        const title = item.Title.NEUTRAL;
+        const imageUrl = item.Images[0].Url;
+    
+        // Construct the response message
+        const responseMessage = `You earned a ${title}`;
+        await interaction.reply({content: responseMessage, files: [imageUrl]})
     }
 };
 
