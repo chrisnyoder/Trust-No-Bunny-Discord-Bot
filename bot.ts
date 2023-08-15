@@ -1,5 +1,6 @@
 import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
+import { searchCatalogItems } from './playfabCatalog';
 config();
 import fs from 'node:fs';
 import path from 'node:path';
@@ -81,4 +82,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
-client.login(token); 
+async function initialize() {
+    try {
+        client.login(token); 
+        const items = await searchCatalogItems();
+        console.log("Successfully fetched items:", JSON.stringify(items));
+
+        // You can add more startup tasks here if needed
+    } catch (error) {
+        console.error("Error during initialization:", error);
+    }
+}
+
+initialize();
+
