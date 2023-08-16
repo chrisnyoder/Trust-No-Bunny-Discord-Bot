@@ -37,7 +37,7 @@ export async function addNewGuild(guildId: string): Promise<void> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`) VALUES (?)', [guildId]);
+        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`) VALUES (?)', [guildId, 1]);
     } finally {
         await connection.end();
     }
