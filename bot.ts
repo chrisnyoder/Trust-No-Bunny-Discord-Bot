@@ -4,6 +4,7 @@ import { searchCatalogItems } from './playfabCatalog';
 config();
 import fs from 'node:fs';
 import path from 'node:path';
+import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB } from './database/queries';
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
@@ -11,6 +12,7 @@ if (!BOT_TOKEN) {
 }
 
 const token: string = process.env.BOT_TOKEN as string; 
+var listOfGuildIds = new Array<string>();
 
 const client = new Client({
     intents: [
@@ -41,7 +43,11 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 console.log(`Token: ${BOT_TOKEN}`);
 
 client.once('ready', () => {
-    console.log('Bot is online!');
+    console.log('Bot is online! Fetching active guilds');
+
+    (async () => {
+        listOfGuildIds = await retrieveGuildsFromDB();
+    })();
 });
 
 async function loadCommands() {
@@ -93,6 +99,21 @@ async function initialize() {
         console.error("Error during initialization:", error);
     }
 }
+
+client.on('guildCreate', async (guild) => { 
+    if (!listOfGuildIds.includes(guild.id))
+    { 
+        listOfGuildIds.push(guild.id);
+        addNewGuild(guild.id);
+    } else {
+        setGuildStatusToActive(guild.id);
+    }
+})
+
+client.on('guildDelete', async (guild) => {
+    listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
+    removeGuild(guild.id);
+})
 
 initialize();
 

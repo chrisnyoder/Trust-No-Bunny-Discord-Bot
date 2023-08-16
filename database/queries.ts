@@ -31,3 +31,49 @@ export async function addNewClaim(userId: string, dropItem: string): Promise<voi
         await connection.end();
     }
 }
+
+export async function addNewGuild(guildId: string): Promise<void> {
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('INSERT INTO `tnb_guilds` (`guild_id`) VALUES (?)', [guildId]);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function removeGuild(guildId: string): Promise<void> {
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_guilds` SET `is_active` = 0 WHERE `guild_id` = ?', [guildId]);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function setGuildStatusToActive(guildId: string): Promise<void> 
+{ 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_guilds` SET `is_active` = 1 WHERE `guild_id` = ?', [guildId]);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function retrieveGuildsFromDB(): Promise<string[]> {
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        const [rows] = await connection.execute('SELECT `guild_id` FROM `tnb_guilds` WHERE `is_active` = 1');
+
+        return (rows as any[]).map(row => row.guild_id);
+    } finally {
+        await connection.end();
+    }
+}
