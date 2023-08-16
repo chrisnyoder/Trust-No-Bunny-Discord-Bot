@@ -70,7 +70,7 @@ export async function retrieveGuildsFromDB(): Promise<string[]> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT `guild_id` FROM `tnb_guilds` WHERE `is_active` = 1');
+        const [rows] = await connection.execute('SELECT `guild_id` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
 
         return (rows as any[]).map(row => row.guild_id);
     } finally {
