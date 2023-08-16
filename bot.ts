@@ -111,8 +111,11 @@ client.on('guildCreate', async (guild) => {
 })
 
 client.on('guildDelete', async (guild) => {
-    listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
-    removeGuild(guild.id);
+    if (listOfGuildIds.includes(guild.id))
+    { 
+        listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
+        removeGuild(guild.id);
+    }
 })
 
 initialize();

@@ -37,7 +37,7 @@ export async function addNewGuild(guildId: string): Promise<void> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_guilds` (`guild_id`) VALUES (?)', [guildId]);
+        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`) VALUES (?)', [guildId]);
     } finally {
         await connection.end();
     }
@@ -48,7 +48,7 @@ export async function removeGuild(guildId: string): Promise<void> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('UPDATE `tnb_guilds` SET `is_active` = 0 WHERE `guild_id` = ?', [guildId]);
+        await connection.execute('UPDATE `tnb_discord_guilds` SET `is_active` = 0 WHERE `guild_id` = ?', [guildId]);
     } finally {
         await connection.end();
     }
@@ -59,7 +59,7 @@ export async function setGuildStatusToActive(guildId: string): Promise<void>
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('UPDATE `tnb_guilds` SET `is_active` = 1 WHERE `guild_id` = ?', [guildId]);
+        await connection.execute('UPDATE `tnb_discord_guilds` SET `is_active` = 1 WHERE `guild_id` = ?', [guildId]);
     } finally {
         await connection.end();
     }
