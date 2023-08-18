@@ -1,7 +1,7 @@
 import { CommandInteraction, MessagePayload } from 'discord.js';
 import { checkIfDropExistOnGuild, addNewClaim, setDropAsClaimed } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { getItems } from '../playfabCatalog';
+import { getItems, getItemIds } from '../playfabCatalog';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -16,11 +16,10 @@ const command = {
         
         if (typeof interaction.guild?.id === 'undefined') { 
             console.log('oops! this command was not made in a Discord server. Not processing');
-            return;
+            return; 
         }
 
-        const items = getItems();
-        const titlesList = items.map(item => item.Title.NEUTRAL.toLowerCase());
+        const titlesList = getItemIds();
         const itemInput = (interaction.options.getString('Reward Name') as string).toLowerCase();
         
         if (!titlesList.includes(itemInput))
