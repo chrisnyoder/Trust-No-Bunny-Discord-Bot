@@ -32,12 +32,12 @@ export async function setDropAsClaimed(dropId: string) {
 }
 
 // Add a new claim to the database for a user.
-export async function addNewClaim(userId: string, reward_id: string, dropId: string): Promise<void> {
+export async function addNewClaim(userId: string, reward_id: string, reward_type: string, dropId: string): Promise<void> {
 
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_claims` (`drop_id`, `player_id`, `reward_id`, `has_been_granted`) VALUES (?, ?, ?, false)', [dropId, userId, reward_id]);
+        await connection.execute('INSERT INTO `tnb_claims` (`drop_id`, `player_id`, `reward_id`, `reward_type`) VALUES (?, ?, ?, ?)', [dropId, userId, reward_id, reward_type]);
     } finally {
         await connection.end();
     }
