@@ -2,13 +2,13 @@ import { ChannelType, Guild, TextChannel } from 'discord.js';
 import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB } from './database/queries';
 import { client } from './bot';
 import { getItems } from './playfabCatalog';
-import { Channel, channel } from 'diagnostics_channel';
 
 var listOfGuilds = new Array<Guild>();
 var listOfGuildIds = new Array<string>();
 const guildDropTimers: Map<string, NodeJS.Timeout> = new Map();
 
 client.once('ready', () => {
+    console.log("Fetching guilds"); 
     (async () => {
         console.log("Fetching guilds"); 
         listOfGuildIds = await retrieveGuildsFromDB();
