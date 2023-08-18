@@ -30,7 +30,7 @@ const command = {
             return;
         }
         
-        var item = await checkIfDropExistOnGuild(interaction.guild?.id as string);  
+        var item = await checkIfDropExistOnGuild(interaction.guild?.id as string, item.reward_id);  
         
         if (item === null)
         {

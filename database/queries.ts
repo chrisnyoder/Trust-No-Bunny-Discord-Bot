@@ -4,11 +4,11 @@ import mysql from 'mysql2/promise'; // Using mysql2 for promise-based interactio
 import { dbConfig } from '../config';
 
 // Check the last claim date for a user.
-export async function checkIfDropExistOnGuild(guildId: string): Promise<any> {
+export async function checkIfDropExistOnGuild(guildId: string, rewardId: string): Promise<any> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]) as any[];
+        const [rows] = await connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `reward_id` = ? AND `has_been_claimed` = false', [guildId, rewardId]) as any[];
 
         if (rows.length > 0) {
             return rows[0];
