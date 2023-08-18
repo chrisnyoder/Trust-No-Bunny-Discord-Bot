@@ -88,12 +88,17 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
     var items = getItems();
     const randomItem = items[Math.floor(Math.random() * items.length)];
 
-    var channels = await guild.channels.fetch();
-    channels.filter(channel => channel?.type === ChannelType.GuildText);
-    var firstKey = channels.firstKey();
-    const channel = guild.channels.cache.get(firstKey as string) as TextChannel;
+    var textChannels = await guild.channels.fetch();
+    textChannels = textChannels.filter(channel => channel?.type === ChannelType.GuildText);
+    const firstTextChannel = textChannels.first() as TextChannel;
 
-    console.log('Found channel! ' + channel.name + ' ' + channel.type);
+    // Check if we found a text channel
+    if (!firstTextChannel) {
+        console.error("No text channels found in the guild!");
+        return;
+    }
+
+    console.log('Found channel! ' + firstTextChannel.name + ' ' + firstTextChannel.type);
 
     // Retrieve the title and the image URL
     const title = randomItem.Title.NEUTRAL;
@@ -101,5 +106,5 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
 
     // Construct the response message
     const responseMessage = `You earned a ${title}`;
-    await channel.send({ content: responseMessage, files: [imageUrl] });
+    await firstTextChannel.send({ content: responseMessage, files: [imageUrl] });
 }
