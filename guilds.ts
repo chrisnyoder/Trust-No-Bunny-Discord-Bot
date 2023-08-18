@@ -22,6 +22,8 @@ client.once('ready', () => {
 });
 
 client.on('guildCreate', async (guild) => { 
+    console.log('creating guild ' + guild.id)
+    
     if (!listOfGuildIds.includes(guild.id))
     { 
         listOfGuildIds.push(guild.id);
@@ -34,6 +36,8 @@ client.on('guildCreate', async (guild) => {
 })
 
 client.on('guildDelete', async (guild) => {
+    console.log('deleting guild ' + guild.id)
+
     if (listOfGuildIds.includes(guild.id))
     { 
         listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
