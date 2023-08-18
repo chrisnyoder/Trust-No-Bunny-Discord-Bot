@@ -10,6 +10,7 @@ const guildDropTimers: Map<string, NodeJS.Timeout> = new Map();
 
 client.once('ready', () => {
     (async () => {
+        console.log("Fetching guilds"); 
         listOfGuildIds = await retrieveGuildsFromDB();
         listOfGuildIds.forEach(id => {
             console.log("found guild " + id);
