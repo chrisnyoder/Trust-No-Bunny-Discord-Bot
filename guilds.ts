@@ -1,7 +1,8 @@
-import { Guild } from 'discord.js';
+import { ChannelType, Guild, TextChannel } from 'discord.js';
 import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB } from './database/queries';
 import { client } from './bot';
 import { getItems } from './playfabCatalog';
+import { Channel, channel } from 'diagnostics_channel';
 
 var listOfGuilds = new Array<Guild>();
 var listOfGuildIds = new Array<string>();
@@ -10,6 +11,12 @@ const guildDropTimers: Map<string, NodeJS.Timeout> = new Map();
 client.once('ready', () => {
     (async () => {
         listOfGuildIds = await retrieveGuildsFromDB();
+        listOfGuildIds.forEach(id => {
+            console.log("found guild " + id);
+            var guild = client.guilds.cache.get(id) as Guild;
+            listOfGuilds.push(guild);
+            }
+        )
     })();
 });
 
@@ -40,7 +47,7 @@ function startTimerForGuild(guild: Guild, isNew: boolean) {
     var duration = null; 
     if (isNew)
     { 
-        duration = 5*60*1000; 
+        duration = 1*60*1000; 
     }
     else { 
         duration = getRandomDuration();
@@ -62,7 +69,25 @@ function handleDropForGuild(guild: Guild) {
     // Handle the drop logic here
     var items = getItems();
     const randomItem = items[Math.floor(Math.random() * items.length)];
+
+    console.log('Dropping random reward to first text channel');
+
+    (async () => {
+        var channels = await guild.channels.fetch();
+        channels.filter(channel => channel?.type === ChannelType.GuildText);
+        var firstKey = channels.firstKey();
+        const channel = await guild.channels.fetch(firstKey as string) as TextChannel;
+
+        // Retrieve the title and the image URL
+        const title = randomItem.Title.NEUTRAL;
+        const imageUrl = randomItem.Images[0].Url;
     
+        // Construct the response message
+        const responseMessage = `You earned a ${title}`;
+
+        channel.send({ content: responseMessage, files: [imageUrl] });
+    })();
+
     // At the end, reset the timer
     startTimerForGuild(guild, false);
 }
