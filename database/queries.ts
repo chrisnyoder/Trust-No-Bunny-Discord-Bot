@@ -37,7 +37,7 @@ export async function addNewClaim(userId: string, reward_id: string, dropId: str
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_claims` (`drop_id`, `player_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, ?, false)', [dropId, userId, reward_id]);
+        await connection.execute('INSERT INTO `tnb_claims` (`drop_id`, `player_id`, `reward_id`, `has_been_granted`) VALUES (?, ?, ?, false)', [dropId, userId, reward_id]);
     } finally {
         await connection.end();
     }
