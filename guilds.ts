@@ -93,6 +93,8 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
     var firstKey = channels.firstKey();
     const channel = guild.channels.cache.get(firstKey as string) as TextChannel;
 
+    console.log('Found channel! ' + channel.name + ' ' + channel.type);
+
     // Retrieve the title and the image URL
     const title = randomItem.Title.NEUTRAL;
     const imageUrl = randomItem.Images[0].Url;
