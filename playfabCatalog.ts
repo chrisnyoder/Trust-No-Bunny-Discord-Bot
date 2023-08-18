@@ -54,6 +54,14 @@ export function getItems() {
     return items;
 }
 
+export function getItemIdFromName(name: string) { 
+     // Find the item that matches the given title
+     const item = items.find(item => (item.data.Items[0].Title.NEUTRAL as string).toLowerCase() === name);
+
+     // If the item was found, return the FriendlyId. Otherwise, return null.
+     return item ? (item.data.Items[0].AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId").Value) : null;
+}
+
 export function getItemIds() { 
     return itemIds;
 }
