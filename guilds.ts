@@ -12,7 +12,8 @@ client.once('ready', () => {
         console.log("Fetching guilds"); 
         listOfGuildIds = await retrieveGuildsFromDB();
         listOfGuildIds.forEach(id => {
-            var guild = client.guilds.cache.get(id) as Guild;
+            console.log("searching for guild with guild ID " + id);
+            var guild = client.guilds.cache.get(id) as Guild;            
             if (typeof guild !== 'undefined')
             {
                 console.log("found guild " + id);
@@ -75,27 +76,29 @@ function getRandomDuration() {
 
 function handleDropForGuild(guild: Guild) {
     // Handle the drop logic here
-    var items = getItems();
-    const randomItem = items[Math.floor(Math.random() * items.length)];
-
     console.log('Dropping random reward to first text channel');
-
-    (async () => {
-        var channels = await guild.channels.fetch();
-        channels.filter(channel => channel?.type === ChannelType.GuildText);
-        var firstKey = channels.firstKey();
-        const channel = await guild.channels.fetch(firstKey as string) as TextChannel;
-
-        // Retrieve the title and the image URL
-        const title = randomItem.Title.NEUTRAL;
-        const imageUrl = randomItem.Images[0].Url;
-    
-        // Construct the response message
-        const responseMessage = `You earned a ${title}`;
-
-        channel.send({ content: responseMessage, files: [imageUrl] });
-    })();
+    sendMessageOfRandomRewardGrant(guild);
 
     // At the end, reset the timer
     startTimerForGuild(guild, false);
+}
+
+async function sendMessageOfRandomRewardGrant(guild: Guild)
+{ 
+    var items = getItems();
+    const randomItem = items[Math.floor(Math.random() * items.length)];
+
+    var channels = await guild.channels.fetch();
+    channels.filter(channel => channel?.type === ChannelType.GuildText);
+    var firstKey = channels.firstKey();
+    const channel = await guild.channels.fetch(firstKey as string) as TextChannel;
+
+    // Retrieve the title and the image URL
+    const title = randomItem.Title.NEUTRAL;
+    const imageUrl = randomItem.Images[0].Url;
+
+    // Construct the response message
+    const responseMessage = `You earned a ${title}`;
+
+    channel.send({ content: responseMessage, files: [imageUrl] });
 }
