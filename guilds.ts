@@ -12,9 +12,13 @@ client.once('ready', () => {
         console.log("Fetching guilds"); 
         listOfGuildIds = await retrieveGuildsFromDB();
         listOfGuildIds.forEach(id => {
-            console.log("found guild " + id);
             var guild = client.guilds.cache.get(id) as Guild;
-            listOfGuilds.push(guild);
+            if (typeof guild !== 'undefined')
+            {
+                console.log("found guild " + id);
+                startTimerForGuild(guild, true);
+                listOfGuilds.push(guild);
+            }
             }
         )
     })();
