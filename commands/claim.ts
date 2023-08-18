@@ -1,7 +1,7 @@
 import { CommandInteraction, MessagePayload } from 'discord.js';
 import { checkIfDropExistOnGuild, addNewClaim, setDropAsClaimed } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { getItems, getItemIds } from '../playfabCatalog';
+import { getItemIds, getItemIdFromName } from '../playfabCatalog';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -30,7 +30,8 @@ const command = {
             return;
         }
         
-        var item = await checkIfDropExistOnGuild(interaction.guild?.id as string, itemInput);  
+        var itemId = await getItemIdFromName(itemInput);
+        var item = await checkIfDropExistOnGuild(interaction.guild?.id as string, itemId);  
         
         if (item === null)
         {
