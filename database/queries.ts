@@ -79,3 +79,13 @@ export async function retrieveGuildsFromDB(): Promise<string[]> {
         await connection.end();
     }
 }
+
+export async function insertItemIntoDropTable(itemId: string, itemType: string, guildId: string): Promise<void> { 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('INSERT INTO `tnb_drops` (`guild_id`, `reward_id`, `reward_type`)  VALUES (?, ?, ?)', [guildId, itemId, itemType]);
+    } finally {
+        await connection.end();
+    }
+}

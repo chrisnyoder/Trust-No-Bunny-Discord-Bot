@@ -1,5 +1,5 @@
 import { ChannelType, Guild, TextChannel } from 'discord.js';
-import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB } from './database/queries';
+import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, insertItemIntoDropTable } from './database/queries';
 import { client } from './bot';
 import { getItems } from './playfabCatalog';
 
@@ -9,10 +9,8 @@ const guildDropTimers: Map<string, NodeJS.Timeout> = new Map();
 
 client.once('ready', () => {
     (async () => {
-        console.log("Fetching guilds"); 
         listOfGuildIds = await retrieveGuildsFromDB();
         listOfGuildIds.forEach(id => {
-            console.log("searching for guild with guild ID " + id);
             var guild = client.guilds.cache.get(id) as Guild;            
             if (typeof guild !== 'undefined')
             {
@@ -83,8 +81,7 @@ function handleDropForGuild(guild: Guild) {
     startTimerForGuild(guild, false);
 }
 
-async function sendMessageOfRandomRewardGrant(guild: Guild)
-{ 
+async function sendMessageOfRandomRewardGrant(guild: Guild) { 
     var items = getItems();
     const randomItem = items[Math.floor(Math.random() * items.length)];
 
@@ -98,13 +95,15 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
         return;
     }
 
-    console.log('Found channel! ' + firstTextChannel.name + ' ' + firstTextChannel.type);
+    const itemId = randomItem.AlternateIds[0].Value;
+    const itemType = randomItem.ContentType;
+    await insertItemIntoDropTable(itemId, itemType, guild.id);
 
     // Retrieve the title and the image URL
     const title = randomItem.Title.NEUTRAL;
     const imageUrl = randomItem.Images[0].Url;
 
     // Construct the response message
-    const responseMessage = `You earned a ${title}`;
+    const responseMessage = `A ${title} just dropped! Use /claim <item> to claim it`;
     await firstTextChannel.send({ content: responseMessage, files: [imageUrl] });
 }
