@@ -12,7 +12,8 @@ if (!BOT_TOKEN) {
 }
 
 const token: string = process.env.BOT_TOKEN as string; 
-var listOfGuildIds = new Array<string>();
+
+export var listOfGuildIds = new Array<string>();
 
 const client = new Client({
     intents: [

@@ -26,20 +26,20 @@ export async function addNewClaim(userId: string, dropItem: string): Promise<voi
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_claimed`) VALUES (?, ?, false)', [userId, dropItem]);
+        await connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, dropItem]);
     } finally {
         await connection.end();
     }
 }
 
-export async function addNewGuild(guildId: string): Promise<void> {
+export async function addNewGuild(guildId: string, memberCount: number): Promise<void> {
 
     const connection = await mysql.createConnection(dbConfig);
 
     console.log('adding new guild' + guildId + ' to db');
 
     try {
-        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`)  VALUES (?, true)', [guildId]);
+        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`)  VALUES (?, true, ?)', [guildId, memberCount]);
     } finally {
         await connection.end();
     }
