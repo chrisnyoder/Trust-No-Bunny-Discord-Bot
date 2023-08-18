@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addNewClaim = exports.checkLastClaim = void 0;
+exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.checkLastClaim = void 0;
 const promise_1 = __importDefault(require("mysql2/promise")); // Using mysql2 for promise-based interaction.
 // This assumes you have a connection configuration set up somewhere.
 const config_1 = require("../config");
@@ -38,7 +38,7 @@ function addNewClaim(userId, dropItem) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            yield connection.execute('INSERT INTO `claims` (`user_id`, `drop_name`, `has_been_claimed`) VALUES (?, ?, false)', [userId, dropItem]);
+            yield connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, dropItem]);
         }
         finally {
             yield connection.end();
@@ -46,3 +46,53 @@ function addNewClaim(userId, dropItem) {
     });
 }
 exports.addNewClaim = addNewClaim;
+function addNewGuild(guildId, memberCount) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        console.log('adding new guild' + guildId + ' to db');
+        try {
+            yield connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`)  VALUES (?, true, ?, null)', [guildId, memberCount]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.addNewGuild = addNewGuild;
+function removeGuild(guildId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('UPDATE `tnb_discord_guilds` SET `is_active` = 0 WHERE `guild_id` = ?', [guildId]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.removeGuild = removeGuild;
+function setGuildStatusToActive(guildId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('UPDATE `tnb_discord_guilds` SET `is_active` = 1 WHERE `guild_id` = ?', [guildId]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.setGuildStatusToActive = setGuildStatusToActive;
+function retrieveGuildsFromDB() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            const [rows] = yield connection.execute('SELECT `guild_id` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+            return rows.map(row => row.guild_id);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.retrieveGuildsFromDB = retrieveGuildsFromDB;

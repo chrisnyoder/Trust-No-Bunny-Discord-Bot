@@ -35,28 +35,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.client = void 0;
 const discord_js_1 = require("discord.js");
 const dotenv_1 = require("dotenv");
+const playfabCatalog_1 = require("./playfabCatalog");
 (0, dotenv_1.config)();
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+require("./guilds");
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
     throw new Error("Missing BOT_TOKEN in .env file.");
 }
 const token = process.env.BOT_TOKEN;
-const client = new discord_js_1.Client({
+exports.client = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.Guilds,
         discord_js_1.GatewayIntentBits.GuildMessages,
         discord_js_1.GatewayIntentBits.MessageContent
     ]
 });
-client.commands = new discord_js_1.Collection();
+exports.client.commands = new discord_js_1.Collection();
 const commandsPath = node_path_1.default.join(__dirname, 'commands');
-const commandFiles = node_fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
-client.once('ready', () => {
-    console.log('Bot is online!');
+const commandFiles = node_fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+console.log(`Token: ${BOT_TOKEN}`);
+exports.client.once('ready', () => {
+    console.log('Bot is online! Fetching active guilds');
 });
 function loadCommands() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -64,7 +68,8 @@ function loadCommands() {
             const filePath = node_path_1.default.join(commandsPath, file);
             const command = yield Promise.resolve(`${filePath}`).then(s => __importStar(require(s)));
             if ('data' in command && 'execute' in command) {
-                client.commands.set(command.data.name, command);
+                exports.client.commands.set(command.data.name, command);
+                console.log(`Loaded command: ${command.data.name}`);
             }
             else {
                 console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
@@ -73,10 +78,10 @@ function loadCommands() {
     });
 }
 loadCommands();
-client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void 0, void 0, void 0, function* () {
+exports.client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void 0, void 0, void 0, function* () {
     if (!interaction.isCommand())
         return; // Check if it's a command interaction
-    const command = client.commands.get(interaction.commandName);
+    const command = exports.client.commands.get(interaction.commandName);
     if (!command) {
         console.error(`No command matching ${interaction.commandName} was found.`);
         return;
@@ -94,4 +99,16 @@ client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void
         }
     }
 }));
-client.login(token);
+function initialize() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            exports.client.login(token);
+            yield (0, playfabCatalog_1.searchCatalogItems)();
+            // You can add more startup tasks here if needed
+        }
+        catch (error) {
+            console.error("Error during initialization:", error);
+        }
+    });
+}
+initialize();

@@ -4,7 +4,6 @@ import { getItems, searchCatalogItems } from './playfabCatalog';
 config();
 import fs from 'node:fs';
 import path from 'node:path';
-import './guilds'
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
@@ -20,6 +19,8 @@ export const client = new Client({
         GatewayIntentBits.MessageContent
     ]
 });
+
+import './guilds'
 
 declare module 'discord.js' {
     interface Client {
