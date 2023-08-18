@@ -1,5 +1,5 @@
-import { ChannelType, Guild, TextChannel } from 'discord.js';
-import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, insertItemIntoDropTable } from './database/queries';
+import { ChannelType, Guild, TextChannel, bold, italic, strikethrough, underscore, spoiler, quote, blockQuote, inlineCode } from 'discord.js';
+import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, insertItemIntoDropTable, updateLastDropTime } from './database/queries';
 import { client } from './bot';
 import { getItems } from './playfabCatalog';
 
@@ -98,12 +98,14 @@ async function sendMessageOfRandomRewardGrant(guild: Guild) {
     const itemId = randomItem.AlternateIds[0].Value;
     const itemType = randomItem.ContentType;
     await insertItemIntoDropTable(itemId, itemType, guild.id);
+    await updateLastDropTime(guild.id);
 
     // Retrieve the title and the image URL
     const title = randomItem.Title.NEUTRAL;
     const imageUrl = randomItem.Images[0].Url;
 
     // Construct the response message
-    const responseMessage = `A ${title} just dropped! Use /claim <item> to claim it`;
+    const claimText = inlineCode(`/claim <item>`);
+    const responseMessage = `A ${title} just dropped! Use ${claimText} to claim it`;
     await firstTextChannel.send({ content: responseMessage, files: [imageUrl] });
 }

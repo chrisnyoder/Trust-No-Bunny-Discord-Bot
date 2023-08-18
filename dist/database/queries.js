@@ -12,33 +12,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.checkLastClaim = void 0;
+exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.setDropAsClaimed = exports.checkIfDropExistOnGuild = void 0;
 const promise_1 = __importDefault(require("mysql2/promise")); // Using mysql2 for promise-based interaction.
 // This assumes you have a connection configuration set up somewhere.
 const config_1 = require("../config");
 // Check the last claim date for a user.
-function checkLastClaim(userId) {
+function checkIfDropExistOnGuild(guildId) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            const [rows] = yield connection.execute('SELECT `timestamp` FROM `claims` WHERE `user_id` = ? ORDER BY `timestamp` DESC LIMIT 1', [userId]);
-            if (rows.length === 0) {
+            const [rows] = yield connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);
+            if (rows.length > 0) {
+                return rows[0];
+            }
+            else {
                 return null;
             }
-            return new Date(rows[0].timestamp);
         }
         finally {
             yield connection.end();
         }
     });
 }
-exports.checkLastClaim = checkLastClaim;
-// Add a new claim to the database for a user.
-function addNewClaim(userId, dropItem) {
+exports.checkIfDropExistOnGuild = checkIfDropExistOnGuild;
+function setDropAsClaimed(dropId) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            yield connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, dropItem]);
+            yield connection.execute('UPDATE `tnb_drops` SET `has_been_claimed` = true WHERE `drop_id` = ?', [dropId]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.setDropAsClaimed = setDropAsClaimed;
+// Add a new claim to the database for a user.
+function addNewClaim(userId, reward_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, reward_id]);
         }
         finally {
             yield connection.end();
@@ -96,3 +110,27 @@ function retrieveGuildsFromDB() {
     });
 }
 exports.retrieveGuildsFromDB = retrieveGuildsFromDB;
+function insertItemIntoDropTable(itemId, itemType, guildId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('INSERT INTO `tnb_drops` (`guild_id`, `reward_id`, `reward_type`)  VALUES (?, ?, ?)', [guildId, itemId, itemType]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.insertItemIntoDropTable = insertItemIntoDropTable;
+function updateLastDropTime(guildId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('UPDATE `tnb_discord_guilds` SET `time_since_last_drop` = NOW() WHERE `guild_id` = ?', [guildId]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.updateLastDropTime = updateLastDropTime;

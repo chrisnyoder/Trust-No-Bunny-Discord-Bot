@@ -42,7 +42,6 @@ const playfabCatalog_1 = require("./playfabCatalog");
 (0, dotenv_1.config)();
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
-require("./guilds");
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
     throw new Error("Missing BOT_TOKEN in .env file.");
@@ -55,6 +54,7 @@ exports.client = new discord_js_1.Client({
         discord_js_1.GatewayIntentBits.MessageContent
     ]
 });
+require("./guilds");
 exports.client.commands = new discord_js_1.Collection();
 const commandsPath = node_path_1.default.join(__dirname, 'commands');
 const commandFiles = node_fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
