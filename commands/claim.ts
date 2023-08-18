@@ -40,7 +40,7 @@ const command = {
             return;
         }
 
-        await addNewClaim(interaction.user.id, item.reward_id, item.drop_id, item.reward_type);
+        await addNewClaim(item.drop_id, interaction.user.id, item.reward_id, item.reward_type);
         await setDropAsClaimed(item.drop_id);
         console.log('Claim successful for ' + interaction.user.id + ' with item ' + item.reward_id + '.');
     
