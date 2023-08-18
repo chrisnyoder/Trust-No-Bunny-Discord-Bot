@@ -1,10 +1,9 @@
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Collection, Events, GatewayIntentBits, Guild } from 'discord.js';
 import { config } from 'dotenv';
-import { searchCatalogItems } from './playfabCatalog';
+import { getItems, searchCatalogItems } from './playfabCatalog';
 config();
 import fs from 'node:fs';
 import path from 'node:path';
-import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB } from './database/queries';
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
@@ -13,9 +12,7 @@ if (!BOT_TOKEN) {
 
 const token: string = process.env.BOT_TOKEN as string; 
 
-export var listOfGuildIds = new Array<string>();
-
-const client = new Client({
+export const client = new Client({
     intents: [
         GatewayIntentBits.Guilds, 
         GatewayIntentBits.GuildMessages,
@@ -45,10 +42,6 @@ console.log(`Token: ${BOT_TOKEN}`);
 
 client.once('ready', () => {
     console.log('Bot is online! Fetching active guilds');
-
-    (async () => {
-        listOfGuildIds = await retrieveGuildsFromDB();
-    })();
 });
 
 async function loadCommands() {
@@ -92,32 +85,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
 async function initialize() {
     try {
         client.login(token); 
-        const items = await searchCatalogItems();
-        console.log("Successfully fetched items:", JSON.stringify(items));
-
+        await searchCatalogItems();
         // You can add more startup tasks here if needed
     } catch (error) {
         console.error("Error during initialization:", error);
     }
 }
 
-client.on('guildCreate', async (guild) => { 
-    if (!listOfGuildIds.includes(guild.id))
-    { 
-        listOfGuildIds.push(guild.id);
-        addNewGuild(guild.id, guild.memberCount);
-    } else {
-        setGuildStatusToActive(guild.id);
-    }
-})
-
-client.on('guildDelete', async (guild) => {
-    if (listOfGuildIds.includes(guild.id))
-    { 
-        listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
-        removeGuild(guild.id);
-    }
-})
 
 initialize();
 
