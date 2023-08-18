@@ -4,29 +4,40 @@ import mysql from 'mysql2/promise'; // Using mysql2 for promise-based interactio
 import { dbConfig } from '../config';
 
 // Check the last claim date for a user.
-export async function checkLastClaim(userId: string): Promise<Date | null> {
+export async function checkIfDropExistOnGuild(guildId: string): Promise<any> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT `timestamp` FROM `claims` WHERE `user_id` = ? ORDER BY `timestamp` DESC LIMIT 1', [userId]);
+        const [rows] = await connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]) as any[];
 
-        if ((rows as any[]).length === 0) {
+        if (rows.length > 0) {
+            return rows[0];
+        } else {
             return null;
         }
 
-        return new Date((rows as any[])[0].timestamp);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function setDropAsClaimed(dropId: string) { 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_drops` SET `has_been_claimed` = true WHERE `drop_id` = ?', [dropId]);
     } finally {
         await connection.end();
     }
 }
 
 // Add a new claim to the database for a user.
-export async function addNewClaim(userId: string, dropItem: string): Promise<void> {
+export async function addNewClaim(userId: string, reward_id: string): Promise<void> {
 
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, dropItem]);
+        await connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, reward_id]);
     } finally {
         await connection.end();
     }
@@ -85,6 +96,16 @@ export async function insertItemIntoDropTable(itemId: string, itemType: string, 
 
     try {
         await connection.execute('INSERT INTO `tnb_drops` (`guild_id`, `reward_id`, `reward_type`)  VALUES (?, ?, ?)', [guildId, itemId, itemType]);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function updateLastDropTime(guildId: string): Promise<void> {
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_discord_guilds` SET `time_since_last_drop` = NOW() WHERE `guild_id` = ?', [guildId]);
     } finally {
         await connection.end();
     }

@@ -18,12 +18,14 @@ var listOfGuildIds = new Array();
 const guildDropTimers = new Map();
 bot_1.client.once('ready', () => {
     (() => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("Fetching guilds");
         listOfGuildIds = yield (0, queries_1.retrieveGuildsFromDB)();
         listOfGuildIds.forEach(id => {
-            console.log("found guild " + id);
             var guild = bot_1.client.guilds.cache.get(id);
-            listOfGuilds.push(guild);
+            if (typeof guild !== 'undefined') {
+                console.log("found guild " + id);
+                startTimerForGuild(guild, true);
+                listOfGuilds.push(guild);
+            }
         });
     }))();
 });
@@ -50,7 +52,7 @@ function startTimerForGuild(guild, isNew) {
     const guildId = guild.id;
     var duration = null;
     if (isNew) {
-        duration = 1 * 60 * 1000;
+        duration = 10 * 1000;
     }
     else {
         duration = getRandomDuration();
@@ -66,21 +68,33 @@ function getRandomDuration() {
 }
 function handleDropForGuild(guild) {
     // Handle the drop logic here
-    var items = (0, playfabCatalog_1.getItems)();
-    const randomItem = items[Math.floor(Math.random() * items.length)];
     console.log('Dropping random reward to first text channel');
-    (() => __awaiter(this, void 0, void 0, function* () {
-        var channels = yield guild.channels.fetch();
-        channels.filter(channel => (channel === null || channel === void 0 ? void 0 : channel.type) === discord_js_1.ChannelType.GuildText);
-        var firstKey = channels.firstKey();
-        const channel = yield guild.channels.fetch(firstKey);
+    sendMessageOfRandomRewardGrant(guild);
+    // At the end, reset the timer
+    startTimerForGuild(guild, false);
+}
+function sendMessageOfRandomRewardGrant(guild) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var items = (0, playfabCatalog_1.getItems)();
+        const randomItem = items[Math.floor(Math.random() * items.length)];
+        var textChannels = yield guild.channels.fetch();
+        textChannels = textChannels.filter(channel => (channel === null || channel === void 0 ? void 0 : channel.type) === discord_js_1.ChannelType.GuildText);
+        const firstTextChannel = textChannels.first();
+        // Check if we found a text channel
+        if (!firstTextChannel) {
+            console.error("No text channels found in the guild!");
+            return;
+        }
+        const itemId = randomItem.AlternateIds[0].Value;
+        const itemType = randomItem.ContentType;
+        yield (0, queries_1.insertItemIntoDropTable)(itemId, itemType, guild.id);
+        yield (0, queries_1.updateLastDropTime)(guild.id);
         // Retrieve the title and the image URL
         const title = randomItem.Title.NEUTRAL;
         const imageUrl = randomItem.Images[0].Url;
         // Construct the response message
-        const responseMessage = `You earned a ${title}`;
-        channel.send({ content: responseMessage, files: [imageUrl] });
-    }))();
-    // At the end, reset the timer
-    startTimerForGuild(guild, false);
+        const claimText = (0, discord_js_1.inlineCode)(`/claim <item>`);
+        const responseMessage = `A ${title} just dropped! Use ${claimText} to claim it`;
+        yield firstTextChannel.send({ content: responseMessage, files: [imageUrl] });
+    });
 }
