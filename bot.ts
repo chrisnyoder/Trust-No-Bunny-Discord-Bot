@@ -105,7 +105,7 @@ client.on('guildCreate', async (guild) => {
     if (!listOfGuildIds.includes(guild.id))
     { 
         listOfGuildIds.push(guild.id);
-        addNewGuild(guild.id);
+        addNewGuild(guild.id, guild.memberCount);
     } else {
         setGuildStatusToActive(guild.id);
     }
