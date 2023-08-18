@@ -7,6 +7,7 @@ const PLAYFAB_URL_GET_TOKEN = 'https://DDD75.playfabapi.com/Authentication/GetEn
 const PLAYFAB_URL_SEARCH_ITEMS = 'https://DDD75.playfabapi.com/Catalog/SearchItems';
 const SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 var items: any[] = [];
+var itemIds: string[] = [];
 
 async function getEntityToken() {
     console.log(`PlayFab secret key: ${SECRET_KEY}`)
@@ -41,6 +42,7 @@ export async function searchCatalogItems(): Promise<any> {
         );
         
         items = response.data.data.Items;
+        itemIds = items.map(item => (item.Title.NEUTRAL as string).toLowerCase());
         return response.data; // Modify as per the actual structure of the returned data
     } catch (error) {
         console.error(`Error retrieving PlayFab catalog items: ${error}`);
@@ -50,4 +52,8 @@ export async function searchCatalogItems(): Promise<any> {
 
 export function getItems() {
     return items;
+}
+
+export function getItemIds() { 
+    return itemIds;
 }
