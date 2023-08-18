@@ -56,7 +56,7 @@ function startTimerForGuild(guild: Guild, isNew: boolean) {
     var duration = null; 
     if (isNew)
     { 
-        duration = 30*1000; 
+        duration = 10*1000; 
     }
     else { 
         duration = getRandomDuration();
@@ -91,7 +91,7 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
     var channels = await guild.channels.fetch();
     channels.filter(channel => channel?.type === ChannelType.GuildText);
     var firstKey = channels.firstKey();
-    const channel = await guild.channels.fetch(firstKey as string) as TextChannel;
+    const channel = guild.channels.cache.get(firstKey as string) as TextChannel;
 
     // Retrieve the title and the image URL
     const title = randomItem.Title.NEUTRAL;
@@ -99,6 +99,5 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
 
     // Construct the response message
     const responseMessage = `You earned a ${title}`;
-
     await channel.send({ content: responseMessage, files: [imageUrl] });
 }
