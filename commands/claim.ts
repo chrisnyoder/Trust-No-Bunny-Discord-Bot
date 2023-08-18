@@ -20,7 +20,7 @@ const command = {
         }
 
         const titlesList = getItemIds();
-        const itemInput = (interaction.options.getString('Reward Name') as string).toLowerCase();
+        const itemInput = (interaction.options.getString('reward_name') as string).toLowerCase();
         
         if (!titlesList.includes(itemInput))
         {
