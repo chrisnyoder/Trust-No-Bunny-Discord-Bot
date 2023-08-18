@@ -8,7 +8,6 @@ var listOfGuildIds = new Array<string>();
 const guildDropTimers: Map<string, NodeJS.Timeout> = new Map();
 
 client.once('ready', () => {
-    console.log("Fetching guilds"); 
     (async () => {
         console.log("Fetching guilds"); 
         listOfGuildIds = await retrieveGuildsFromDB();
@@ -23,7 +22,7 @@ client.once('ready', () => {
 
 client.on('guildCreate', async (guild) => { 
     console.log('creating guild ' + guild.id)
-    
+
     if (!listOfGuildIds.includes(guild.id))
     { 
         listOfGuildIds.push(guild.id);
