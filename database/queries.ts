@@ -39,7 +39,7 @@ export async function addNewGuild(guildId: string, memberCount: number): Promise
     console.log('adding new guild' + guildId + ' to db');
 
     try {
-        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`)  VALUES (?, true, ?)', [guildId, memberCount]);
+        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`)  VALUES (?, true, ?, null)', [guildId, memberCount]);
     } finally {
         await connection.end();
     }
