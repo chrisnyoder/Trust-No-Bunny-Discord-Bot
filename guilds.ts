@@ -56,7 +56,7 @@ function startTimerForGuild(guild: Guild, isNew: boolean) {
     var duration = null; 
     if (isNew)
     { 
-        duration = 1*60*1000; 
+        duration = 30*1000; 
     }
     else { 
         duration = getRandomDuration();
@@ -100,5 +100,5 @@ async function sendMessageOfRandomRewardGrant(guild: Guild)
     // Construct the response message
     const responseMessage = `You earned a ${title}`;
 
-    channel.send({ content: responseMessage, files: [imageUrl] });
+    await channel.send({ content: responseMessage, files: [imageUrl] });
 }
