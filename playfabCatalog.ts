@@ -54,6 +54,10 @@ export function getItems() {
     return items;
 }
 
+export function getItemIds() { 
+    return itemIds;
+}
+
 export function getItemIdFromName(name: string) { 
      // Find the item that matches the given title
      const item = items.find(item => (item.Title.NEUTRAL as string).toLowerCase() === name);
@@ -62,6 +66,7 @@ export function getItemIdFromName(name: string) {
      return item ? (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId").Value) : null;
 }
 
-export function getItemIds() { 
-    return itemIds;
+export function retrieveBodyImage() {
+    const bodyItem = items.find(item => item.AlternateIds[0].Value.toLowerCase() === "body");
+    return bodyItem.Images[0].Url
 }
