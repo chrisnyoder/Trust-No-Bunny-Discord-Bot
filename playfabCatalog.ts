@@ -66,6 +66,14 @@ export function getItemIdFromName(name: string) {
      return item ? (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId").Value) : null;
 }
 
+export function getNameFromItemId(id: string) {
+    const item = items.find(item =>
+        (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId")
+        .Value)).toLowerCase() === id;
+    
+    return item ? items.find(item => (item.Title.NEUTRAL as string)) : null;
+}
+
 export function retrieveBodyImage() {
     const bodyItem = items.find(item => item.AlternateIds[0].Value.toLowerCase() === "body");
     return bodyItem.Images[0].Url

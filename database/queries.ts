@@ -110,3 +110,14 @@ export async function updateLastDropTime(guildId: string): Promise<void> {
         await connection.end();
     }
 }
+
+export async function retrieveUnclaimedDrops(guildId: string): Promise<string[]> { 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        const [rows] = await connection.execute('SELECT DISTINCT `reward_id` FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);
+        return  (rows as any[]).map(row => row.reward_id);
+    } finally {
+        await connection.end();
+    }
+}
