@@ -27,7 +27,7 @@ const command = {
         setDefaultChannel(interaction.guild?.id, channel);
 
         const responseMessage = `Default channel for drops has been successfully set`;
-        await interaction.reply({content: responseMessage})      
+        await interaction.reply({content: responseMessage, ephemeral: true})      
     }
 };
 

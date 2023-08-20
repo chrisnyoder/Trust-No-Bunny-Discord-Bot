@@ -32,7 +32,7 @@ const command = {
             await interaction.reply({content: responseMessage})            
         } else { 
             const responseMessage = `Here is the list of unclaimed drops in this server: ${listOfItemNames.toString()}`;
-            await interaction.reply({content: responseMessage}) 
+            await interaction.reply({content: responseMessage, ephemeral: true}) 
         }
     }
 };
