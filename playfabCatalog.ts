@@ -69,9 +69,9 @@ export function getItemIdFromName(name: string) {
 export function getNameFromItemId(id: string) {
     const item = items.find(item =>
         (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId")
-        .Value)) === id;
+        .Value));
     
-    return item ? items.find(item => (item.Title.NEUTRAL as string)) : null;
+    return item ? item.Title.NEUTRAL : null;
 }
 
 export function retrieveBodyImage() {
