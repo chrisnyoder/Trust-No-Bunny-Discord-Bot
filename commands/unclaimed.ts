@@ -1,5 +1,5 @@
 import { retrieveUnclaimedDrops } from '../database/queries'; 
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode } from 'discord.js';
 import { getItemIds, getItemIdFromName, getNameFromItemId } from '../playfabCatalog';
 import { Drop } from '../drop';
 
@@ -21,9 +21,13 @@ const command = {
         const availableDropIds = await retrieveUnclaimedDrops(interaction.guild?.id as string);
         var listOfItemNames: string[] = [];
 
-        availableDropIds.forEach(el => { listOfItemNames.push(getNameFromItemId(el)) });
+        availableDropIds.forEach(el => {
+            var itemName = getNameFromItemId(el);
+            var itemNameFormatted = inlineCode(itemName);
+            listOfItemNames.push(`${itemNameFormatted}`);
+        });
 
-        if (listOfItemNames.length === 0) {
+        if (listOfItemNames.length === 0) { 
             // Construct the response message
             const responseMessage = `The server currently doesn't have any unclaimed drops`;
             await interaction.reply({content: responseMessage})            

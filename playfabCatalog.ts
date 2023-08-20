@@ -69,7 +69,7 @@ export function getItemIdFromName(name: string) {
 export function getNameFromItemId(id: string) {
     const item = items.find(item =>
         (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId")
-        .Value));
+        .Value) === id);
     
     return item ? item.Title.NEUTRAL : null;
 }
