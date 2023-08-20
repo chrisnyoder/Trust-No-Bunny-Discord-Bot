@@ -114,7 +114,7 @@ async function processRandomDrop(guild: Guild) {
 
 async function retrieveTextChannel(guild: Guild) { 
 
-    if (typeof guildsAndDefaultChannels[guild.id] !== null) { 
+    if (guildsAndDefaultChannels[guild.id] !== "null") { 
         const channelId = guildsAndDefaultChannels[guild.id];
         const channel = guild.channels.cache.get(channelId);
         return channel as TextChannel;
