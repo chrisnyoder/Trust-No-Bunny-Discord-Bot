@@ -1,40 +1,44 @@
 import { ChannelType, Guild, TextChannel, AttachmentBuilder, bold, italic, strikethrough, underscore, spoiler, quote, blockQuote, inlineCode } from 'discord.js';
-import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, insertItemIntoDropTable, updateLastDropTime } from './database/queries';
+import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, insertItemIntoDropTable, updateLastDropTime, setDefaultChannelForGuild } from './database/queries';
 import { client } from './bot';
-import { getItems, retrieveBodyImage } from './playfabCatalog';
+import { getItems, retrieveBodyImage } from './playfab_catalog';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import fs from 'fs';    
 import axios from 'axios';
 import { constants } from 'buffer';
 
-var listOfGuilds = new Array<Guild>();
-var listOfGuildIds = new Array<string>();
+var guilds = new Array<Guild>();
+var guildIds = new Array<string>();
+export type GuildChannelMap = {
+    [guildId: string]: string;  // guildId maps to channelId
+};
+var guildsAndDefaultChannels: GuildChannelMap = {};
 const guildDropTimers: Map<string, NodeJS.Timeout> = new Map();
 
 const avatarItemTypes: string[] = ["head", "eyes", "ears", "torso", "face_extras", "back", "straps", "nose"];
 
 client.once('ready', () => {
     (async () => {
-        listOfGuildIds = await retrieveGuildsFromDB();
-        listOfGuildIds.forEach(id => {
+        guildsAndDefaultChannels = await retrieveGuildsFromDB();
+        guildIds = Object.keys(guildsAndDefaultChannels);
+        guildIds.forEach(id => {
             var guild = client.guilds.cache.get(id) as Guild;            
             if (typeof guild !== 'undefined')
             {
                 console.log("found guild " + id);
                 startTimerForGuild(guild, true);
-                listOfGuilds.push(guild);
+                guilds.push(guild);
             }
-            }
-        )
+        })
     })();
 });
 
 client.on('guildCreate', async (guild) => { 
     console.log('creating guild ' + guild.id)
 
-    if (!listOfGuildIds.includes(guild.id))
+    if (!guildIds.includes(guild.id))
     { 
-        listOfGuildIds.push(guild.id);
+        guildIds.push(guild.id);
         addNewGuild(guild.id, guild.memberCount);
         startTimerForGuild(guild, true);
     } else {
@@ -46,9 +50,9 @@ client.on('guildCreate', async (guild) => {
 client.on('guildDelete', async (guild) => {
     console.log('deleting guild ' + guild.id)
 
-    if (listOfGuildIds.includes(guild.id))
+    if (guildIds.includes(guild.id))
     { 
-        listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
+        guildIds = guildIds.filter(id => id !== guild.id);
         removeGuild(guild.id);
     }
 })
@@ -87,6 +91,11 @@ function handleDropForGuild(guild: Guild) {
     startTimerForGuild(guild, false);
 }
 
+export function setDefaultChannel(guildId: string, channel: TextChannel) { 
+    guildsAndDefaultChannels[guildId] = channel.id;
+    setDefaultChannelForGuild(guildId, channel.id);
+}
+
 async function processRandomDrop(guild: Guild) { 
     
     var items = getItems();
@@ -104,9 +113,14 @@ async function processRandomDrop(guild: Guild) {
 }
 
 async function retrieveTextChannel(guild: Guild) { 
-    var textChannels = await guild.channels.fetch();
-    textChannels = textChannels.filter(channel => channel?.type === ChannelType.GuildText);
-    return textChannels.first() as TextChannel;
+    if (typeof guildsAndDefaultChannels[guild.id] !== 'undefined') { 
+        const channelId = guildsAndDefaultChannels[guild.id];
+        const channel = guild.channels.cache.get(channelId);
+        return channel as TextChannel;
+    }
+
+    var systemChannel = guild.systemChannel as TextChannel;
+    return systemChannel;
 } 
 
 async function updateDropTables(guild: Guild, randomItem: any) { 

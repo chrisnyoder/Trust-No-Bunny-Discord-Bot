@@ -12,34 +12,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.setDefaultChannel = void 0;
 const discord_js_1 = require("discord.js");
 const queries_1 = require("./database/queries");
 const bot_1 = require("./bot");
-const playfabCatalog_1 = require("./playfabCatalog");
+const playfab_catalog_1 = require("./playfab_catalog");
 const canvas_1 = require("@napi-rs/canvas");
 const fs_1 = __importDefault(require("fs"));
 const axios_1 = __importDefault(require("axios"));
-var listOfGuilds = new Array();
-var listOfGuildIds = new Array();
+var guilds = new Array();
+var guildIds = new Array();
+var guildsAndDefaultChannels = {};
 const guildDropTimers = new Map();
 const avatarItemTypes = ["head", "eyes", "ears", "torso", "face_extras", "back", "straps", "nose"];
 bot_1.client.once('ready', () => {
     (() => __awaiter(void 0, void 0, void 0, function* () {
-        listOfGuildIds = yield (0, queries_1.retrieveGuildsFromDB)();
-        listOfGuildIds.forEach(id => {
+        guildsAndDefaultChannels = yield (0, queries_1.retrieveGuildsFromDB)();
+        guildIds = Object.keys(guildsAndDefaultChannels);
+        guildIds.forEach(id => {
             var guild = bot_1.client.guilds.cache.get(id);
             if (typeof guild !== 'undefined') {
                 console.log("found guild " + id);
                 startTimerForGuild(guild, true);
-                listOfGuilds.push(guild);
+                guilds.push(guild);
             }
         });
     }))();
 });
 bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('creating guild ' + guild.id);
-    if (!listOfGuildIds.includes(guild.id)) {
-        listOfGuildIds.push(guild.id);
+    if (!guildIds.includes(guild.id)) {
+        guildIds.push(guild.id);
         (0, queries_1.addNewGuild)(guild.id, guild.memberCount);
         startTimerForGuild(guild, true);
     }
@@ -50,8 +53,8 @@ bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, func
 }));
 bot_1.client.on('guildDelete', (guild) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting guild ' + guild.id);
-    if (listOfGuildIds.includes(guild.id)) {
-        listOfGuildIds = listOfGuildIds.filter(id => id !== guild.id);
+    if (guildIds.includes(guild.id)) {
+        guildIds = guildIds.filter(id => id !== guild.id);
         (0, queries_1.removeGuild)(guild.id);
     }
 }));
@@ -80,9 +83,14 @@ function handleDropForGuild(guild) {
     // At the end, reset the timer
     startTimerForGuild(guild, false);
 }
+function setDefaultChannel(guildId, channel) {
+    guildsAndDefaultChannels[guildId] = channel.id;
+    (0, queries_1.setDefaultChannelForGuild)(guildId, channel.id);
+}
+exports.setDefaultChannel = setDefaultChannel;
 function processRandomDrop(guild) {
     return __awaiter(this, void 0, void 0, function* () {
-        var items = (0, playfabCatalog_1.getItems)();
+        var items = (0, playfab_catalog_1.getItems)();
         const randomItem = items[Math.floor(Math.random() * items.length)];
         const firstTextChannel = yield retrieveTextChannel(guild);
         // Check if we found a text channel
@@ -96,9 +104,13 @@ function processRandomDrop(guild) {
 }
 function retrieveTextChannel(guild) {
     return __awaiter(this, void 0, void 0, function* () {
-        var textChannels = yield guild.channels.fetch();
-        textChannels = textChannels.filter(channel => (channel === null || channel === void 0 ? void 0 : channel.type) === discord_js_1.ChannelType.GuildText);
-        return textChannels.first();
+        if (typeof guildsAndDefaultChannels[guild.id] !== 'undefined') {
+            const channelId = guildsAndDefaultChannels[guild.id];
+            const channel = guild.channels.cache.get(channelId);
+            return channel;
+        }
+        var systemChannel = guild.systemChannel;
+        return systemChannel;
     });
 }
 function updateDropTables(guild, randomItem) {

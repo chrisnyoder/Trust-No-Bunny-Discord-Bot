@@ -1,7 +1,6 @@
 import { retrieveUnclaimedDrops } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode } from 'discord.js';
-import { getItemIds, getItemIdFromName, getNameFromItemId } from '../playfabCatalog';
-import { Drop } from '../drop';
+import { getNameFromItemId } from '../playfab_catalog';
 
 const command = {
     data: new SlashCommandBuilder()

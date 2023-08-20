@@ -8,13 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const queries_1 = require("../database/queries");
 const discord_js_1 = require("discord.js");
-const playfab_catalog_1 = require("../playfab_catalog");
+const guilds_1 = require("../guilds");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName('unclaimed')
-        .setDescription('See the list of unclaimed items in this server'),
+        .setName('set_channel')
+        .setDescription('Sets the default text channel for where drops occur')
+        .addChannelOption(option => option
+        .setName('channel_name')
+        .setDescription("The name of the channel you want the TNB bot to post drops in")
+        .addChannelTypes(discord_js_1.ChannelType.GuildText)
+        .setRequired(true)),
     execute(interaction) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -25,22 +29,10 @@ const command = {
                 console.log('oops! this command was not made in a Discord server. Not processing');
                 return;
             }
-            const availableDropIds = yield (0, queries_1.retrieveUnclaimedDrops)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id);
-            var listOfItemNames = [];
-            availableDropIds.forEach(el => {
-                var itemName = (0, playfab_catalog_1.getNameFromItemId)(el);
-                var itemNameFormatted = (0, discord_js_1.inlineCode)(itemName);
-                listOfItemNames.push(`${itemNameFormatted}`);
-            });
-            if (listOfItemNames.length === 0) {
-                // Construct the response message
-                const responseMessage = `The server currently doesn't have any unclaimed drops`;
-                yield interaction.reply({ content: responseMessage });
-            }
-            else {
-                const responseMessage = `Here is the list of unclaimed drops in this server: ${listOfItemNames.toString()}`;
-                yield interaction.reply({ content: responseMessage });
-            }
+            const channel = interaction.options.getChannel('channel_name');
+            (0, guilds_1.setDefaultChannel)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id, channel);
+            const responseMessage = `Default channel for drops has been successfully set`;
+            yield interaction.reply({ content: responseMessage });
         });
     }
 };
