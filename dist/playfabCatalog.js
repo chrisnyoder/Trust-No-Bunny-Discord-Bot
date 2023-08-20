@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getItems = exports.searchCatalogItems = void 0;
+exports.retrieveBodyImage = exports.getNameFromItemId = exports.getItemIdFromName = exports.getItemIds = exports.getItems = exports.searchCatalogItems = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -20,6 +20,7 @@ const PLAYFAB_URL_GET_TOKEN = 'https://DDD75.playfabapi.com/Authentication/GetEn
 const PLAYFAB_URL_SEARCH_ITEMS = 'https://DDD75.playfabapi.com/Catalog/SearchItems';
 const SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 var items = [];
+var itemIds = [];
 function getEntityToken() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(`PlayFab secret key: ${SECRET_KEY}`);
@@ -51,6 +52,7 @@ function searchCatalogItems() {
                 }
             });
             items = response.data.data.Items;
+            itemIds = items.map(item => item.Title.NEUTRAL.toLowerCase());
             return response.data; // Modify as per the actual structure of the returned data
         }
         catch (error) {
@@ -64,3 +66,25 @@ function getItems() {
     return items;
 }
 exports.getItems = getItems;
+function getItemIds() {
+    return itemIds;
+}
+exports.getItemIds = getItemIds;
+function getItemIdFromName(name) {
+    // Find the item that matches the given title
+    const item = items.find(item => item.Title.NEUTRAL.toLowerCase() === name);
+    // If the item was found, return the FriendlyId. Otherwise, return null.
+    return item ? (item.AlternateIds.find((id) => id.Type === "FriendlyId").Value) : null;
+}
+exports.getItemIdFromName = getItemIdFromName;
+function getNameFromItemId(id) {
+    const item = items.find(item => (item.AlternateIds.find((id) => id.Type === "FriendlyId")
+        .Value)).toLowerCase() === id;
+    return item ? items.find(item => item.Title.NEUTRAL) : null;
+}
+exports.getNameFromItemId = getNameFromItemId;
+function retrieveBodyImage() {
+    const bodyItem = items.find(item => item.AlternateIds[0].Value.toLowerCase() === "body");
+    return bodyItem.Images[0].Url;
+}
+exports.retrieveBodyImage = retrieveBodyImage;

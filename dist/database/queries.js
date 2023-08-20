@@ -12,16 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.setDropAsClaimed = exports.checkIfDropExistOnGuild = void 0;
+exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.setDropAsClaimed = exports.checkIfDropExistOnGuild = void 0;
 const promise_1 = __importDefault(require("mysql2/promise")); // Using mysql2 for promise-based interaction.
 // This assumes you have a connection configuration set up somewhere.
 const config_1 = require("../config");
 // Check the last claim date for a user.
-function checkIfDropExistOnGuild(guildId) {
+function checkIfDropExistOnGuild(guildId, rewardId) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            const [rows] = yield connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);
+            const [rows] = yield connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `reward_id` = ? AND `has_been_claimed` = false', [guildId, rewardId]);
             if (rows.length > 0) {
                 return rows[0];
             }
@@ -48,11 +48,11 @@ function setDropAsClaimed(dropId) {
 }
 exports.setDropAsClaimed = setDropAsClaimed;
 // Add a new claim to the database for a user.
-function addNewClaim(userId, reward_id) {
+function addNewClaim(dropId, userId, rewardId, rewardType) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            yield connection.execute('INSERT INTO `tnb_claims` (`user_id`, `drop_name`, `has_been_granted`) VALUES (?, ?, false)', [userId, reward_id]);
+            yield connection.execute('INSERT INTO `tnb_claims` (`drop_id`, `player_id`, `reward_id`, `reward_type`) VALUES (?, ?, ?, ?)', [dropId, userId, rewardId, rewardType]);
         }
         finally {
             yield connection.end();
@@ -134,3 +134,16 @@ function updateLastDropTime(guildId) {
     });
 }
 exports.updateLastDropTime = updateLastDropTime;
+function retrieveUnclaimedDrops(guildId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            const [rows] = yield connection.execute('SELECT DISTINCT `reward_id` FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);
+            return rows.map(row => row.reward_id);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.retrieveUnclaimedDrops = retrieveUnclaimedDrops;
