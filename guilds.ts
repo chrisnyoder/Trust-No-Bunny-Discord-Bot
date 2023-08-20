@@ -114,12 +114,7 @@ async function processRandomDrop(guild: Guild) {
 
 async function retrieveTextChannel(guild: Guild) { 
 
-    /// Print out list of elements in the guildsAndDefaultChannels map
-    for (var key in guildsAndDefaultChannels) {
-        console.log("key: " + key + " value: " + guildsAndDefaultChannels[key]);
-    }
-
-    if (typeof guildsAndDefaultChannels[guild.id] !== 'undefined') { 
+    if (typeof guildsAndDefaultChannels[guild.id] !== null) { 
         const channelId = guildsAndDefaultChannels[guild.id];
         const channel = guild.channels.cache.get(channelId);
         return channel as TextChannel;
