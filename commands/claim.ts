@@ -1,4 +1,3 @@
-import { CommandInteraction, MessagePayload } from 'discord.js';
 import { checkIfDropExistOnGuild, addNewClaim, setDropAsClaimed } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { getItemIds, getItemIdFromName } from '../playfabCatalog';
@@ -7,7 +6,7 @@ import { Drop } from '../drop';
 const command = {
     data: new SlashCommandBuilder()
         .setName('claim')
-        .setDescription('Claim your reward!')
+        .setDescription('Claim your item!')
         .addStringOption(option => 
             option
                 .setName('reward_name')
