@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const queries_1 = require("../database/queries");
 const discord_js_1 = require("discord.js");
-const playfabCatalog_1 = require("../playfabCatalog");
+const playfab_catalog_1 = require("../playfab_catalog");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('claim')
@@ -29,7 +29,7 @@ const command = {
                 console.log('oops! this command was not made in a Discord server. Not processing');
                 return;
             }
-            const titlesList = (0, playfabCatalog_1.getItemIds)();
+            const titlesList = (0, playfab_catalog_1.getItemIds)();
             const itemInput = interaction.options.getString('reward_name').toLowerCase();
             if (!titlesList.includes(itemInput)) {
                 console.log('player inputted incorrect item ID');
@@ -37,7 +37,7 @@ const command = {
                 yield interaction.reply({ content: responseMessage });
                 return;
             }
-            var itemId = yield (0, playfabCatalog_1.getItemIdFromName)(itemInput);
+            var itemId = yield (0, playfab_catalog_1.getItemIdFromName)(itemInput);
             var drop = yield (0, queries_1.checkIfDropExistOnGuild)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id, itemId);
             if (drop === null) {
                 console.log('player attempted to claim an already-claimed item');

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.setDropAsClaimed = exports.checkIfDropExistOnGuild = void 0;
+exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.setDefaultChannelForGuild = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.setDropAsClaimed = exports.checkIfDropExistOnGuild = void 0;
 const promise_1 = __importDefault(require("mysql2/promise")); // Using mysql2 for promise-based interaction.
 // This assumes you have a connection configuration set up somewhere.
 const config_1 = require("../config");
@@ -101,8 +101,11 @@ function retrieveGuildsFromDB() {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            const [rows] = yield connection.execute('SELECT `guild_id` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
-            return rows.map(row => row.guild_id);
+            const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+            return rows.reduce((map, row) => {
+                map[row.guild_id] = row.channel_id_for_drops;
+                return map;
+            }, {});
         }
         finally {
             yield connection.end();
@@ -110,6 +113,18 @@ function retrieveGuildsFromDB() {
     });
 }
 exports.retrieveGuildsFromDB = retrieveGuildsFromDB;
+function setDefaultChannelForGuild(guildId, channelId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('UPDATE `tnb_discord_guilds` SET `channel_id_for_drops` = ? WHERE `guild_id` = ?', [channelId, guildId]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.setDefaultChannelForGuild = setDefaultChannelForGuild;
 function insertItemIntoDropTable(itemId, itemType, guildId) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);

@@ -2,6 +2,7 @@ import mysql from 'mysql2/promise'; // Using mysql2 for promise-based interactio
 
 // This assumes you have a connection configuration set up somewhere.
 import { dbConfig } from '../config';
+import { GuildChannelMap } from '../guilds';
 
 // Check the last claim date for a user.
 export async function checkIfDropExistOnGuild(guildId: string, rewardId: string): Promise<any> {
@@ -78,14 +79,27 @@ export async function setGuildStatusToActive(guildId: string): Promise<void>
     }
 }
 
-export async function retrieveGuildsFromDB(): Promise<string[]> {
+export async function retrieveGuildsFromDB(): Promise<GuildChannelMap> {
 
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT `guild_id` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+        const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
 
-        return (rows as any[]).map(row => row.guild_id);
+        return (rows as any[]).reduce((map, row) => {
+            map[row.guild_id] = row.channel_id_for_drops;
+            return map;
+        }, {} as GuildChannelMap);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function setDefaultChannelForGuild(guildId: string, channelId: string): Promise<void> { 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_discord_guilds` SET `channel_id_for_drops` = ? WHERE `guild_id` = ?', [channelId, guildId]);
     } finally {
         await connection.end();
     }

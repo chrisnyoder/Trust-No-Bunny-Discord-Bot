@@ -1,6 +1,6 @@
 import { checkIfDropExistOnGuild, addNewClaim, setDropAsClaimed } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { getItemIds, getItemIdFromName } from '../playfabCatalog';
+import { getItemIds, getItemIdFromName } from '../playfab_catalog';
 import { Drop } from '../drop';
 
 const command = {

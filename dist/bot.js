@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
 const discord_js_1 = require("discord.js");
 const dotenv_1 = require("dotenv");
-const playfabCatalog_1 = require("./playfabCatalog");
+const playfab_catalog_1 = require("./playfab_catalog");
 (0, dotenv_1.config)();
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
@@ -103,7 +103,7 @@ function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             exports.client.login(token);
-            yield (0, playfabCatalog_1.searchCatalogItems)();
+            yield (0, playfab_catalog_1.searchCatalogItems)();
             // You can add more startup tasks here if needed
         }
         catch (error) {
