@@ -8,14 +8,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const queries_1 = require("./database/queries");
 const bot_1 = require("./bot");
 const playfabCatalog_1 = require("./playfabCatalog");
+const canvas_1 = require("@napi-rs/canvas");
+const fs_1 = __importDefault(require("fs"));
+const axios_1 = __importDefault(require("axios"));
 var listOfGuilds = new Array();
 var listOfGuildIds = new Array();
 const guildDropTimers = new Map();
+const avatarItemTypes = ["head", "eyes", "ears", "torso", "face_extras", "back", "straps", "nose"];
 bot_1.client.once('ready', () => {
     (() => __awaiter(void 0, void 0, void 0, function* () {
         listOfGuildIds = yield (0, queries_1.retrieveGuildsFromDB)();
@@ -69,32 +76,77 @@ function getRandomDuration() {
 function handleDropForGuild(guild) {
     // Handle the drop logic here
     console.log('Dropping random reward to first text channel');
-    sendMessageOfRandomRewardGrant(guild);
+    processRandomDrop(guild);
     // At the end, reset the timer
     startTimerForGuild(guild, false);
 }
-function sendMessageOfRandomRewardGrant(guild) {
+function processRandomDrop(guild) {
     return __awaiter(this, void 0, void 0, function* () {
         var items = (0, playfabCatalog_1.getItems)();
         const randomItem = items[Math.floor(Math.random() * items.length)];
-        var textChannels = yield guild.channels.fetch();
-        textChannels = textChannels.filter(channel => (channel === null || channel === void 0 ? void 0 : channel.type) === discord_js_1.ChannelType.GuildText);
-        const firstTextChannel = textChannels.first();
+        const firstTextChannel = yield retrieveTextChannel(guild);
         // Check if we found a text channel
         if (!firstTextChannel) {
             console.error("No text channels found in the guild!");
             return;
         }
+        yield updateDropTables(guild, randomItem);
+        yield sendMessageOfDropToGuild(guild, randomItem, firstTextChannel);
+    });
+}
+function retrieveTextChannel(guild) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var textChannels = yield guild.channels.fetch();
+        textChannels = textChannels.filter(channel => (channel === null || channel === void 0 ? void 0 : channel.type) === discord_js_1.ChannelType.GuildText);
+        return textChannels.first();
+    });
+}
+function updateDropTables(guild, randomItem) {
+    return __awaiter(this, void 0, void 0, function* () {
         const itemId = randomItem.AlternateIds[0].Value;
         const itemType = randomItem.ContentType;
         yield (0, queries_1.insertItemIntoDropTable)(itemId, itemType, guild.id);
         yield (0, queries_1.updateLastDropTime)(guild.id);
+    });
+}
+function sendMessageOfDropToGuild(guild, randomItem, firstTextChannel) {
+    return __awaiter(this, void 0, void 0, function* () {
         // Retrieve the title and the image URL
         const title = randomItem.Title.NEUTRAL;
+        const itemId = randomItem.AlternateIds[0].Value;
         const imageUrl = randomItem.Images[0].Url;
         // Construct the response message
         const claimText = (0, discord_js_1.inlineCode)(`/claim <item>`);
         const responseMessage = `A ${title} just dropped! Use ${claimText} to claim it`;
-        yield firstTextChannel.send({ content: responseMessage, files: [imageUrl] });
+        if (avatarItemTypes.includes(randomItem.ContentType)) {
+            const attachment = yield pasteItemOnBodyImage(itemId, imageUrl);
+            yield firstTextChannel.send({ content: responseMessage, files: [attachment] });
+            fs_1.default.unlinkSync(`./ ${itemId}.png`);
+        }
+        else {
+            yield firstTextChannel.send({ content: responseMessage, files: [imageUrl] });
+        }
+    });
+}
+function pasteItemOnBodyImage(itemId, url) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bodyImage = yield (0, canvas_1.loadImage)('./body_main.png');
+        ;
+        if (!fs_1.default.existsSync(`./ ${itemId}.png`)) {
+            yield downloadImage(itemId, url);
+        }
+        const itemImage = yield (0, canvas_1.loadImage)(`./ ${itemId}.png`);
+        const canvas = (0, canvas_1.createCanvas)(500, 500);
+        const context = canvas.getContext('2d');
+        context.drawImage(bodyImage, 0, 0, canvas.width, canvas.height);
+        context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
+        const attachment = new discord_js_1.AttachmentBuilder(yield canvas.encode('png'), { name: 'avatar-image.png' });
+        return attachment;
+    });
+}
+function downloadImage(itemId, url) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield axios_1.default.get(url, { responseType: 'arraybuffer' });
+        fs_1.default.writeFileSync(`./ ${itemId}.png`, response.data);
     });
 }
