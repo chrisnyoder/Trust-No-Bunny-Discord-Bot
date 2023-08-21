@@ -39,7 +39,7 @@ const command = {
             }
             else {
                 const responseMessage = `Here is the list of unclaimed drops in this server: ${listOfItemNames.toString()}`;
-                yield interaction.reply({ content: responseMessage });
+                yield interaction.reply({ content: responseMessage, ephemeral: true });
             }
         });
     }

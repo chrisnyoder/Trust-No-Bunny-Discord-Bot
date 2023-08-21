@@ -12,13 +12,16 @@ const discord_js_1 = require("discord.js");
 const guilds_1 = require("../guilds");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName('set_channel')
+        .setName('channel')
+        .setDescription('Sets the default text channel for where drops occur')
+        .addSubcommand(subcommand => subcommand
+        .setName('set')
         .setDescription('Sets the default text channel for where drops occur')
         .addChannelOption(option => option
         .setName('channel_name')
-        .setDescription("The name of the channel you want the TNB bot to post drops in")
+        .setDescription("Channel you want the TNB bot to post drops in")
         .addChannelTypes(discord_js_1.ChannelType.GuildText)
-        .setRequired(true)),
+        .setRequired(true))),
     execute(interaction) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,7 +35,7 @@ const command = {
             const channel = interaction.options.getChannel('channel_name');
             (0, guilds_1.setDefaultChannel)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id, channel);
             const responseMessage = `Default channel for drops has been successfully set`;
-            yield interaction.reply({ content: responseMessage });
+            yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }
 };
