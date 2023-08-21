@@ -1,10 +1,11 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode, ChannelType, TextChannel } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode, ChannelType, TextChannel, PermissionFlagsBits } from 'discord.js';
 import { setDefaultChannel } from '../guilds';
 
 const command = {
     data: new SlashCommandBuilder()
         .setName('channel')
         .setDescription('Sets the default text channel for where drops occur')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
         .addSubcommand(subcommand => 
             subcommand
                 .setName('set')
@@ -29,7 +30,7 @@ const command = {
         }
         
         const channel = interaction.options.getChannel('channel_name') as TextChannel;
-        setDefaultChannel(interaction.guild?.id, channel);
+        setDefaultChannel(interaction.guild?.id as string, channel);
 
         const responseMessage = `Default channel for drops has been successfully set`;
         await interaction.reply({content: responseMessage, ephemeral: true})      
