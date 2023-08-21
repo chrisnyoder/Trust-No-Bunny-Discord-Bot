@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setDefaultChannel = void 0;
+exports.sendStartMessage = exports.setDefaultChannel = void 0;
 const discord_js_1 = require("discord.js");
 const queries_1 = require("./database/queries");
 const bot_1 = require("./bot");
@@ -50,6 +50,7 @@ bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, func
         (0, queries_1.setGuildStatusToActive)(guild.id);
         startTimerForGuild(guild, false);
     }
+    sendStartMessage(guild);
 }));
 bot_1.client.on('guildDelete', (guild) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting guild ' + guild.id);
@@ -99,9 +100,21 @@ function processRandomDrop(guild) {
             return;
         }
         yield updateDropTables(guild, randomItem);
-        yield sendMessageOfDropToGuild(guild, randomItem, firstTextChannel);
+        yield sendMessageOfDropToGuild(randomItem, firstTextChannel);
     });
 }
+function sendStartMessage(guild) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const firstTextChannel = yield retrieveTextChannel(guild);
+        const responseMessage = `The Trust No Bunny bot is now active in this server! You will 
+    receive a random drop every 12-24 hours. If you want to change the channel where drops
+    occur, use the ${(0, discord_js_1.inlineCode)(`/channel set <channel>`)} command. To see the list of unclaimed
+    drops in this server, use the ${(0, discord_js_1.inlineCode)(`/unclaimed`)} command. To claim a drop, use the
+    ${(0, discord_js_1.inlineCode)(`/claim <item>`)} command.`;
+        yield firstTextChannel.send({ content: responseMessage });
+    });
+}
+exports.sendStartMessage = sendStartMessage;
 function retrieveTextChannel(guild) {
     return __awaiter(this, void 0, void 0, function* () {
         if (guildsAndDefaultChannels[guild.id] !== null) {
@@ -121,7 +134,7 @@ function updateDropTables(guild, randomItem) {
         yield (0, queries_1.updateLastDropTime)(guild.id);
     });
 }
-function sendMessageOfDropToGuild(guild, randomItem, firstTextChannel) {
+function sendMessageOfDropToGuild(randomItem, firstTextChannel) {
     return __awaiter(this, void 0, void 0, function* () {
         // Retrieve the title and the image URL
         const title = randomItem.Title.NEUTRAL;
