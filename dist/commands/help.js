@@ -9,22 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const discord_js_1 = require("discord.js");
-const guilds_1 = require("../guilds");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName('channel')
-        .setDescription('Sets the default text channel for where drops occur')
-        .setDefaultMemberPermissions(discord_js_1.PermissionFlagsBits.ManageChannels)
-        .addSubcommand(subcommand => subcommand
-        .setName('set')
-        .setDescription('Sets the default text channel for where drops occur')
-        .addChannelOption(option => option
-        .setName('channel_name')
-        .setDescription("Channel you want the TNB bot to post drops in")
-        .addChannelTypes(discord_js_1.ChannelType.GuildText)
-        .setRequired(true))),
+        .setName('help')
+        .setDescription('help with the Trust No Bunny bot'),
     execute(interaction) {
-        var _a, _b;
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!interaction.isChatInputCommand) {
                 return;
@@ -33,9 +23,12 @@ const command = {
                 console.log('oops! this command was not made in a Discord server. Not processing');
                 return;
             }
-            const channel = interaction.options.getChannel('channel_name');
-            (0, guilds_1.setDefaultChannel)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id, channel);
-            const responseMessage = `Default channel for drops has been successfully set`;
+            // Construct the response message
+            const responseMessage = `The Trust No Bunny bot is now active in this server! You will 
+        receive a random drop every 12-24 hours. If you want to change the channel where drops
+        occur, use the ${(0, discord_js_1.inlineCode)(`/channel set <channel>`)} command. To see the list of unclaimed
+        drops in this server, use the ${(0, discord_js_1.inlineCode)(`/unclaimed`)} command. To claim a drop, use the
+        ${(0, discord_js_1.inlineCode)(`/claim <item>`)} command.`;
             yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }
