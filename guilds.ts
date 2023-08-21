@@ -45,6 +45,8 @@ client.on('guildCreate', async (guild) => {
         setGuildStatusToActive(guild.id);
         startTimerForGuild(guild, false);
     }  
+
+    sendStartMessage(guild);
 })
 
 client.on('guildDelete', async (guild) => {
@@ -109,7 +111,19 @@ async function processRandomDrop(guild: Guild) {
     }
 
     await updateDropTables(guild, randomItem);
-    await sendMessageOfDropToGuild(guild, randomItem, firstTextChannel);
+    await sendMessageOfDropToGuild(randomItem, firstTextChannel);
+}
+
+export async function sendStartMessage(guild: Guild) {
+    const firstTextChannel = await retrieveTextChannel(guild);
+
+    const responseMessage = `The Trust No Bunny bot is now active in this server! You will 
+    receive a random drop every 12-24 hours. If you want to change the channel where drops
+    occur, use the ${inlineCode(`/channel set <channel>`)} command. To see the list of unclaimed
+    drops in this server, use the ${inlineCode(`/unclaimed`)} command. To claim a drop, use the
+    ${inlineCode(`/claim <item>`)} command.`;
+
+    await firstTextChannel.send({ content: responseMessage });
 }
 
 async function retrieveTextChannel(guild: Guild) { 
@@ -131,7 +145,7 @@ async function updateDropTables(guild: Guild, randomItem: any) {
     await updateLastDropTime(guild.id);
 }
 
-async function sendMessageOfDropToGuild(guild: Guild, randomItem: any, firstTextChannel: TextChannel) {
+async function sendMessageOfDropToGuild(randomItem: any, firstTextChannel: TextChannel) {
     // Retrieve the title and the image URL
     const title = randomItem.Title.NEUTRAL;
     const itemId = randomItem.AlternateIds[0].Value;
