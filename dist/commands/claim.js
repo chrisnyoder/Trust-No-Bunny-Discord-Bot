@@ -51,7 +51,7 @@ const command = {
             // Construct the response message
             const responseMessage = `Congratulations! You earned a ${itemInput}. You can see it in Trust No Bunny.
         If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
-            yield interaction.reply({ content: responseMessage });
+            yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }
 };

@@ -104,7 +104,7 @@ function processRandomDrop(guild) {
 }
 function retrieveTextChannel(guild) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (typeof guildsAndDefaultChannels[guild.id] !== 'undefined') {
+        if (guildsAndDefaultChannels[guild.id] !== null) {
             const channelId = guildsAndDefaultChannels[guild.id];
             const channel = guild.channels.cache.get(channelId);
             return channel;
