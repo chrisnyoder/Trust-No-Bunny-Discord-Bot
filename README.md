@@ -2,7 +2,7 @@
 
 ## 📌 Introduction
 
-Welcome to the Trust No Bunny Discord Reward Bot! This bot integrates seamlessly with  Discord servers to provide periodic in-game rewards for the "Trust No Bunny" game. Players can claim these rewards directly from the Discord server and redeem them within the game.
+Welcome to the Trust No Bunny Discord Reward Bot! This bot integrates seamlessly with  Discord servers to provide periodic in-game rewards for the "Trust No Bunny" game. Players can claim these rewards directly from the Discord server and redeem them within the game. You are welcome to use it as a template for your own games!
 
 ## 🔥 Features
 
