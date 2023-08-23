@@ -117,8 +117,8 @@ async function processRandomDrop(guild: Guild) {
 export async function sendStartMessage(guild: Guild) {
     const firstTextChannel = await retrieveTextChannel(guild);
 
-    const responseMessage = `The Trust No Bunny bot creates a random drop every 12-24 hours. If you want to change the channel where drops
-    occur, use the ${inlineCode(`/channel set <channel>`)} command. To see the list of unclaimed
+    const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. 
+    If you want to change the channel where drops occur, use the ${inlineCode(`/channel set <channel>`)} command. To see the list of unclaimed
     drops in this server, use the ${inlineCode(`/unclaimed`)} command. To claim a drop, use the
     ${inlineCode(`/claim <item>`)} command. To see your costumes go to play.friendlypixel.com`;
 
