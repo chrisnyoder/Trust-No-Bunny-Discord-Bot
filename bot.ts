@@ -20,7 +20,7 @@ export const client = new Client({
     ]
 });
 
-import './guilds/guilds.tsc';    
+import './guilds/guilds.ts';    
 
 declare module 'discord.js' {
     interface Client {
