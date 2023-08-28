@@ -15,13 +15,15 @@ export async function getDropFromGuild(guildId: string): Promise<Drop | null> {
     try {
         const query = await connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? ORDER BY drop_time DESC LIMIT 1', [guildId]) as any[];
 
-        console.log('query result: ' + JSON.stringify(query)); 
-        console.log('length of query result: ' + query.length);
+        const queryData = query[0];
+
+        console.log('query result: ' + JSON.stringify(queryData)); 
+        console.log('length of query result: ' + queryData.length);
 
         /// Cast query to drop type 
-        if(query.length === 0) return null;
+        if(queryData.length === 0) return null;
         
-        const drop = query[0] as Drop;
+        const drop = queryData[0] as Drop;
         return drop;
     } finally {
         await connection.end();
