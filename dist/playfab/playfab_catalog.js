@@ -12,16 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveBodyImage = exports.getNameFromItemId = exports.getItemIdFromName = exports.getInitialDropItem = exports.getCurrencyItems = exports.getItemIds = exports.getItems = exports.searchCatalogItems = void 0;
+exports.retrieveBodyImage = exports.getInitialDropItem = exports.getCurrencyItems = exports.getItems = exports.searchCatalogItems = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const playfab_item_1 = require("./playfab_item");
 dotenv_1.default.config();
 const PLAYFAB_URL_GET_TOKEN = 'https://DDD75.playfabapi.com/Authentication/GetEntityToken';
 const PLAYFAB_URL_SEARCH_ITEMS = 'https://DDD75.playfabapi.com/Catalog/SearchItems';
 const SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 var items = [];
 var currencyDropItems = [];
-var itemIds = [];
 function getEntityToken() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(`PlayFab secret key: ${SECRET_KEY}`);
@@ -52,9 +52,15 @@ function searchCatalogItems() {
                     'Content-Type': 'application/json'
                 }
             });
-            items = response.data.data.Items;
-            currencyDropItems = items.filter(item => item.ContentType === "currency" && item.Title.NEUTRAL !== "100 Silver Karats");
-            itemIds = items.map(item => item.Title.NEUTRAL.toLowerCase());
+            for (const item of response.data.data.Items) {
+                const friendlyId = item.AlternateIds.find((id) => id.Type === "FriendlyId").Value;
+                const title = item.Title.NEUTRAL;
+                const contentType = item.ContentType;
+                const imageUrl = item.Images[0].Url;
+                const playfabItem = new playfab_item_1.PlayfabItem(friendlyId, title, contentType, imageUrl);
+                items.push(playfabItem);
+            }
+            currencyDropItems = items.filter(item => item.type === "currency" && item.title !== "100 Silver Karats");
             return response.data; // Modify as per the actual structure of the returned data
         }
         catch (error) {
@@ -68,33 +74,17 @@ function getItems() {
     return items;
 }
 exports.getItems = getItems;
-function getItemIds() {
-    return itemIds;
-}
-exports.getItemIds = getItemIds;
 function getCurrencyItems() {
     return currencyDropItems;
 }
 exports.getCurrencyItems = getCurrencyItems;
 function getInitialDropItem() {
-    return items.find(item => item.Title.NEUTRAL === "100 Silver Karats");
+    var initialDropItem = items.find(item => item.title === "100 Silver Karats");
+    return initialDropItem;
 }
 exports.getInitialDropItem = getInitialDropItem;
-function getItemIdFromName(name) {
-    // Find the item that matches the given title
-    const item = items.find(item => item.Title.NEUTRAL.toLowerCase() === name);
-    // If the item was found, return the FriendlyId. Otherwise, return null.
-    return item ? (item.AlternateIds.find((id) => id.Type === "FriendlyId").Value) : null;
-}
-exports.getItemIdFromName = getItemIdFromName;
-function getNameFromItemId(id) {
-    const item = items.find(item => (item.AlternateIds.find((id) => id.Type === "FriendlyId")
-        .Value) === id);
-    return item ? item.Title.NEUTRAL : null;
-}
-exports.getNameFromItemId = getNameFromItemId;
 function retrieveBodyImage() {
-    const bodyItem = items.find(item => item.AlternateIds[0].Value.toLowerCase() === "body");
-    return bodyItem.Images[0].Url;
+    const bodyItem = items.find(item => item.friendlyId.toLowerCase() === "body");
+    return bodyItem === null || bodyItem === void 0 ? void 0 : bodyItem.imageUrl;
 }
 exports.retrieveBodyImage = retrieveBodyImage;

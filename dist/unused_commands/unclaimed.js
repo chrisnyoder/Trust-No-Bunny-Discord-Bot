@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const queries_1 = require("../database/queries");
 const discord_js_1 = require("discord.js");
-const playfab_catalog_1 = require("../playfab/playfab_catalog");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('unclaimed')
@@ -27,11 +26,11 @@ const command = {
             }
             const availableDropIds = yield (0, queries_1.retrieveUnclaimedDrops)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id);
             var listOfItemNames = [];
-            availableDropIds.forEach(el => {
-                var itemName = (0, playfab_catalog_1.getNameFromItemId)(el);
-                var itemNameFormatted = (0, discord_js_1.inlineCode)(itemName);
-                listOfItemNames.push(`${itemNameFormatted}`);
-            });
+            // availableDropIds.forEach(el => {
+            //     var itemName = getNameFromItemId(el);
+            //     var itemNameFormatted = inlineCode(itemName);
+            //     listOfItemNames.push(`${itemNameFormatted}`);
+            // });
             if (listOfItemNames.length === 0) {
                 // Construct the response message
                 const responseMessage = `The server currently doesn't have any unclaimed drops`;

@@ -14,7 +14,6 @@ const queries_1 = require("../database/queries");
 const bot_1 = require("../bot");
 const tnbGuild_1 = require("./tnbGuild");
 var activeTNBGuilds = new Array();
-const avatarItemTypes = ["head", "eyes", "ears", "torso", "face_extras", "back", "straps", "nose"];
 bot_1.client.once('ready', () => {
     (() => __awaiter(void 0, void 0, void 0, function* () {
         activeTNBGuilds = yield (0, queries_1.retrieveGuildsFromDB)(bot_1.client.guilds);
@@ -33,6 +32,7 @@ bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, func
         activeTNBGuilds.push(tnbGuild);
         (0, queries_1.addNewGuild)(guild.id, guild.memberCount);
         tnbGuild.activateBot();
+        tnbGuild.sendStartMessage();
     }
     else {
         const tnbGuild = matchingTNBGuilds[0];

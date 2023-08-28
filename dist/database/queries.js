@@ -20,13 +20,17 @@ const tnbGuild_1 = require("../guilds/tnbGuild");
 // Check the last claim date for a user.
 function getDropFromGuild(guildId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('getting drop from guild ' + guildId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             const query = yield connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? ORDER BY drop_time DESC LIMIT 1', [guildId]);
+            const queryData = query[0];
+            console.log('query result: ' + JSON.stringify(queryData));
+            console.log('length of query result: ' + queryData.length);
             /// Cast query to drop type 
-            if (query.length === 0)
+            if (queryData.length === 0)
                 return null;
-            const drop = query[0];
+            const drop = queryData[0];
             return drop;
         }
         finally {
@@ -37,6 +41,7 @@ function getDropFromGuild(guildId) {
 exports.getDropFromGuild = getDropFromGuild;
 function checkWhetherPlayerHasClaimedDrop(dropId, userId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('checking whether player ' + userId + ' has claimed drop ' + dropId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             const [rows] = yield connection.execute('SELECT * FROM `tnb_claims` WHERE `drop_id` = ? AND `player_id` = ?', [dropId, userId]);
@@ -50,6 +55,7 @@ function checkWhetherPlayerHasClaimedDrop(dropId, userId) {
 exports.checkWhetherPlayerHasClaimedDrop = checkWhetherPlayerHasClaimedDrop;
 function setDropAsClaimed(dropId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('setting drop ' + dropId + ' as claimed');
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             yield connection.execute('UPDATE `tnb_drops` SET `has_been_claimed` = true WHERE `drop_id` = ?', [dropId]);
@@ -63,6 +69,7 @@ exports.setDropAsClaimed = setDropAsClaimed;
 // Add a new claim to the database for a user.
 function addNewClaim(dropId, userId, rewardId, rewardType) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('adding new claim for user ' + userId + ' with drop ' + dropId + ' and reward ' + rewardId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             yield connection.execute('INSERT INTO `tnb_claims` (`drop_id`, `player_id`, `reward_id`, `reward_type`) VALUES (?, ?, ?, ?)', [dropId, userId, rewardId, rewardType]);
@@ -75,8 +82,9 @@ function addNewClaim(dropId, userId, rewardId, rewardType) {
 exports.addNewClaim = addNewClaim;
 function addNewGuild(guildId, memberCount) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('adding new guild ' + guildId + ' to db');
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
-        console.log('adding new guild' + guildId + ' to db');
+        console.log('adding new guild ' + guildId + ' to db');
         try {
             yield connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`)  VALUES (?, true, ?, null)', [guildId, memberCount]);
         }
@@ -88,6 +96,7 @@ function addNewGuild(guildId, memberCount) {
 exports.addNewGuild = addNewGuild;
 function removeGuild(guildId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('removing guild ' + guildId + ' from db');
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             yield connection.execute('UPDATE `tnb_discord_guilds` SET `is_active` = 0 WHERE `guild_id` = ?', [guildId]);
@@ -112,10 +121,7 @@ function setGuildStatusToActive(guildId) {
 exports.setGuildStatusToActive = setGuildStatusToActive;
 function retrieveGuildsFromDB(guildManager) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(`DB_HOST: ${config_1.dbConfig.host}`);
-        console.log(`DB_USER: ${config_1.dbConfig.user}`);
-        console.log(`DB_DATABASE: ${config_1.dbConfig.database}`);
-        console.log(`DB_PASSWORD: ${config_1.dbConfig.password}`);
+        console.log('retrieving guilds from db');
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
@@ -134,6 +140,7 @@ function retrieveGuildsFromDB(guildManager) {
 exports.retrieveGuildsFromDB = retrieveGuildsFromDB;
 function setDefaultChannelForGuild(guildId, channelId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('setting default channel for guild ' + guildId + ' to ' + channelId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             yield connection.execute('UPDATE `tnb_discord_guilds` SET `channel_id_for_drops` = ? WHERE `guild_id` = ?', [channelId, guildId]);
@@ -146,6 +153,7 @@ function setDefaultChannelForGuild(guildId, channelId) {
 exports.setDefaultChannelForGuild = setDefaultChannelForGuild;
 function insertItemIntoDropTable(itemId, itemType, guildId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('inserting item ' + itemId + ' into drop table for guild ' + guildId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             yield connection.execute('INSERT INTO `tnb_drops` (`guild_id`, `reward_id`, `reward_type`)  VALUES (?, ?, ?)', [guildId, itemId, itemType]);
@@ -158,6 +166,7 @@ function insertItemIntoDropTable(itemId, itemType, guildId) {
 exports.insertItemIntoDropTable = insertItemIntoDropTable;
 function updateLastDropTime(guildId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('updating last drop time for guild ' + guildId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             yield connection.execute('UPDATE `tnb_discord_guilds` SET `time_since_last_drop` = NOW() WHERE `guild_id` = ?', [guildId]);
@@ -170,6 +179,7 @@ function updateLastDropTime(guildId) {
 exports.updateLastDropTime = updateLastDropTime;
 function retrieveUnclaimedDrops(guildId) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('retrieving unclaimed drops for guild ' + guildId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             const [rows] = yield connection.execute('SELECT DISTINCT `reward_id` FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);

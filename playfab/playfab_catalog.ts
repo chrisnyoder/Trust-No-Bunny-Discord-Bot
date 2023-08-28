@@ -48,6 +48,8 @@ export async function searchCatalogItems(): Promise<any> {
             const contentType = item.ContentType;
             const imageUrl = item.Images[0].Url;
 
+            console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl}`);
+
             const playfabItem = new PlayfabItem(friendlyId, title, contentType, imageUrl);
             items.push(playfabItem);
         }
