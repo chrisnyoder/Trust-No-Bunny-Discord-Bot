@@ -1,6 +1,7 @@
 import { getDropFromGuild, addNewClaim, checkWhetherPlayerHasClaimedDrop } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { Drop } from '../database/drop';
+import { getItems } from '../playfab/playfab_catalog';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -23,7 +24,7 @@ const command = {
         {
             console.log('player attempted to claim a drop in a server where there are none');
             const responseMessage = `I'm sorry, we couldn't find a drop in this server`;
-            await interaction.reply({ content: responseMessage })
+            await interaction.reply({ content: responseMessage, ephemeral: true })
             return;
         }
 
@@ -32,7 +33,7 @@ const command = {
         { 
             console.log('player attempted to claim a drop when they have already claimed one');
             const responseMessage = `I'm sorry, it looks like you've already claimed the drop for this server`;
-            await interaction.reply({ content: responseMessage })
+            await interaction.reply({ content: responseMessage, ephemeral: true })
             return;
         } 
         
@@ -42,7 +43,8 @@ const command = {
         console.log('Claim successful for ' + interaction.user.id + ' with item ' + drop.reward_id + '.');
 
         // Construct the response message
-        const responseMessage = `Congratulations! You earned a ${drop.reward_id}. You can see it in Trust No Bunny.
+        var itemReceived = getItems().filter(el => el.friendlyId === drop.reward_id)[0];
+        const responseMessage = `Congratulations! You earned a ${itemReceived.title}. You can see it in Trust No Bunny.
         If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
         await interaction.reply({ content: responseMessage, ephemeral: true })
     }
