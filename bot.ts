@@ -41,7 +41,6 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 console.log(`Token: ${BOT_TOKEN}`);
-console.log(`DB_HOST: ${process.env.DB_HOST}`);
 console.log(`DB_USER: ${process.env.DB_USER}`);
 console.log(`DB_PASSWORD: ${process.env.DB_PASSWORD}`);
 
