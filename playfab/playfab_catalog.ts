@@ -1,14 +1,14 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { PlayfabItem } from './playfab_item';
 
 dotenv.config();
 
 const PLAYFAB_URL_GET_TOKEN = 'https://DDD75.playfabapi.com/Authentication/GetEntityToken';
 const PLAYFAB_URL_SEARCH_ITEMS = 'https://DDD75.playfabapi.com/Catalog/SearchItems';
 const SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
-var items: any[] = [];
-var currencyDropItems: any[] = [];
-var itemIds: string[] = [];
+var items: PlayfabItem[] = [];
+var currencyDropItems: PlayfabItem[] = [];
 
 async function getEntityToken() {
     console.log(`PlayFab secret key: ${SECRET_KEY}`)
@@ -41,10 +41,18 @@ export async function searchCatalogItems(): Promise<any> {
                 }
             }
         );
+
+        for (const item of response.data.data.Items) {
+            const friendlyId = item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId").Value;
+            const title = item.Title.NEUTRAL;
+            const contentType = item.ContentType;
+            const imageUrl = item.Images[0].Url;
+
+            const playfabItem = new PlayfabItem(friendlyId, title, contentType, imageUrl);
+            items.push(playfabItem);
+        }
         
-        items = response.data.data.Items;
-        currencyDropItems = items.filter(item => item.ContentType === "currency" && item.Title.NEUTRAL !== "100 Silver Karats");
-        itemIds = items.map(item => (item.Title.NEUTRAL as string).toLowerCase());
+        currencyDropItems = items.filter(item => item.type === "currency" && item.title !== "100 Silver Karats");
         return response.data; // Modify as per the actual structure of the returned data
     } catch (error) {
         console.error(`Error retrieving PlayFab catalog items: ${error}`);
@@ -56,35 +64,16 @@ export function getItems() {
     return items;
 }
 
-export function getItemIds() { 
-    return itemIds;
-}
-
 export function getCurrencyItems() { 
     return currencyDropItems;
 }
 
-export function getInitialDropItem() {
-    return items.find(item => item.Title.NEUTRAL === "100 Silver Karats");
-}
-
-export function getItemIdFromName(name: string) { 
-     // Find the item that matches the given title
-     const item = items.find(item => (item.Title.NEUTRAL as string).toLowerCase() === name);
-
-     // If the item was found, return the FriendlyId. Otherwise, return null.
-     return item ? (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId").Value) : null;
-}
-
-export function getNameFromItemId(id: string) {
-    const item = items.find(item =>
-        (item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId")
-        .Value) === id);
-    
-    return item ? item.Title.NEUTRAL : null;
+export function getInitialDropItem(): PlayfabItem {
+    var initialDropItem = items.find(item => item.title === "100 Silver Karats") as PlayfabItem;
+    return initialDropItem
 }
 
 export function retrieveBodyImage() {
-    const bodyItem = items.find(item => item.AlternateIds[0].Value.toLowerCase() === "body");
-    return bodyItem.Images[0].Url
+    const bodyItem = items.find(item => item.friendlyId.toLowerCase() === "body");
+    return bodyItem?.imageUrl;
 }

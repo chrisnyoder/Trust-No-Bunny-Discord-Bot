@@ -1,6 +1,7 @@
 import { Guild, TextChannel, inlineCode } from 'discord.js';
 import { getDropFromGuild, insertItemIntoDropTable, updateLastDropTime } from '../database/queries';
-import { getItems, getCurrencyItems, getInitialDropItem  } from '../playfab/playfab_catalog';
+import { getItems, getCurrencyItems, getInitialDropItem } from '../playfab/playfab_catalog';
+import { PlayfabItem } from '../playfab/playfab_item';
 
 export class TNBGuild {
     
@@ -88,6 +89,7 @@ export class TNBGuild {
     private async handleInitialDrop() {
         console.log('handling initial drop for guild ' + this.discordGuild.id);
         const initialDropItem = await getInitialDropItem();
+
         await this.updateDropTables(initialDropItem);
         await this.sendMessageOfDropToGuild(initialDropItem);
     }
@@ -101,26 +103,21 @@ export class TNBGuild {
         await this.sendMessageOfDropToGuild(randomItem);
     }
 
-    private async updateDropTables(randomItem: any) { 
+    private async updateDropTables(itemToUpdate: PlayfabItem) { 
         console.log('updating drop tables for guild ' + this.discordGuild.id);
-        const itemId = randomItem.AlternateIds[0].Value;
-        const itemType = randomItem.ContentType;
-        await insertItemIntoDropTable(itemId, itemType, this.discordGuild.id);
+        await insertItemIntoDropTable(itemToUpdate.friendlyId, itemToUpdate.type, this.discordGuild.id);
         await updateLastDropTime(this.discordGuild.id);
         this.startDropTimer();
     }
 
-    private async sendMessageOfDropToGuild(randomItem: any) {
+    private async sendMessageOfDropToGuild(itemToDrop: PlayfabItem) {
         console.log('sending message of drop to guild ' + this.discordGuild.id);
         // Retrieve the title and the image URL
-        const title = randomItem.Title.NEUTRAL;
-        const itemId = randomItem.AlternateIds[0].Value;
-        const imageUrl = randomItem.Images[0].Url;
 
         // Construct the response message
         const claimText = inlineCode(`/claim <item>`);
-        const responseMessage = `A ${title} just dropped! Use ${claimText} to claim it`;
-        await this.defaultChannel.send({ content: responseMessage, files: [imageUrl] });
+        const responseMessage = `A ${itemToDrop.title} just dropped! Use ${claimText} to claim it`;
+        await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
 
         // if (avatarItemTypes.includes(randomItem.ContentType)) {
         //     const attachment = await pasteItemOnBodyImage(itemId, imageUrl);

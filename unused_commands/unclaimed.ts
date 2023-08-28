@@ -1,6 +1,5 @@
 import { retrieveUnclaimedDrops } from '../database/queries'; 
 import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode } from 'discord.js';
-import { getNameFromItemId } from '../playfab/playfab_catalog';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -20,11 +19,11 @@ const command = {
         const availableDropIds = await retrieveUnclaimedDrops(interaction.guild?.id as string);
         var listOfItemNames: string[] = [];
 
-        availableDropIds.forEach(el => {
-            var itemName = getNameFromItemId(el);
-            var itemNameFormatted = inlineCode(itemName);
-            listOfItemNames.push(`${itemNameFormatted}`);
-        });
+        // availableDropIds.forEach(el => {
+        //     var itemName = getNameFromItemId(el);
+        //     var itemNameFormatted = inlineCode(itemName);
+        //     listOfItemNames.push(`${itemNameFormatted}`);
+        // });
 
         if (listOfItemNames.length === 0) { 
             // Construct the response message
