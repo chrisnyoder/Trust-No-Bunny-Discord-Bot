@@ -4,7 +4,7 @@ import mysql from 'mysql2/promise'; // Using mysql2 for promise-based interactio
 import { dbConfig } from '../config';
 import { Drop } from './drop';
 import { TNBGuild } from '../guilds/tnbGuild';
-import { Guild, GuildManager } from 'discord.js';
+import { Guild, GuildManager, TextChannel } from 'discord.js';
 
 // Check the last claim date for a user.
 export async function getDropFromGuild(guildId: string): Promise<Drop | null> {
@@ -114,7 +114,14 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
 
         const guilds = (rows as any[]).map(row => {
             const guild = guildManager.cache.get(row.guild_id) as Guild;
-            const guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as any;
+            
+            var guildChannel: TextChannel;
+            if (row.channel_id_for_drops === null) {
+                guildChannel = guild.systemChannel as TextChannel;
+            } else {
+                guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as TextChannel;
+            }
+           
             return new TNBGuild(guild, guildChannel);
         });
 
