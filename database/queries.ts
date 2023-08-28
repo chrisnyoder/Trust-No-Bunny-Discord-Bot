@@ -2,21 +2,33 @@ import mysql from 'mysql2/promise'; // Using mysql2 for promise-based interactio
 
 // This assumes you have a connection configuration set up somewhere.
 import { dbConfig } from '../config';
-import { GuildChannelMap } from '../guilds';
+import { Drop } from './drop';
+import { TNBGuild } from '../guilds/tnbGuild';
+import { Guild, GuildManager } from 'discord.js';
 
 // Check the last claim date for a user.
-export async function checkIfDropExistOnGuild(guildId: string, rewardId: string): Promise<any> {
+export async function getDropFromGuild(guildId: string): Promise<Drop | null> {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? AND `reward_id` = ? AND `has_been_claimed` = false', [guildId, rewardId]) as any[];
+        const query = await connection.execute('SELECT * FROM `tnb_drops` WHERE `guild_id` = ? ORDER BY drop_time DESC LIMIT 1', [guildId]) as any[];
 
-        if (rows.length > 0) {
-            return rows[0];
-        } else {
-            return null;
-        }
+        /// Cast query to drop type 
+        if(query.length === 0) return null;
+        
+        const drop = query[0] as Drop;
+        return drop;
+    } finally {
+        await connection.end();
+    }
+}
 
+export async function checkWhetherPlayerHasClaimedDrop(dropId: string, userId: string): Promise<boolean> { 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        const [rows] = await connection.execute('SELECT * FROM `tnb_claims` WHERE `drop_id` = ? AND `player_id` = ?', [dropId, userId]);
+        return (rows as any[]).length > 0;
     } finally {
         await connection.end();
     }
@@ -79,17 +91,20 @@ export async function setGuildStatusToActive(guildId: string): Promise<void>
     }
 }
 
-export async function retrieveGuildsFromDB(): Promise<GuildChannelMap> {
+export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<TNBGuild[]> {
 
     const connection = await mysql.createConnection(dbConfig);
 
     try {
         const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
 
-        return (rows as any[]).reduce((map, row) => {
-            map[row.guild_id] = row.channel_id_for_drops;
-            return map;
-        }, {} as GuildChannelMap);
+        const guilds = (rows as any[]).map(row => {
+            const guild = guildManager.cache.get(row.guild_id) as Guild;
+            const guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as any;
+            return new TNBGuild(guild, guildChannel);
+        });
+
+        return guilds;
     } finally {
         await connection.end();
     }

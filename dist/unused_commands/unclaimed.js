@@ -8,13 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const queries_1 = require("../database/queries");
 const discord_js_1 = require("discord.js");
+const playfab_catalog_1 = require("../playfab/playfab_catalog");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName('help')
-        .setDescription('help with the Trust No Bunny bot'),
+        .setName('unclaimed')
+        .setDescription('See the list of unclaimed items in this server'),
     execute(interaction) {
-        var _a;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!interaction.isChatInputCommand) {
                 return;
@@ -23,12 +25,22 @@ const command = {
                 console.log('oops! this command was not made in a Discord server. Not processing');
                 return;
             }
-            // Construct the response message
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. You need at least
-        10 members in this server for drops to occur. If you want to change the channel where drops occur, use the ${(0, discord_js_1.inlineCode)(`/channel set <channel>`)} command. To see the current drop
-        for this server, use the ${(0, discord_js_1.inlineCode)(`/unclaimed`)} command. To claim the drop, use the
-        ${(0, discord_js_1.inlineCode)(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-            yield interaction.reply({ content: responseMessage, ephemeral: true });
+            const availableDropIds = yield (0, queries_1.retrieveUnclaimedDrops)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id);
+            var listOfItemNames = [];
+            availableDropIds.forEach(el => {
+                var itemName = (0, playfab_catalog_1.getNameFromItemId)(el);
+                var itemNameFormatted = (0, discord_js_1.inlineCode)(itemName);
+                listOfItemNames.push(`${itemNameFormatted}`);
+            });
+            if (listOfItemNames.length === 0) {
+                // Construct the response message
+                const responseMessage = `The server currently doesn't have any unclaimed drops`;
+                yield interaction.reply({ content: responseMessage });
+            }
+            else {
+                const responseMessage = `Here is the list of unclaimed drops in this server: ${listOfItemNames.toString()}`;
+                yield interaction.reply({ content: responseMessage, ephemeral: true });
+            }
         });
     }
 };

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const discord_js_1 = require("discord.js");
-const guilds_1 = require("../guilds");
+const guilds_1 = require("../guilds/guilds");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('channel')

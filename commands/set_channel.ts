@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode, ChannelType, TextChannel, PermissionFlagsBits } from 'discord.js';
-import { setDefaultChannel } from '../guilds';
+import { setDefaultChannel } from '../guilds/guilds';
 
 const command = {
     data: new SlashCommandBuilder()

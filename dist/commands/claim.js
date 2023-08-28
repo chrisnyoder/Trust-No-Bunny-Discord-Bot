@@ -10,15 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const queries_1 = require("../database/queries");
 const discord_js_1 = require("discord.js");
-const playfab_catalog_1 = require("../playfab_catalog");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('claim')
-        .setDescription('Claim your item!')
-        .addStringOption(option => option
-        .setName('reward_name')
-        .setDescription("The name of the reward you're claiming")
-        .setRequired(true)),
+        .setDescription('Claim your item!'),
     execute(interaction) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -29,27 +24,25 @@ const command = {
                 console.log('oops! this command was not made in a Discord server. Not processing');
                 return;
             }
-            const titlesList = (0, playfab_catalog_1.getItemIds)();
-            const itemInput = interaction.options.getString('reward_name').toLowerCase();
-            if (!titlesList.includes(itemInput)) {
-                console.log('player inputted incorrect item ID');
-                const responseMessage = `I'm sorry, it looks like you have provided an incorrect item`;
+            const drop = yield (0, queries_1.getDropFromGuild)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id);
+            if (drop === null) {
+                console.log('player attempted to claim a drop in a server where there are none');
+                const responseMessage = `I'm sorry, we couldn't find a drop in this server`;
                 yield interaction.reply({ content: responseMessage });
                 return;
             }
-            var itemId = yield (0, playfab_catalog_1.getItemIdFromName)(itemInput);
-            var drop = yield (0, queries_1.checkIfDropExistOnGuild)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id, itemId);
-            if (drop === null) {
-                console.log('player attempted to claim an already-claimed item');
-                const responseMessage = `I'm sorry, there are no unclaimed rewards from this server matching the reward you provided`;
+            const playerHasAlreadyClaimedDrop = yield (0, queries_1.checkWhetherPlayerHasClaimedDrop)(drop.drop_id, interaction.user.id);
+            if (playerHasAlreadyClaimedDrop) {
+                console.log('player attempted to claim a drop when they have already claimed one');
+                const responseMessage = `I'm sorry, it looks like you've already claimed the drop for this server`;
                 yield interaction.reply({ content: responseMessage });
                 return;
             }
             yield (0, queries_1.addNewClaim)(drop.drop_id, interaction.user.id, drop.reward_id, drop.reward_type);
-            yield (0, queries_1.setDropAsClaimed)(drop.drop_id);
+            // await setDropAsClaimed(drop.drop_id);
             console.log('Claim successful for ' + interaction.user.id + ' with item ' + drop.reward_id + '.');
             // Construct the response message
-            const responseMessage = `Congratulations! You earned a ${itemInput}. You can see it in Trust No Bunny.
+            const responseMessage = `Congratulations! You earned a ${drop.reward_id}. You can see it in Trust No Bunny.
         If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
             yield interaction.reply({ content: responseMessage, ephemeral: true });
         });

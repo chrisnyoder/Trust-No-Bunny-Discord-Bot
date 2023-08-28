@@ -38,7 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
 const discord_js_1 = require("discord.js");
 const dotenv_1 = require("dotenv");
-const playfab_catalog_1 = require("./playfab_catalog");
+const playfab_catalog_1 = require("./playfab/playfab_catalog");
 (0, dotenv_1.config)();
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));

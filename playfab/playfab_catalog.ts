@@ -7,6 +7,7 @@ const PLAYFAB_URL_GET_TOKEN = 'https://DDD75.playfabapi.com/Authentication/GetEn
 const PLAYFAB_URL_SEARCH_ITEMS = 'https://DDD75.playfabapi.com/Catalog/SearchItems';
 const SECRET_KEY = process.env.PLAYFAB_SECRET_KEY;
 var items: any[] = [];
+var currencyDropItems: any[] = [];
 var itemIds: string[] = [];
 
 async function getEntityToken() {
@@ -42,6 +43,7 @@ export async function searchCatalogItems(): Promise<any> {
         );
         
         items = response.data.data.Items;
+        currencyDropItems = items.filter(item => item.ContentType === "currency" && item.Title.NEUTRAL !== "100 Silver Karats");
         itemIds = items.map(item => (item.Title.NEUTRAL as string).toLowerCase());
         return response.data; // Modify as per the actual structure of the returned data
     } catch (error) {
@@ -56,6 +58,14 @@ export function getItems() {
 
 export function getItemIds() { 
     return itemIds;
+}
+
+export function getCurrencyItems() { 
+    return currencyDropItems;
+}
+
+export function getInitialDropItem() {
+    return items.find(item => item.Title.NEUTRAL === "100 Silver Karats");
 }
 
 export function getItemIdFromName(name: string) { 

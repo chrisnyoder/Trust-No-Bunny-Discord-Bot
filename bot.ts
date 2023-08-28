@@ -1,6 +1,6 @@
 import { Client, Collection, Events, GatewayIntentBits, Guild } from 'discord.js';
 import { config } from 'dotenv';
-import { searchCatalogItems } from './playfab_catalog';
+import { searchCatalogItems } from './playfab/playfab_catalog';
 config();
 import fs from 'node:fs';
 import path from 'node:path';

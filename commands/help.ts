@@ -16,11 +16,10 @@ const command = {
         }
 
         // Construct the response message
-        const responseMessage = `The Trust No Bunny bot creates a random drop every 12-24 hours. If you want to change the channel where drops
-        occur, use the ${inlineCode(`/channel set <channel>`)} command. To see the list of unclaimed
-        drops in this server, use the ${inlineCode(`/unclaimed`)} command. To claim a drop, use the
-        ${inlineCode(`/claim <item>`)} command. To see your costumes go to play.friendlypixel.com`;
-
+        const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. You need at least
+        10 members in this server for drops to occur. If you want to change the channel where drops occur, use the ${inlineCode(`/channel set <channel>`)} command. To see the current drop
+        for this server, use the ${inlineCode(`/unclaimed`)} command. To claim the drop, use the
+        ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
         await interaction.reply({ content: responseMessage, ephemeral: true })
     }
 };
