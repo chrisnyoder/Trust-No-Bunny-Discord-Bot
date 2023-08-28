@@ -18,9 +18,9 @@ export class TNBGuild {
         this.defaultChannel = channel;
     }
 
-    activateBot() { 
+    async activateBot() { 
         console.log('activating bot for guild ' + this.discordGuild.id);
-        if (!this.guildHasProcessedDropBefore()) {
+        if (await !this.guildHasProcessedDropBefore()) {
             this.handleInitialDrop();
         }
         this.startDropTimer();
