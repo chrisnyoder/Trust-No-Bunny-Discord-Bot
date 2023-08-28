@@ -54,14 +54,11 @@ exports.client = new discord_js_1.Client({
         discord_js_1.GatewayIntentBits.MessageContent
     ]
 });
-require("./guilds");
+require("./guilds/guilds");
 exports.client.commands = new discord_js_1.Collection();
 const commandsPath = node_path_1.default.join(__dirname, 'commands');
 const commandFiles = node_fs_1.default.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 console.log(`Token: ${BOT_TOKEN}`);
-console.log(`DB_HOST: ${process.env.DB_HOST}`);
-console.log(`DB_USER: ${process.env.DB_USER}`);
-console.log(`DB_PASSWORD: ${process.env.DB_PASSWORD}`);
 exports.client.once('ready', () => {
     console.log('Bot is online! Fetching active guilds');
 });

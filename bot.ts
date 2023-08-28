@@ -20,7 +20,7 @@ export const client = new Client({
     ]
 });
 
-import './guilds/guilds.ts';    
+import './guilds/guilds';
 
 declare module 'discord.js' {
     interface Client {
@@ -41,7 +41,6 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 console.log(`Token: ${BOT_TOKEN}`);
-
 
 client.once('ready', () => {
     console.log('Bot is online! Fetching active guilds');

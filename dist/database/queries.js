@@ -112,6 +112,10 @@ function setGuildStatusToActive(guildId) {
 exports.setGuildStatusToActive = setGuildStatusToActive;
 function retrieveGuildsFromDB(guildManager) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log(`DB_HOST: ${config_1.dbConfig.host}`);
+        console.log(`DB_USER: ${config_1.dbConfig.user}`);
+        console.log(`DB_DATABASE: ${config_1.dbConfig.database}`);
+        console.log(`DB_PASSWORD: ${config_1.dbConfig.password}`);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');

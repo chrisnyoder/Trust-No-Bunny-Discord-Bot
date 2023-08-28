@@ -19,6 +19,7 @@ export class TNBGuild {
     }
 
     activateBot() { 
+        console.log('activating bot for guild ' + this.discordGuild.id);
         if (!this.guildHasProcessedDropBefore()) {
             this.handleInitialDrop();
         }
@@ -77,12 +78,14 @@ export class TNBGuild {
     }
 
     private async handleInitialDrop() {
+        console.log('handling initial drop for guild ' + this.discordGuild.id);
         const initialDropItem = await getInitialDropItem();
         await this.updateDropTables(initialDropItem);
         await this.sendMessageOfDropToGuild(initialDropItem);
     }
 
     private async handleRandomDrop() { 
+        console.log('handling random drop for guild ' + this.discordGuild.id);
         var currencyItems = getCurrencyItems();
         const randomItem = currencyItems[Math.floor(Math.random() * currencyItems.length)];
     

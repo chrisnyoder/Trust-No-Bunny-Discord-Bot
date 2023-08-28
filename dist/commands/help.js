@@ -24,10 +24,7 @@ const command = {
                 return;
             }
             // Construct the response message
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. You need at least
-        10 members in this server for drops to occur. If you want to change the channel where drops occur, use the ${(0, discord_js_1.inlineCode)(`/channel set <channel>`)} command. To see the current drop
-        for this server, use the ${(0, discord_js_1.inlineCode)(`/unclaimed`)} command. To claim the drop, use the
-        ${(0, discord_js_1.inlineCode)(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. To claim the current drop, use the ${(0, discord_js_1.inlineCode)(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
             yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }
