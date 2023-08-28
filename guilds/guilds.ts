@@ -5,8 +5,6 @@ import { TNBGuild} from './tnbGuild';
 
 var activeTNBGuilds = new Array<TNBGuild>();
 
-const avatarItemTypes: string[] = ["head", "eyes", "ears", "torso", "face_extras", "back", "straps", "nose"];
-
 client.once('ready', () => {
     (async () => {
         activeTNBGuilds = await retrieveGuildsFromDB(client.guilds); 

@@ -8,6 +8,8 @@ import { Guild, GuildManager } from 'discord.js';
 
 // Check the last claim date for a user.
 export async function getDropFromGuild(guildId: string): Promise<Drop | null> {
+    console.log('getting drop from guild ' + guildId);
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -24,6 +26,8 @@ export async function getDropFromGuild(guildId: string): Promise<Drop | null> {
 }
 
 export async function checkWhetherPlayerHasClaimedDrop(dropId: string, userId: string): Promise<boolean> { 
+    console.log('checking whether player ' + userId + ' has claimed drop ' + dropId);
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -35,6 +39,8 @@ export async function checkWhetherPlayerHasClaimedDrop(dropId: string, userId: s
 }
 
 export async function setDropAsClaimed(dropId: string) { 
+    console.log('setting drop ' + dropId + ' as claimed');
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -46,6 +52,7 @@ export async function setDropAsClaimed(dropId: string) {
 
 // Add a new claim to the database for a user.
 export async function addNewClaim(dropId: string, userId: string, rewardId: string, rewardType: string, ): Promise<void> {
+    console.log('adding new claim for user ' + userId + ' with drop ' + dropId + ' and reward ' + rewardId);
 
     const connection = await mysql.createConnection(dbConfig);
 
@@ -57,6 +64,7 @@ export async function addNewClaim(dropId: string, userId: string, rewardId: stri
 }
 
 export async function addNewGuild(guildId: string, memberCount: number): Promise<void> {
+    console.log('adding new guild ' + guildId + ' to db');
 
     const connection = await mysql.createConnection(dbConfig);
 
@@ -70,6 +78,7 @@ export async function addNewGuild(guildId: string, memberCount: number): Promise
 }
 
 export async function removeGuild(guildId: string): Promise<void> {
+    console.log('removing guild ' + guildId + ' from db');
 
     const connection = await mysql.createConnection(dbConfig);
 
@@ -80,8 +89,7 @@ export async function removeGuild(guildId: string): Promise<void> {
     }
 }
 
-export async function setGuildStatusToActive(guildId: string): Promise<void> 
-{ 
+export async function setGuildStatusToActive(guildId: string): Promise<void> { 
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -92,11 +100,7 @@ export async function setGuildStatusToActive(guildId: string): Promise<void>
 }
 
 export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<TNBGuild[]> {
-
-    console.log(`DB_HOST: ${dbConfig.host}`);
-    console.log(`DB_USER: ${dbConfig.user}`);
-    console.log(`DB_DATABASE: ${dbConfig.database}`);   
-    console.log(`DB_PASSWORD: ${dbConfig.password}`);
+    console.log('retrieving guilds from db');  
 
     const connection = await mysql.createConnection(dbConfig);
 
@@ -116,6 +120,8 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
 }
 
 export async function setDefaultChannelForGuild(guildId: string, channelId: string): Promise<void> { 
+    console.log('setting default channel for guild ' + guildId + ' to ' + channelId);
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -126,6 +132,8 @@ export async function setDefaultChannelForGuild(guildId: string, channelId: stri
 }
 
 export async function insertItemIntoDropTable(itemId: string, itemType: string, guildId: string): Promise<void> { 
+    console.log('inserting item ' + itemId + ' into drop table for guild ' + guildId);
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -136,6 +144,8 @@ export async function insertItemIntoDropTable(itemId: string, itemType: string, 
 }
 
 export async function updateLastDropTime(guildId: string): Promise<void> {
+    console.log('updating last drop time for guild ' + guildId);
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
@@ -146,6 +156,8 @@ export async function updateLastDropTime(guildId: string): Promise<void> {
 }
 
 export async function retrieveUnclaimedDrops(guildId: string): Promise<string[]> { 
+    console.log('retrieving unclaimed drops for guild ' + guildId);
+
     const connection = await mysql.createConnection(dbConfig);
 
     try {
