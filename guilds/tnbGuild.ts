@@ -115,7 +115,7 @@ export class TNBGuild {
         // Retrieve the title and the image URL
 
         // Construct the response message
-        const claimText = inlineCode(`/claim <item>`);
+        const claimText = inlineCode(`/claim`);
         const responseMessage = `A ${itemToDrop.title} just dropped! Use ${claimText} to claim it`;
         await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
 
