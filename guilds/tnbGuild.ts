@@ -7,7 +7,7 @@ export class TNBGuild {
     discordGuild: Guild;
     defaultChannel: TextChannel;
     dropTimer: NodeJS.Timeout | null = null;
-    minimumNumberOfMembers = 10;
+    minimumNumberOfMembers = 1;
 
     constructor(guild: Guild, defaultChannel: TextChannel) {
         this.discordGuild = guild;
@@ -24,7 +24,6 @@ export class TNBGuild {
             this.handleInitialDrop();
         }
         this.startDropTimer();
-        this.sendStartMessage(this.discordGuild);
     }
 
     deactiveBot() {
@@ -32,6 +31,7 @@ export class TNBGuild {
     }
 
     async guildAddedMember() {
+        console.log('guild added a member');
         const currentMemberCount = await this.getMemberCount();
         if(this.dropTimer === null && currentMemberCount >= this.minimumNumberOfMembers) {
             this.startDropTimer();
@@ -43,10 +43,16 @@ export class TNBGuild {
     }
 
     async guildRemovedMember() {
+        console.log('guild removed a member');
         const currentMemberCount = await this.getMemberCount();
         if(this.dropTimer !== null && currentMemberCount < this.minimumNumberOfMembers) {
             this.stopDropTimer();
         }
+    }
+
+    async sendStartMessage() {
+        const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+        await this.defaultChannel.send({ content: responseMessage });
     }
 
     private async getMemberCount(): Promise<number> {
@@ -57,10 +63,12 @@ export class TNBGuild {
 
     private async guildHasProcessedDropBefore(): Promise<boolean> {
         const drop = await getDropFromGuild(this.discordGuild.id);
+        console.log('guild has processed drop before: ' + (drop !== null));
         return drop !== null;
     }
 
     private startDropTimer() {
+        console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
             this.handleRandomDrop();
         }, this.getRandomDuration());
@@ -93,12 +101,8 @@ export class TNBGuild {
         await this.sendMessageOfDropToGuild(randomItem);
     }
 
-    private async sendStartMessage(guild: Guild) {
-        const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-        await this.defaultChannel.send({ content: responseMessage });
-    }
-
     private async updateDropTables(randomItem: any) { 
+        console.log('updating drop tables for guild ' + this.discordGuild.id);
         const itemId = randomItem.AlternateIds[0].Value;
         const itemType = randomItem.ContentType;
         await insertItemIntoDropTable(itemId, itemType, this.discordGuild.id);
@@ -107,6 +111,7 @@ export class TNBGuild {
     }
 
     private async sendMessageOfDropToGuild(randomItem: any) {
+        console.log('sending message of drop to guild ' + this.discordGuild.id);
         // Retrieve the title and the image URL
         const title = randomItem.Title.NEUTRAL;
         const itemId = randomItem.AlternateIds[0].Value;

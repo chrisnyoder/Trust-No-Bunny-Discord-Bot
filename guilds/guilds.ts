@@ -27,6 +27,7 @@ client.on('guildCreate', async (guild) => {
         activeTNBGuilds.push(tnbGuild);
         addNewGuild(guild.id, guild.memberCount);
         tnbGuild.activateBot();
+        tnbGuild.sendStartMessage();
     } else {
         const tnbGuild = matchingTNBGuilds[0];
         tnbGuild.activateBot();
