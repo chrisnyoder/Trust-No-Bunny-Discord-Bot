@@ -87,7 +87,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 async function initialize() {
     try {
         client.login(token); 
-        await searchCatalogItems();
         // You can add more startup tasks here if needed
     } catch (error) {
         console.error("Error during initialization:", error);

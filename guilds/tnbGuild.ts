@@ -96,7 +96,7 @@ export class TNBGuild {
 
     private async handleRandomDrop() { 
         console.log('handling random drop for guild ' + this.discordGuild.id);
-        var currencyItems = getCurrencyItems();
+        var currencyItems = await getCurrencyItems();
         const randomItem = currencyItems[Math.floor(Math.random() * currencyItems.length)];
     
         await this.updateDropTables(randomItem);

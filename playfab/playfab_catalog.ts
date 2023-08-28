@@ -66,16 +66,28 @@ export function getItems() {
     return items;
 }
 
-export function getCurrencyItems() { 
+export async function getCurrencyItems() { 
+    if (currencyDropItems.length === 0) { 
+        await searchCatalogItems();
+    }
+
     return currencyDropItems;
 }
 
-export function getInitialDropItem(): PlayfabItem {
+export async function getInitialDropItem(): Promise<PlayfabItem> {
+    if (items.length === 0) {
+        await searchCatalogItems();
+    }
+
     var initialDropItem = items.find(item => item.title === "100 Silver Karats") as PlayfabItem;
     return initialDropItem
 }
 
-export function retrieveBodyImage() {
+export async function retrieveBodyImage() {
+    if (items.length === 0) {
+        await searchCatalogItems();
+    }
+
     const bodyItem = items.find(item => item.friendlyId.toLowerCase() === "body");
     return bodyItem?.imageUrl;
 }
