@@ -20,7 +20,7 @@ export class TNBGuild {
 
     async activateBot() { 
         console.log('activating bot for guild ' + this.discordGuild.id);
-        if (await !this.guildHasProcessedDropBefore()) {
+        if (await this.guildHasProcessedDropBefore() === false) {
             this.handleInitialDrop();
         }
         this.startDropTimer();
