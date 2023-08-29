@@ -70,6 +70,7 @@ export async function addNewClaim(dropId: string, userId: string, rewardId: stri
 
 export async function guildIsInDatabase(guildId: string): Promise<boolean> {
     console.log('checking whether guild ' + guildId + ' is in db');
+    
 
     const connection = await mysql.createConnection(dbConfig);
 
