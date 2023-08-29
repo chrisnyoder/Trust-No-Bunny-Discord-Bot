@@ -15,6 +15,7 @@ const token: string = process.env.BOT_TOKEN as string;
 export const client = new Client({
     intents: [
         GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ]
