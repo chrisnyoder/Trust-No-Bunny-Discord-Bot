@@ -68,9 +68,20 @@ export async function addNewClaim(dropId: string, userId: string, rewardId: stri
     }
 }
 
-export async function addNewGuild(guildId: string, memberCount: number): Promise<void> {
-    console.log('adding new guild ' + guildId + ' to db');
+export async function guildIsInDatabase(guildId: string): Promise<boolean> {
+    console.log('checking whether guild ' + guildId + ' is in db');
 
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        const [rows] = await connection.execute('SELECT * FROM `tnb_discord_guilds` WHERE `guild_id` = ?', [guildId]);
+        return (rows as any[]).length > 0;
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function addNewGuild(guildId: string, memberCount: number): Promise<void> {
     const connection = await mysql.createConnection(dbConfig);
 
     console.log('adding new guild ' + guildId + ' to db');

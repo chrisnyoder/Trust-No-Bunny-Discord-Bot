@@ -42,6 +42,8 @@ export async function searchCatalogItems(): Promise<any> {
             }
         );
 
+        console.log('Retrieved PlayFab catalog items');
+
         for (const item of response.data.data.Items) {
             const friendlyId = item.AlternateIds.find((id: { Type: string, Value: string }) => id.Type === "FriendlyId").Value;
             const title = item.Title.NEUTRAL;

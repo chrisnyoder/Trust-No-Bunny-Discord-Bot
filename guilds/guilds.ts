@@ -1,5 +1,5 @@
 import { ChannelType, Guild, TextChannel, AttachmentBuilder, bold, italic, strikethrough, underscore, spoiler, quote, blockQuote, inlineCode } from 'discord.js';
-import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, insertItemIntoDropTable, updateLastDropTime, setDefaultChannelForGuild } from '../database/queries';
+import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, guildIsInDatabase, setDefaultChannelForGuild } from '../database/queries';
 import { client } from '../bot';
 import { TNBGuild} from './tnbGuild';
 
@@ -23,7 +23,13 @@ client.on('guildCreate', async (guild) => {
         var systemChannel = guild.systemChannel as TextChannel;
         const tnbGuild = new TNBGuild(guild, systemChannel);
         activeTNBGuilds.push(tnbGuild);
-        addNewGuild(guild.id, guild.memberCount);
+
+        if (await guildIsInDatabase(guild.id)) {
+            setGuildStatusToActive(guild.id);
+        } else {
+            addNewGuild(guild.id, guild.memberCount);
+        }
+        
         tnbGuild.activateBot();
         tnbGuild.sendStartMessage();
     } else {
