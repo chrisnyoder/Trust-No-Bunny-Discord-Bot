@@ -117,7 +117,7 @@ export async function setGuildStatusToActive(guildId: string): Promise<void> {
 
 export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<TNBGuild[]> {
     console.log('retrieving guilds from db');  
-
+    console.log('db config is ' + JSON.stringify(dbConfig));
     const connection = await mysql.createConnection(dbConfig);
 
     try {
