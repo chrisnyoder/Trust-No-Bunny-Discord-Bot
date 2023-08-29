@@ -16,7 +16,7 @@ const command = {
         }
 
         // Construct the response message
-        const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+        const responseMessage = `Trust No Bunny drops random bundles of Silver Karats to be redeemed in Trust No Bunny. Better rewards are more likely to drop in bigger servers. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. You can only claim the latest drop in a given server, but you there's no limit to the number of servers you can use to redeem rewards. To redeem rewards using your currency, go to play.friendlypixel.com`;
         await interaction.reply({ content: responseMessage, ephemeral: true })
     }
 };

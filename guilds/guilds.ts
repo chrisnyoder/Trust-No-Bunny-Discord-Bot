@@ -29,6 +29,7 @@ client.on('guildCreate', async (guild) => {
     } else {
         const tnbGuild = matchingTNBGuilds[0];
         tnbGuild.activateBot();
+        tnbGuild.sendStartMessage();
     }
 })
 

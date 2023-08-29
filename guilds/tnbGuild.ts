@@ -20,11 +20,16 @@ export class TNBGuild {
     }
 
     async activateBot() { 
-        console.log('activating bot for guild ' + this.discordGuild.id);
-        if (await this.guildHasProcessedDropBefore() === false) {
-            this.handleInitialDrop();
+
+        const currentMemberCount = await this.getMemberCount();
+
+        if (currentMemberCount >= this.minimumNumberOfMembers) {
+            console.log('activating bot for guild ' + this.discordGuild.id);
+            if (await this.guildHasProcessedDropBefore() === false) {
+                this.handleInitialDrop();
+            }
+            this.startDropTimer();
         }
-        this.startDropTimer();
     }
 
     deactiveBot() {
@@ -52,8 +57,15 @@ export class TNBGuild {
     }
 
     async sendStartMessage() {
-        const responseMessage = `The Trust No Bunny bot is now active in this server! Random drops will now occur in this server. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-        await this.defaultChannel.send({ content: responseMessage });
+        const numberOfGuildMembers = await this.getMemberCount();
+
+        if (numberOfGuildMembers < this.minimumNumberOfMembers) {
+            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            await this.defaultChannel.send({ content: responseMessage });
+        } else {
+            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            await this.defaultChannel.send({ content: responseMessage });
+        }
     }
 
     private async getMemberCount(): Promise<number> {
@@ -89,9 +101,10 @@ export class TNBGuild {
     private async handleInitialDrop() {
         console.log('handling initial drop for guild ' + this.discordGuild.id);
         const initialDropItem = await getInitialDropItem();
-
-        await this.updateDropTables(initialDropItem);
-        await this.sendMessageOfDropToGuild(initialDropItem);
+        setTimeout(() => {  
+            this.updateDropTables(initialDropItem);
+            this.sendMessageOfInitialDroptToGuild(initialDropItem);
+        }, 1000 * 30);
     }
 
     private async handleRandomDrop() { 
@@ -107,7 +120,6 @@ export class TNBGuild {
         console.log('updating drop tables for guild ' + this.discordGuild.id);
         await insertItemIntoDropTable(itemToUpdate.friendlyId, itemToUpdate.type, this.discordGuild.id);
         await updateLastDropTime(this.discordGuild.id);
-        this.startDropTimer();
     }
 
     private async sendMessageOfDropToGuild(itemToDrop: PlayfabItem) {
@@ -119,12 +131,22 @@ export class TNBGuild {
         const responseMessage = `A ${itemToDrop.title} just dropped! Use ${claimText} to claim it`;
         await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
 
+        this.startDropTimer();
+
         // if (avatarItemTypes.includes(randomItem.ContentType)) {
         //     const attachment = await pasteItemOnBodyImage(itemId, imageUrl);
         //     await firstTextChannel.send({ content: responseMessage, files: [attachment] });
         //     fs.unlinkSync(`./ ${itemId}.png`);
         // } 
     }
+
+    private async sendMessageOfInitialDroptToGuild(itemToDrop: PlayfabItem) { 
+        const claimText = inlineCode(`/claim`);
+        const responseMessage = `Here's ${itemToDrop.title} to get you started! Use ${claimText} to claim it. Use them at play.friendlypixel.com`;
+        await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
+    }
+
+    
 
     // async pasteItemOnBodyImage(itemId: string, url: string) { 
     

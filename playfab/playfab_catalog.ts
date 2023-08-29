@@ -47,14 +47,19 @@ export async function searchCatalogItems(): Promise<any> {
             const title = item.Title.NEUTRAL;
             const contentType = item.ContentType;
             const imageUrl = item.Images[0].Url;
+            var baseProbabilityOfDrop = 0;
 
-            console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl}`);
+            if(item.DisplayProperties.base_drop_probability !== undefined) {
+                baseProbabilityOfDrop = item.DisplayProperties.base_drop_probability;
+            }
 
-            const playfabItem = new PlayfabItem(friendlyId, title, contentType, imageUrl);
+            console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl} - ${baseProbabilityOfDrop}`);
+
+            const playfabItem = new PlayfabItem(friendlyId, title, contentType, imageUrl, baseProbabilityOfDrop);
             items.push(playfabItem);
         }
         
-        currencyDropItems = items.filter(item => item.type === "currency" && item.title !== "100 Silver Karats");
+        currencyDropItems = items.filter(item => item.type === "currency");
         return response.data; // Modify as per the actual structure of the returned data
     } catch (error) {
         console.error(`Error retrieving PlayFab catalog items: ${error}`);
