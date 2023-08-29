@@ -71,6 +71,7 @@ export class TNBGuild {
     }
 
     private async getMemberCount(): Promise<number> {
+        console.log('Getting member count...');
         await this.discordGuild.members.fetch();
         var numberOfGuildMembers = this.discordGuild.members.cache.filter(member => !member.user.bot).size;
         return numberOfGuildMembers;
