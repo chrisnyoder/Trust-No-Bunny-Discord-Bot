@@ -25,8 +25,10 @@ client.on('guildCreate', async (guild) => {
         activeTNBGuilds.push(tnbGuild);
 
         if (await guildIsInDatabase(guild.id)) {
+            console.log('guild ' + guild.id + ' is already in the database')
             setGuildStatusToActive(guild.id);
         } else {
+            console.log('adding guild ' + guild.id + ' to the database')
             addNewGuild(guild.id, guild.memberCount);
         }
         
