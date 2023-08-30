@@ -61,8 +61,8 @@ const command = {
 
         const rewardImage = await retrieveAwardImage(reward);
         setTimeout(async () => {
-            const responseMessage = `Congratulations! You received ${reward.title}. You can see this in Trust No Bunny.
-            If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
+            const responseMessage = `Congratulations! You received ${reward.title}. You can see this in Trust No Bunny (play.friendlypixel.com).
+            If you haven't connected your Discord account in game, you'll have to do that before you see your reward.`;
             await interaction.followUp({ content: responseMessage, files: [rewardImage], ephemeral: true })
         }, 7000)
     }
