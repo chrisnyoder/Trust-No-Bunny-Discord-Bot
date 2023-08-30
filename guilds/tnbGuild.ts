@@ -30,7 +30,7 @@ export class TNBGuild {
             if (await this.guildHasProcessedDropBefore() === false) {
                 this.handleInitialDrop();
             }
-            this.startDropTimer();
+            this.startDropTimer(dateSinceLastDrop);
         } else {
             console.log('not activating bot for guild ' + this.discordGuild.id + ' because it does not have enough members');
         }
