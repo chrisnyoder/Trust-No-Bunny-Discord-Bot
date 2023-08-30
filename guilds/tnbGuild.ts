@@ -1,7 +1,8 @@
-import { Guild, TextChannel, inlineCode } from 'discord.js';
+import { Attachment, Guild, TextChannel, inlineCode, AttachmentBuilder } from 'discord.js';
 import { getDropFromGuild, insertItemIntoDropTable, updateLastDropTime } from '../database/queries';
-import { getItems, getCurrencyItems, getInitialDropItem } from '../playfab/playfab_catalog';
+import { getItems, getInitialDropItem, getRandomItemBasedOnWeight } from '../playfab/playfab_catalog';
 import { PlayfabItem } from '../playfab/playfab_item';
+import { loadImage, createCanvas } from '@napi-rs/canvas';
 
 export class TNBGuild {
     
@@ -28,7 +29,7 @@ export class TNBGuild {
             if (await this.guildHasProcessedDropBefore() === false) {
                 this.handleInitialDrop();
             }
-            this.startDropTimer();
+            this.startDropTimer(currentMemberCount);
         } else {
             console.log('not activating bot for guild ' + this.discordGuild.id + ' because it does not have enough members');
         }
@@ -42,7 +43,7 @@ export class TNBGuild {
         console.log('guild added a member');
         const currentMemberCount = await this.getMemberCount();
         if(this.dropTimer === null && currentMemberCount >= this.minimumNumberOfMembers) {
-            this.startDropTimer();
+            this.startDropTimer(currentMemberCount);
 
             if (!this.guildHasProcessedDropBefore()) {
                 this.handleInitialDrop();
@@ -62,10 +63,10 @@ export class TNBGuild {
         const numberOfGuildMembers = await this.getMemberCount();
 
         if (numberOfGuildMembers < this.minimumNumberOfMembers) {
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
             await this.defaultChannel.send({ content: responseMessage });
         } else {
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To claim the current drop, use the ${inlineCode(`/claim <item>`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To claim the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
             await this.defaultChannel.send({ content: responseMessage });
         }
     }
@@ -83,10 +84,10 @@ export class TNBGuild {
         return drop !== null;
     }
 
-    private startDropTimer() {
+    private startDropTimer(serverSize: number) {
         console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
-            this.handleRandomDrop();
+            this.handleRandomDrop(serverSize);
         }, this.getRandomDuration());
     }
 
@@ -105,36 +106,35 @@ export class TNBGuild {
         console.log('handling initial drop for guild ' + this.discordGuild.id);
         const initialDropItem = await getInitialDropItem();
         setTimeout(() => {  
-            this.updateDropTables(initialDropItem);
+            this.updateDropTables();
             this.sendMessageOfInitialDroptToGuild(initialDropItem);
         }, 1000 * 30);
     }
 
-    private async handleRandomDrop() { 
-        console.log('handling random drop for guild ' + this.discordGuild.id);
-        var currencyItems = await getCurrencyItems();
-        const randomItem = currencyItems[Math.floor(Math.random() * currencyItems.length)];
+    private async handleRandomDrop(serverSize: number) { 
+        console.log('handling random drop for guild ' + this.discordGuild.id);;
     
-        await this.updateDropTables(randomItem);
-        await this.sendMessageOfDropToGuild(randomItem);
+        await this.updateDropTables();
+        await this.sendMessageOfDropToGuild();
     }
 
-    private async updateDropTables(itemToUpdate: PlayfabItem) { 
+    private async updateDropTables() { 
         console.log('updating drop tables for guild ' + this.discordGuild.id);
-        await insertItemIntoDropTable(itemToUpdate.friendlyId, itemToUpdate.type, this.discordGuild.id);
+        await insertItemIntoDropTable(this.discordGuild.id);
         await updateLastDropTime(this.discordGuild.id);
     }
 
-    private async sendMessageOfDropToGuild(itemToDrop: PlayfabItem) {
+    private async sendMessageOfDropToGuild() {
         console.log('sending message of drop to guild ' + this.discordGuild.id);
         // Retrieve the title and the image URL
 
         // Construct the response message
-        const claimText = inlineCode(`/claim`);
-        const responseMessage = `A ${itemToDrop.title} just dropped! Use ${claimText} to claim it`;
-        await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
+        const rollText = inlineCode(`/roll`);
+        const responseMessage = `A reward just dropped! Use ${rollText} to claim it`;
+        const unknownSkImage = await this.retrieveUnkownSkImage();
+        await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
 
-        this.startDropTimer();
+        this.startDropTimer(await this.getMemberCount());
 
         // if (avatarItemTypes.includes(randomItem.ContentType)) {
         //     const attachment = await pasteItemOnBodyImage(itemId, imageUrl);
@@ -144,12 +144,19 @@ export class TNBGuild {
     }
 
     private async sendMessageOfInitialDroptToGuild(itemToDrop: PlayfabItem) { 
-        const claimText = inlineCode(`/claim`);
+        const claimText = inlineCode(`/roll`);
         const responseMessage = `Here's ${itemToDrop.title} to get you started! Use ${claimText} to claim it. Use them at play.friendlypixel.com`;
         await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
     }
 
-    
+    private async retrieveUnkownSkImage(): Promise<AttachmentBuilder> { 
+        const unknownSkImage = await loadImage('./unknown_sk.png');
+        const canvas = createCanvas(500, 500);
+        const context = canvas.getContext('2d');
+        context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
+        const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'avatar-image.png' });
+        return attachment;
+    }
 
     // async pasteItemOnBodyImage(itemId: string, url: string) { 
     

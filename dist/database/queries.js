@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.setDefaultChannelForGuild = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.addNewClaim = exports.setDropAsClaimed = exports.checkWhetherPlayerHasClaimedDrop = exports.getDropFromGuild = void 0;
+exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.setDefaultChannelForGuild = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.guildIsInDatabase = exports.addNewClaim = exports.checkWhetherPlayerHasClaimedDrop = exports.getDropFromGuild = void 0;
 const promise_1 = __importDefault(require("mysql2/promise")); // Using mysql2 for promise-based interaction.
 // This assumes you have a connection configuration set up somewhere.
 const config_1 = require("../config");
@@ -53,19 +53,6 @@ function checkWhetherPlayerHasClaimedDrop(dropId, userId) {
     });
 }
 exports.checkWhetherPlayerHasClaimedDrop = checkWhetherPlayerHasClaimedDrop;
-function setDropAsClaimed(dropId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log('setting drop ' + dropId + ' as claimed');
-        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
-        try {
-            yield connection.execute('UPDATE `tnb_drops` SET `has_been_claimed` = true WHERE `drop_id` = ?', [dropId]);
-        }
-        finally {
-            yield connection.end();
-        }
-    });
-}
-exports.setDropAsClaimed = setDropAsClaimed;
 // Add a new claim to the database for a user.
 function addNewClaim(dropId, userId, rewardId, rewardType) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -80,9 +67,22 @@ function addNewClaim(dropId, userId, rewardId, rewardType) {
     });
 }
 exports.addNewClaim = addNewClaim;
+function guildIsInDatabase(guildId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('checking whether guild ' + guildId + ' is in db');
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            const [rows] = yield connection.execute('SELECT * FROM `tnb_discord_guilds` WHERE `guild_id` = ?', [guildId]);
+            return rows.length > 0;
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.guildIsInDatabase = guildIsInDatabase;
 function addNewGuild(guildId, memberCount) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('adding new guild ' + guildId + ' to db');
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         console.log('adding new guild ' + guildId + ' to db');
         try {
@@ -122,12 +122,20 @@ exports.setGuildStatusToActive = setGuildStatusToActive;
 function retrieveGuildsFromDB(guildManager) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('retrieving guilds from db');
+        console.log('db config is ' + JSON.stringify(config_1.dbConfig));
+        console.log('db password is ' + config_1.dbConfig.password);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
             const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
             const guilds = rows.map(row => {
                 const guild = guildManager.cache.get(row.guild_id);
-                const guildChannel = guild.channels.cache.get(row.channel_id_for_drops);
+                var guildChannel;
+                if (row.channel_id_for_drops === null) {
+                    guildChannel = guild.systemChannel;
+                }
+                else {
+                    guildChannel = guild.channels.cache.get(row.channel_id_for_drops);
+                }
                 return new tnbGuild_1.TNBGuild(guild, guildChannel);
             });
             return guilds;
@@ -151,12 +159,12 @@ function setDefaultChannelForGuild(guildId, channelId) {
     });
 }
 exports.setDefaultChannelForGuild = setDefaultChannelForGuild;
-function insertItemIntoDropTable(itemId, itemType, guildId) {
+function insertItemIntoDropTable(guildId) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('inserting item ' + itemId + ' into drop table for guild ' + guildId);
+        console.log('inserting drop into table for guild ' + guildId);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            yield connection.execute('INSERT INTO `tnb_drops` (`guild_id`, `reward_id`, `reward_type`)  VALUES (?, ?, ?)', [guildId, itemId, itemType]);
+            yield connection.execute('INSERT INTO `tnb_drops` (`guild_id`)  VALUES (?)', [guildId]);
         }
         finally {
             yield connection.end();

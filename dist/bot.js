@@ -38,7 +38,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
 const discord_js_1 = require("discord.js");
 const dotenv_1 = require("dotenv");
-const playfab_catalog_1 = require("./playfab/playfab_catalog");
 (0, dotenv_1.config)();
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
@@ -50,6 +49,7 @@ const token = process.env.BOT_TOKEN;
 exports.client = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.Guilds,
+        discord_js_1.GatewayIntentBits.GuildMembers,
         discord_js_1.GatewayIntentBits.GuildMessages,
         discord_js_1.GatewayIntentBits.MessageContent
     ]
@@ -103,7 +103,6 @@ function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             exports.client.login(token);
-            yield (0, playfab_catalog_1.searchCatalogItems)();
             // You can add more startup tasks here if needed
         }
         catch (error) {

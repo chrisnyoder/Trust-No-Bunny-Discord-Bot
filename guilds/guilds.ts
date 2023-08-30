@@ -78,3 +78,10 @@ export function setDefaultChannel(guildId: string, channel: TextChannel) {
     matchingTNBGuilds[0].setDefaultChannel(channel);
     setDefaultChannelForGuild(guildId, channel.id);
 }
+
+export function getServerSizeModifier(serverSize: number) { 
+    if (serverSize > 10000) return 3;
+    else if (serverSize > 1000) return 2;
+    else if (serverSize > 100) return 1;
+    return 0;
+}

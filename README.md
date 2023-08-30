@@ -26,5 +26,5 @@ Welcome to the Trust No Bunny Discord Reward Bot! This bot integrates seamlessly
 5. ```npm start```
 
 ## 🎮 Usage
-- Claiming a Reward: When a reward drops in a Discord channel, players can claim it by using the /claim <item> command.
+- Claiming a Reward: When a reward drops in a Discord channel, players can claim it by using the /roll command.
 - Setting Reward Channel: Server admins can set the channel for reward drops, ensuring that only the intended audience can claim the rewards.

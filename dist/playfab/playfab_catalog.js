@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveBodyImage = exports.getInitialDropItem = exports.getCurrencyItems = exports.getItems = exports.searchCatalogItems = void 0;
+exports.getRandomItemBasedOnWeight = exports.retrieveBodyImage = exports.getInitialDropItem = exports.getItems = exports.searchCatalogItems = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const playfab_item_1 = require("./playfab_item");
@@ -52,15 +52,21 @@ function searchCatalogItems() {
                     'Content-Type': 'application/json'
                 }
             });
+            console.log('Retrieved PlayFab catalog items');
             for (const item of response.data.data.Items) {
                 const friendlyId = item.AlternateIds.find((id) => id.Type === "FriendlyId").Value;
                 const title = item.Title.NEUTRAL;
                 const contentType = item.ContentType;
                 const imageUrl = item.Images[0].Url;
-                const playfabItem = new playfab_item_1.PlayfabItem(friendlyId, title, contentType, imageUrl);
+                var diceRollRequirement = 0;
+                if (item.DisplayProperties.base_drop_probability !== undefined) {
+                    diceRollRequirement = item.DisplayProperties.dice_roll_requirement;
+                }
+                console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl} - ${diceRollRequirement}`);
+                const playfabItem = new playfab_item_1.PlayfabItem(friendlyId, title, contentType, imageUrl, diceRollRequirement);
                 items.push(playfabItem);
             }
-            currencyDropItems = items.filter(item => item.type === "currency" && item.title !== "100 Silver Karats");
+            currencyDropItems = items.filter(item => item.type === "currency");
             return response.data; // Modify as per the actual structure of the returned data
         }
         catch (error) {
@@ -71,20 +77,54 @@ function searchCatalogItems() {
 }
 exports.searchCatalogItems = searchCatalogItems;
 function getItems() {
-    return items;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (items.length === 0) {
+            searchCatalogItems();
+        }
+        return items;
+    });
 }
 exports.getItems = getItems;
-function getCurrencyItems() {
-    return currencyDropItems;
-}
-exports.getCurrencyItems = getCurrencyItems;
 function getInitialDropItem() {
-    var initialDropItem = items.find(item => item.title === "100 Silver Karats");
-    return initialDropItem;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (items.length === 0) {
+            yield searchCatalogItems();
+        }
+        var initialDropItem = items.find(item => item.title === "100 Silver Karats");
+        return initialDropItem;
+    });
 }
 exports.getInitialDropItem = getInitialDropItem;
 function retrieveBodyImage() {
-    const bodyItem = items.find(item => item.friendlyId.toLowerCase() === "body");
-    return bodyItem === null || bodyItem === void 0 ? void 0 : bodyItem.imageUrl;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (items.length === 0) {
+            yield searchCatalogItems();
+        }
+        const bodyItem = items.find(item => item.friendlyId.toLowerCase() === "body");
+        return bodyItem === null || bodyItem === void 0 ? void 0 : bodyItem.imageUrl;
+    });
 }
 exports.retrieveBodyImage = retrieveBodyImage;
+function getRandomItemBasedOnWeight(serverSize) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('getting random item based on weight');
+        if (items.length === 0) {
+            yield searchCatalogItems();
+        }
+        const flatWeightBasedOnServerSize = serverSize * 0.005;
+        var totalWeight = 0;
+        items.forEach(item => totalWeight += (item.diceRollRequirement + flatWeightBasedOnServerSize));
+        var randomWeight = Math.random() * totalWeight;
+        var chosenItem = items[0];
+        for (const item of items) {
+            console.log('current item is ' + item.friendlyId + ' with weight ' + (item.diceRollRequirement + flatWeightBasedOnServerSize) + ' and random weight is ' + randomWeight);
+            randomWeight -= (item.diceRollRequirement + flatWeightBasedOnServerSize);
+            if (randomWeight <= 0) {
+                chosenItem = item;
+                break;
+            }
+        }
+        return chosenItem;
+    });
+}
+exports.getRandomItemBasedOnWeight = getRandomItemBasedOnWeight;

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setDefaultChannel = void 0;
+exports.getServerSizeModifier = exports.setDefaultChannel = void 0;
 const queries_1 = require("../database/queries");
 const bot_1 = require("../bot");
 const tnbGuild_1 = require("./tnbGuild");
@@ -30,13 +30,21 @@ bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, func
         var systemChannel = guild.systemChannel;
         const tnbGuild = new tnbGuild_1.TNBGuild(guild, systemChannel);
         activeTNBGuilds.push(tnbGuild);
-        (0, queries_1.addNewGuild)(guild.id, guild.memberCount);
+        if (yield (0, queries_1.guildIsInDatabase)(guild.id)) {
+            console.log('guild ' + guild.id + ' is already in the database');
+            (0, queries_1.setGuildStatusToActive)(guild.id);
+        }
+        else {
+            console.log('adding guild ' + guild.id + ' to the database');
+            (0, queries_1.addNewGuild)(guild.id, guild.memberCount);
+        }
         tnbGuild.activateBot();
         tnbGuild.sendStartMessage();
     }
     else {
         const tnbGuild = matchingTNBGuilds[0];
         tnbGuild.activateBot();
+        tnbGuild.sendStartMessage();
     }
 }));
 bot_1.client.on('guildDelete', (guild) => __awaiter(void 0, void 0, void 0, function* () {
@@ -73,3 +81,13 @@ function setDefaultChannel(guildId, channel) {
     (0, queries_1.setDefaultChannelForGuild)(guildId, channel.id);
 }
 exports.setDefaultChannel = setDefaultChannel;
+function getServerSizeModifier(serverSize) {
+    if (serverSize > 10000)
+        return 3;
+    else if (serverSize > 1000)
+        return 2;
+    else if (serverSize > 100)
+        return 1;
+    return 0;
+}
+exports.getServerSizeModifier = getServerSizeModifier;

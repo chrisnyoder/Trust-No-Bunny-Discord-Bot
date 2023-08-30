@@ -49,15 +49,15 @@ export async function searchCatalogItems(): Promise<any> {
             const title = item.Title.NEUTRAL;
             const contentType = item.ContentType;
             const imageUrl = item.Images[0].Url;
-            var baseProbabilityOfDrop = 0;
+            var diceRollRequirement = 0;
 
             if(item.DisplayProperties.base_drop_probability !== undefined) {
-                baseProbabilityOfDrop = item.DisplayProperties.base_drop_probability;
+                diceRollRequirement = item.DisplayProperties.dice_roll_requirement;
             }
 
-            console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl} - ${baseProbabilityOfDrop}`);
+            console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl} - ${diceRollRequirement}`);
 
-            const playfabItem = new PlayfabItem(friendlyId, title, contentType, imageUrl, baseProbabilityOfDrop);
+            const playfabItem = new PlayfabItem(friendlyId, title, contentType, imageUrl, diceRollRequirement);
             items.push(playfabItem);
         }
         
@@ -69,16 +69,12 @@ export async function searchCatalogItems(): Promise<any> {
     }
 }
 
-export function getItems() {
-    return items;
-}
-
-export async function getCurrencyItems() { 
-    if (currencyDropItems.length === 0) { 
-        await searchCatalogItems();
+export async function getItems() {
+    if (items.length === 0) {
+        searchCatalogItems();
     }
 
-    return currencyDropItems;
+    return items;
 }
 
 export async function getInitialDropItem(): Promise<PlayfabItem> {
@@ -97,4 +93,31 @@ export async function retrieveBodyImage() {
 
     const bodyItem = items.find(item => item.friendlyId.toLowerCase() === "body");
     return bodyItem?.imageUrl;
+}
+
+export async function getRandomItemBasedOnWeight(serverSize: number): Promise<PlayfabItem> {
+    console.log('getting random item based on weight');
+
+    if (items.length === 0) {
+        await searchCatalogItems();
+    }
+
+    const flatWeightBasedOnServerSize = serverSize * 0.005;
+    
+    var totalWeight = 0;
+    items.forEach(item => totalWeight += (item.diceRollRequirement + flatWeightBasedOnServerSize));
+
+    var randomWeight = Math.random() * totalWeight;
+    var chosenItem = items[0];
+
+    for (const item of items) {
+        console.log('current item is ' + item.friendlyId + ' with weight ' + (item.diceRollRequirement + flatWeightBasedOnServerSize) + ' and random weight is ' + randomWeight)
+        randomWeight -= (item.diceRollRequirement + flatWeightBasedOnServerSize);
+        if (randomWeight <= 0) {
+            chosenItem = item;
+            break;
+        }
+    }
+
+    return chosenItem;
 }

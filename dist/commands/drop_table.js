@@ -9,12 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const discord_js_1 = require("discord.js");
+const playfab_catalog_1 = require("../playfab/playfab_catalog");
+const guilds_1 = require("../guilds/guilds");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName('help')
-        .setDescription('help with the Trust No Bunny bot'),
+        .setName('droptable')
+        .setDescription('Gets the dice roll requirements for each item in the drop table')
+        .addNumberOption(option => option.setName('server_size')
+        .setDescription('Optional parameter to see what drop table would look like for a server of a different size')
+        .setRequired(false)),
     execute(interaction) {
-        var _a;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!interaction.isChatInputCommand) {
                 return;
@@ -23,8 +28,17 @@ const command = {
                 console.log('oops! this command was not made in a Discord server. Not processing');
                 return;
             }
-            // Construct the response message
-            const responseMessage = `Trust No Bunny allows users to roll for currency that can be spent in Trust No Bunny.  To roll for the current drop, use the ${(0, discord_js_1.inlineCode)(`/roll`)} command. You can only claim the latest drop in any given server, but you there's no limit to the number of servers you can use to redeem rewards. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            /// create drop table (normalized as a percentage) based on the player's server size
+            var serverSize = (_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.memberCount;
+            if (interaction.options.getNumber('server_size') !== null) {
+                serverSize = interaction.options.getNumber('server_size');
+            }
+            var items = yield (0, playfab_catalog_1.getItems)();
+            var responseMessage = `Here are the dice roll requirements for each item in the drop table for a server of size ${serverSize}:\n\n`;
+            items.forEach(el => {
+                responseMessage += `${el.friendlyId}: ${el.diceRollRequirement} or higher\n`;
+            });
+            responseMessage += "This server has a size modifier of " + (0, guilds_1.getServerSizeModifier)(serverSize) + "\n\n";
             yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }

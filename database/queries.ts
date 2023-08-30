@@ -43,18 +43,6 @@ export async function checkWhetherPlayerHasClaimedDrop(dropId: string, userId: s
     }
 }
 
-export async function setDropAsClaimed(dropId: string) { 
-    console.log('setting drop ' + dropId + ' as claimed');
-
-    const connection = await mysql.createConnection(dbConfig);
-
-    try {
-        await connection.execute('UPDATE `tnb_drops` SET `has_been_claimed` = true WHERE `drop_id` = ?', [dropId]);
-    } finally {
-        await connection.end();
-    }
-}
-
 // Add a new claim to the database for a user.
 export async function addNewClaim(dropId: string, userId: string, rewardId: string, rewardType: string, ): Promise<void> {
     console.log('adding new claim for user ' + userId + ' with drop ' + dropId + ' and reward ' + rewardId);
@@ -156,13 +144,13 @@ export async function setDefaultChannelForGuild(guildId: string, channelId: stri
     }
 }
 
-export async function insertItemIntoDropTable(itemId: string, itemType: string, guildId: string): Promise<void> { 
-    console.log('inserting item ' + itemId + ' into drop table for guild ' + guildId);
+export async function insertItemIntoDropTable(guildId: string): Promise<void> { 
+    console.log('inserting drop into table for guild ' + guildId);
 
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        await connection.execute('INSERT INTO `tnb_drops` (`guild_id`, `reward_id`, `reward_type`)  VALUES (?, ?, ?)', [guildId, itemId, itemType]);
+        await connection.execute('INSERT INTO `tnb_drops` (`guild_id`)  VALUES (?)', [guildId]);
     } finally {
         await connection.end();
     }
