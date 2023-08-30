@@ -23,14 +23,14 @@ const command = {
         }
         
         /// create drop table (normalized as a percentage) based on the player's server size
-        var serverSize = interaction.guild?.memberCount as number;
+        var serverSizeWithoutBots = interaction.guild?.members.cache.filter(member => !member.user.bot).size;
 
         if (interaction.options.getNumber('server_size') !== null) { 
-            serverSize = interaction.options.getNumber('server_size') as number;   
+            serverSizeWithoutBots = interaction.options.getNumber('server_size') as number;   
         }
 
         var items = await getItems();
-        var responseMessage = `Here are the dice roll requirements for each item in the drop table for a server of size ${serverSize}:\n\n`
+        var responseMessage = `Here are the dice roll requirements for each item in the drop table for a server of size ${serverSizeWithoutBots}:\n\n`
 
         var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
 
@@ -38,7 +38,7 @@ const command = {
             responseMessage += `${el.diceRollRequirement} or higher: ${el.title}\n`;
         });
 
-        responseMessage += "\nThis server has a size modifier of " + getServerSizeModifier(serverSize) + "\n\n";
+        responseMessage += "\nThis server has a size modifier of " + getServerSizeModifier(serverSizeWithoutBots) + "\n\n";
         
         await interaction.reply({ content: responseMessage, ephemeral: true })
     }
