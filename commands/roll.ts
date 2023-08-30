@@ -39,7 +39,6 @@ const command = {
             return;
         } 
         
-
         var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
         var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
 
