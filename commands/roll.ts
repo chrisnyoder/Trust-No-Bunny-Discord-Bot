@@ -76,9 +76,12 @@ async function get20SidedDiceRoll(serverSize: number): Promise<number> {
 async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
     const items = await getItems();
 
-    for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        if (item.diceRollRequirement >= d20Diceroll) {
+    /// sort items by dice roll requirement descending
+    var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
+
+    for (var i = 0; i < sortedItems.length; i++) {
+        var item = sortedItems[i];
+        if (d20Diceroll >= item.diceRollRequirement) {
             console.log('found reward ' + item.friendlyId + ' for diceroll ' + d20Diceroll);
             return item;
         }
