@@ -1,9 +1,12 @@
 import { getDropFromGuild, addNewClaim, checkWhetherPlayerHasClaimedDrop } from '../database/queries'; 
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, AttachmentBuilder } from 'discord.js';
 import { Drop } from '../database/drop';
 import { getItems } from '../playfab/playfab_catalog';
 import { PlayfabItem } from '../playfab/playfab_item';
 import { getServerSizeModifier } from '../guilds/guilds';
+import { loadImage, createCanvas } from '@napi-rs/canvas';
+import axios from 'axios';
+import fs from 'fs';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -56,11 +59,12 @@ const command = {
             })
         }, 3000);
 
+        const rewardImage = await retrieveAwardImage(reward);
         setTimeout(async () => {
             const responseMessage = `Congratulations! You received ${reward.title}. You can see this in Trust No Bunny.
             If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
-            await interaction.followUp({ content: responseMessage, ephemeral: true })
-        }, 5000)
+            await interaction.followUp({ content: responseMessage, files: [rewardImage], ephemeral: true })
+        }, 8000)
     }
 };
 
@@ -82,6 +86,27 @@ async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
 
     console.log('oops! something went wrong. Could not find a reward for diceroll ' + d20Diceroll);
     return items[0];
+}
+
+async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> { 
+
+    if(!fs.existsSync(`./ ${item.friendlyId}.png`))
+    {
+        await downloadImage(item.friendlyId, item.imageUrl);
+    }
+
+    const itemImage = await loadImage(`./ ${item.friendlyId}.png`)
+    const canvas = createCanvas(300, 300);
+    const context = canvas.getContext('2d');
+    context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
+
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: `${item.friendlyId}.png` });
+    return attachment;
+}
+
+async function downloadImage(itemId: string, url: string): Promise<void>  { 
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    fs.writeFileSync(`./ ${itemId}.png`, response.data);
 }
 
 export = command;

@@ -143,7 +143,7 @@ export class TNBGuild {
 
     private async retrieveUnkownSkImage(): Promise<AttachmentBuilder> { 
         const unknownSkImage = await loadImage('./unknown_sk.png');
-        const canvas = createCanvas(500, 500);
+        const canvas = createCanvas(300, 300);
         const context = canvas.getContext('2d');
         context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
         const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'avatar-image.png' });
