@@ -129,7 +129,7 @@ export class TNBGuild {
 
         // Construct the response message
         const rollText = inlineCode(`/roll`);
-        const responseMessage = `A reward just dropped! Use ${rollText} to claim it`;
+        const responseMessage = `A mysterious rabbit is handing out coins to stave off the werebunny attack! Use ${rollText} to see what you get!`;
         const unknownSkImage = await this.retrieveUnkownSkImage();
         await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
 

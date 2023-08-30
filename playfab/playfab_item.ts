@@ -4,7 +4,7 @@ export class PlayfabItem {
     title: string;
     type: string;
     imageUrl: string;
-    diceRollRequirement: number = 0;
+    diceRollRequirement: number;
     
     constructor(id: string, name: string, type: string, imageUrl: string, diceRollRequirement: number = 0) {
         this.friendlyId = id;
