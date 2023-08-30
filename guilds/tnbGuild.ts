@@ -9,19 +9,20 @@ export class TNBGuild {
     discordGuild: Guild;
     defaultChannel: TextChannel;
     dropTimer: NodeJS.Timeout | null = null;
+    timeSinceLastDrop: Date | null = null;
     minimumNumberOfMembers = 1;
 
-    constructor(guild: Guild, defaultChannel: TextChannel) {
+    constructor(guild: Guild, defaultChannel: TextChannel, timeSinceLastDrop: Date | null = null) {
         this.discordGuild = guild;
         this.defaultChannel = defaultChannel;
+        this.timeSinceLastDrop = timeSinceLastDrop;
     }
 
     setDefaultChannel(channel: TextChannel) {
         this.defaultChannel = channel;
     }
 
-    async activateBot() { 
-
+    async activateBot(dateSinceLastDrop: Date | null = null) { 
         const currentMemberCount = await this.getMemberCount();
 
         if (currentMemberCount >= this.minimumNumberOfMembers) {
@@ -84,7 +85,7 @@ export class TNBGuild {
         return drop !== null;
     }
 
-    private startDropTimer() {
+    private startDropTimer(dateSinceLastDrop: Date | null = null) {
         console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
             this.handleDrop();
@@ -97,11 +98,19 @@ export class TNBGuild {
         }
     }
 
-    private getRandomDuration() {
-        // Generate a random time between 12 and 24 hours in milliseconds
-        return 1000 * 60;
+    private getRandomDuration(dateSinceLastDrop: Date | null = null) {
 
-        // return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + (12 * 60 * 60 * 1000);
+        if (dateSinceLastDrop !== null) {
+            console.log('guild has processed drop before, calculating time until next drop for guild ' + this.discordGuild.id);
+
+            const timeSinceLastDrop = new Date().getTime() - dateSinceLastDrop.getTime();
+            const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
+            return timeUntilNextDrop;
+        } else {
+            console.log('First time drop for guild ' + this.discordGuild.id + ` getting random duration of time for next drop`);
+            return 1000 * 60;
+            // return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + (12 * 60 * 60 * 1000);
+        }
     }
 
     private async handleInitialDrop() {
