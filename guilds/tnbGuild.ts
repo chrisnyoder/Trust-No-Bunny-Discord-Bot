@@ -133,12 +133,6 @@ export class TNBGuild {
         await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
 
         this.startDropTimer();
-
-        // if (avatarItemTypes.includes(randomItem.ContentType)) {
-        //     const attachment = await pasteItemOnBodyImage(itemId, imageUrl);
-        //     await firstTextChannel.send({ content: responseMessage, files: [attachment] });
-        //     fs.unlinkSync(`./ ${itemId}.png`);
-        // } 
     }
 
     private async retrieveUnkownSkImage(): Promise<AttachmentBuilder> { 
@@ -149,28 +143,4 @@ export class TNBGuild {
         const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'avatar-image.png' });
         return attachment;
     }
-
-    // async pasteItemOnBodyImage(itemId: string, url: string) { 
-    
-    //     const bodyImage = await loadImage('./body_main.png');;
-    //     if(!fs.existsSync(`./ ${itemId}.png`))
-    //     {
-    //         await downloadImage(itemId, url);
-    //     }
-    
-    //     const itemImage = await loadImage(`./ ${itemId}.png`)
-    //     const canvas = createCanvas(500, 500);
-    //     const context = canvas.getContext('2d');
-    
-    //     context.drawImage(bodyImage, 0, 0, canvas.width, canvas.height);
-    //     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
-    
-    //     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'avatar-image.png' });
-    //     return attachment;
-    // }
-    
-    // async downloadImage(itemId: string, url: string): Promise<void>  { 
-    //     const response = await axios.get(url, { responseType: 'arraybuffer' });
-    //     fs.writeFileSync(`./ ${itemId}.png`, response.data);
-    // }
 }
