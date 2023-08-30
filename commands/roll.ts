@@ -77,10 +77,11 @@ async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
     const items = await getItems();
 
     /// sort items by dice roll requirement descending
-    var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
+    var descendingSortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
 
-    for (var i = 0; i < sortedItems.length; i++) {
-        var item = sortedItems[i];
+    for (var i = 0; i < descendingSortedItems.length; i++) {
+        console.log('checking item ' + descendingSortedItems[i].friendlyId + ' with diceroll ' + d20Diceroll);
+        var item = descendingSortedItems[i];
         if (d20Diceroll >= item.diceRollRequirement) {
             console.log('found reward ' + item.friendlyId + ' for diceroll ' + d20Diceroll);
             return item;
