@@ -87,7 +87,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 async function initialize() {
     try {
-        client.login(token); 
+        client.login(token);
         // You can add more startup tasks here if needed
     } catch (error) {
         console.error("Error during initialization:", error);

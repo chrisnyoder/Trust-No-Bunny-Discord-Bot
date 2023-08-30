@@ -43,9 +43,10 @@ const command = {
         var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
 
         const reward = await getRewardId(d20Diceroll + serverSizeModifier);
+
         await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, "currency");
         await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true })
-        
+
         setTimeout(async () => {
             await interaction.followUp({
                 content: 'You rolled a ' + d20Diceroll
@@ -74,10 +75,12 @@ async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
         if (item.diceRollRequirement >= d20Diceroll) {
+            console.log('found reward ' + item.friendlyId + ' for diceroll ' + d20Diceroll);
             return item;
         }
     }
 
+    console.log('oops! something went wrong. Could not find a reward for diceroll ' + d20Diceroll);
     return items[0];
 }
 

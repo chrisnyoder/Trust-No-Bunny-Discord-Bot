@@ -71,7 +71,7 @@ export async function searchCatalogItems(): Promise<any> {
 
 export async function getItems() {
     if (items.length === 0) {
-        searchCatalogItems();
+        await searchCatalogItems();
     }
 
     return items;
