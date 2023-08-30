@@ -30,14 +30,15 @@ const command = {
         }
 
         var items = await getItems();
-        
         var responseMessage = `Here are the dice roll requirements for each item in the drop table for a server of size ${serverSize}:\n\n`
 
-        items.forEach(el => {
-            responseMessage += `${el.friendlyId}: ${el.diceRollRequirement} or higher\n`;
+        var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
+
+        sortedItems.forEach(el => {
+            responseMessage += `${el.diceRollRequirement} or higher: ${el.title}\n`;
         });
 
-        responseMessage += "This server has a size modifier of " + getServerSizeModifier(serverSize) + "\n\n";
+        responseMessage += "\nThis server has a size modifier of " + getServerSizeModifier(serverSize) + "\n\n";
         
         await interaction.reply({ content: responseMessage, ephemeral: true })
     }
