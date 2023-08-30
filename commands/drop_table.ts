@@ -30,7 +30,7 @@ const command = {
         }
 
         var items = await getItems();
-        var responseMessage = `Here are the dice roll requirements for each item in the drop table for a server of size ${serverSizeWithoutBots}:\n\n`
+        var responseMessage = `Here are the base dice roll requirements for each item in the drop table for a server of size ${serverSizeWithoutBots}:\n\n`
 
         var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
 

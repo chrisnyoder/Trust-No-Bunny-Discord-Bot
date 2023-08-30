@@ -80,8 +80,8 @@ export function setDefaultChannel(guildId: string, channel: TextChannel) {
 }
 
 export function getServerSizeModifier(serverSize: number) { 
-    if (serverSize > 10000) return 3;
-    else if (serverSize > 1000) return 2;
-    else if (serverSize > 100) return 1;
+    if (serverSize > 10000) return 4;
+    else if (serverSize > 1000) return 3;
+    else if (serverSize > 100) return 2;
     return 0;
 }

@@ -99,6 +99,7 @@ export class TNBGuild {
     }
 
     private getRandomDuration() {
+        return 1000 * 60;
 
         if (this.timeSinceLastDrop !== null) {
             console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
