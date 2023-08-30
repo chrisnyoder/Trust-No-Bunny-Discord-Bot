@@ -64,7 +64,7 @@ const command = {
             const responseMessage = `Congratulations! You received ${reward.title}. You can see this in Trust No Bunny.
             If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
             await interaction.followUp({ content: responseMessage, files: [rewardImage], ephemeral: true })
-        }, 8000)
+        }, 7000)
     }
 };
 

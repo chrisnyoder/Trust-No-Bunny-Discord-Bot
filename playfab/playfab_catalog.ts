@@ -51,7 +51,7 @@ export async function searchCatalogItems(): Promise<any> {
             const imageUrl = item.Images[0].Url;
             var diceRollRequirement = 0;
 
-            if(item.DisplayProperties.base_drop_probability !== undefined) {
+            if(item.DisplayProperties.dice_roll_requirement !== undefined) {
                 diceRollRequirement = item.DisplayProperties.dice_roll_requirement;
             }
 
