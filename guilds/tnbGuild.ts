@@ -99,7 +99,7 @@ export class TNBGuild {
 
     private getRandomDuration() {
         // Generate a random time between 12 and 24 hours in milliseconds
-        return 1000 * 30;
+        return 1000 * 60;
 
         // return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + (12 * 60 * 60 * 1000);
     }

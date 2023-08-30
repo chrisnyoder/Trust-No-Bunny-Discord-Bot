@@ -99,7 +99,7 @@ async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder>
     }
 
     const itemImage = await loadImage(`./ ${item.friendlyId}.png`)
-    const canvas = createCanvas(300, 300);
+    const canvas = createCanvas(200, 200);
     const context = canvas.getContext('2d');
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
 
