@@ -121,7 +121,7 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
                 guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as TextChannel;
             }
            
-            return new TNBGuild(guild, guildChannel, row.time_since_last_drop);
+            return new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date);
         });
 
         return guilds;
