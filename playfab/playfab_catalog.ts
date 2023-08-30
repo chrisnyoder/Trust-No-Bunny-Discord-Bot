@@ -77,15 +77,6 @@ export async function getItems() {
     return items;
 }
 
-export async function getInitialDropItem(): Promise<PlayfabItem> {
-    if (items.length === 0) {
-        await searchCatalogItems();
-    }
-
-    var initialDropItem = items.find(item => item.title === "100 Silver Karats") as PlayfabItem;
-    return initialDropItem
-}
-
 export async function retrieveBodyImage() {
     if (items.length === 0) {
         await searchCatalogItems();

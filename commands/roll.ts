@@ -44,13 +44,10 @@ const command = {
 
         const reward = await getRewardId(d20Diceroll + serverSizeModifier);
         await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, "currency");
-
+        await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true })
+        
         setTimeout(async () => {
-            await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true })
-        }, 1000);
-
-        setTimeout(async () => {
-            await interaction.reply({
+            await interaction.followUp({
                 content: 'You rolled a ' + d20Diceroll
                     + '! Your server size modifer is ' + serverSizeModifier
                     + ' for a total of ' + (d20Diceroll + serverSizeModifier),
@@ -61,7 +58,7 @@ const command = {
         setTimeout(async () => {
             const responseMessage = `Congratulations! You received ${reward.title}. You can see this in Trust No Bunny.
             If you haven't connected your Discord account in game, you'll have to do that before you see your reward`;
-            await interaction.reply({ content: responseMessage, ephemeral: true })
+            await interaction.followUp({ content: responseMessage, ephemeral: true })
         }, 5000)
     }
 };

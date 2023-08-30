@@ -1,6 +1,6 @@
 import { Attachment, Guild, TextChannel, inlineCode, AttachmentBuilder } from 'discord.js';
-import { getDropFromGuild, insertItemIntoDropTable, updateLastDropTime } from '../database/queries';
-import { getItems, getInitialDropItem, getRandomItemBasedOnWeight } from '../playfab/playfab_catalog';
+import { getDropFromGuild, insertItemIntoDropTable as insertDropIntoTable, updateLastDropTime } from '../database/queries';
+import { getItems, getRandomItemBasedOnWeight } from '../playfab/playfab_catalog';
 import { PlayfabItem } from '../playfab/playfab_item';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
 
@@ -29,7 +29,7 @@ export class TNBGuild {
             if (await this.guildHasProcessedDropBefore() === false) {
                 this.handleInitialDrop();
             }
-            this.startDropTimer(currentMemberCount);
+            this.startDropTimer();
         } else {
             console.log('not activating bot for guild ' + this.discordGuild.id + ' because it does not have enough members');
         }
@@ -43,7 +43,7 @@ export class TNBGuild {
         console.log('guild added a member');
         const currentMemberCount = await this.getMemberCount();
         if(this.dropTimer === null && currentMemberCount >= this.minimumNumberOfMembers) {
-            this.startDropTimer(currentMemberCount);
+            this.startDropTimer();
 
             if (!this.guildHasProcessedDropBefore()) {
                 this.handleInitialDrop();
@@ -84,10 +84,10 @@ export class TNBGuild {
         return drop !== null;
     }
 
-    private startDropTimer(serverSize: number) {
+    private startDropTimer() {
         console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
-            this.handleRandomDrop(serverSize);
+            this.handleDrop();
         }, this.getRandomDuration());
     }
 
@@ -104,14 +104,12 @@ export class TNBGuild {
 
     private async handleInitialDrop() {
         console.log('handling initial drop for guild ' + this.discordGuild.id);
-        const initialDropItem = await getInitialDropItem();
         setTimeout(() => {  
-            this.updateDropTables();
-            this.sendMessageOfInitialDroptToGuild(initialDropItem);
+            this.handleDrop();
         }, 1000 * 30);
     }
 
-    private async handleRandomDrop(serverSize: number) { 
+    private async handleDrop() { 
         console.log('handling random drop for guild ' + this.discordGuild.id);;
     
         await this.updateDropTables();
@@ -120,7 +118,7 @@ export class TNBGuild {
 
     private async updateDropTables() { 
         console.log('updating drop tables for guild ' + this.discordGuild.id);
-        await insertItemIntoDropTable(this.discordGuild.id);
+        await insertDropIntoTable(this.discordGuild.id);
         await updateLastDropTime(this.discordGuild.id);
     }
 
@@ -134,19 +132,13 @@ export class TNBGuild {
         const unknownSkImage = await this.retrieveUnkownSkImage();
         await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
 
-        this.startDropTimer(await this.getMemberCount());
+        this.startDropTimer();
 
         // if (avatarItemTypes.includes(randomItem.ContentType)) {
         //     const attachment = await pasteItemOnBodyImage(itemId, imageUrl);
         //     await firstTextChannel.send({ content: responseMessage, files: [attachment] });
         //     fs.unlinkSync(`./ ${itemId}.png`);
         // } 
-    }
-
-    private async sendMessageOfInitialDroptToGuild(itemToDrop: PlayfabItem) { 
-        const claimText = inlineCode(`/roll`);
-        const responseMessage = `Here's ${itemToDrop.title} to get you started! Use ${claimText} to claim it. Use them at play.friendlypixel.com`;
-        await this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
     }
 
     private async retrieveUnkownSkImage(): Promise<AttachmentBuilder> { 
