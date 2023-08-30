@@ -22,7 +22,7 @@ export class TNBGuild {
         this.defaultChannel = channel;
     }
 
-    async activateBot(dateSinceLastDrop: Date | null = null) { 
+    async activateBot() { 
         const currentMemberCount = await this.getMemberCount();
 
         if (currentMemberCount >= this.minimumNumberOfMembers) {
@@ -30,7 +30,7 @@ export class TNBGuild {
             if (await this.guildHasProcessedDropBefore() === false) {
                 this.handleInitialDrop();
             }
-            this.startDropTimer(dateSinceLastDrop);
+            this.startDropTimer();
         } else {
             console.log('not activating bot for guild ' + this.discordGuild.id + ' because it does not have enough members');
         }
@@ -85,11 +85,11 @@ export class TNBGuild {
         return drop !== null;
     }
 
-    private startDropTimer(dateSinceLastDrop: Date | null = null) {
+    private startDropTimer() {
         console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
             this.handleDrop();
-        }, this.getRandomDuration(dateSinceLastDrop));
+        }, this.getRandomDuration());
     }
 
     private stopDropTimer() {
@@ -98,12 +98,12 @@ export class TNBGuild {
         }
     }
 
-    private getRandomDuration(dateSinceLastDrop: Date | null = null) {
+    private getRandomDuration() {
 
-        if (dateSinceLastDrop !== null) {
+        if (this.timeSinceLastDrop !== null) {
             console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
 
-            const timeSinceLastDrop = new Date().getTime() - dateSinceLastDrop.getTime();
+            const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
             const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
             return timeUntilNextDrop;
         } else {
@@ -143,6 +143,7 @@ export class TNBGuild {
         const unknownSkImage = await this.retrieveUnkownSkImage();
         await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
 
+        this.timeSinceLastDrop = new Date();
         this.startDropTimer();
     }
 
