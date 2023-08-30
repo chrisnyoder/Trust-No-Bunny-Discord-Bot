@@ -124,7 +124,6 @@ export class TNBGuild {
 
     private async sendMessageOfDropToGuild() {
         console.log('sending message of drop to guild ' + this.discordGuild.id);
-        // Retrieve the title and the image URL
 
         // Construct the response message
         const rollText = inlineCode(`/roll`);
