@@ -89,7 +89,7 @@ export class TNBGuild {
         console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
             this.handleDrop();
-        }, this.getRandomDuration());
+        }, this.getRandomDuration(dateSinceLastDrop));
     }
 
     private stopDropTimer() {
