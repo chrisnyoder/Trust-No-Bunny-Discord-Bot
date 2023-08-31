@@ -48,8 +48,7 @@ const command = {
             return;
         }
 
-        // var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
-        var d20Diceroll = 1;
+        var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
         await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
 
         if (d20Diceroll === 1) { 
@@ -73,7 +72,7 @@ async function processNat1Drop(interaction: ChatInputCommandInteraction) {
     setTimeout(async () => {
         const randomResponse = getRandomResponse(1);
         const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
-        const responseMessage = `\n ***${blueRandomResponse}*** \n You found nothing! Check back later \n `;
+        const responseMessage = `\n ***${blueRandomResponse}*** \n You found nothing! Check back later when the caravan stops again.\n `;
         await interaction.followUp({
             content: responseMessage,
             files: [natOneImage],
