@@ -14,7 +14,7 @@ export class TNBGuild {
 	defaultChannel: TextChannel;
 	dropTimer: NodeJS.Timeout | null = null;
 	timeSinceLastDrop: Date | null = null;
-	minimumNumberOfMembers = 1;
+	minimumNumberOfMembers = 10;
 
 	constructor(guild: Guild, defaultChannel: TextChannel, timeSinceLastDrop: Date | null = null) {
 		this.discordGuild = guild;
@@ -28,7 +28,9 @@ export class TNBGuild {
 
 	async activateBot() {
 		const currentMemberCount = await this.getMemberCount();
-		if (currentMemberCount >= this.minimumNumberOfMembers) {
+
+		///ignores the minimum number of members for the test server
+		if (currentMemberCount >= this.minimumNumberOfMembers || this.discordGuild.id === '1091035789376360539') {
 			console.log('activating bot for guild ' + this.discordGuild.id);
 			if ((await this.guildHasProcessedDropBefore()) === false) {
 				this.handleInitialDrop();
@@ -105,20 +107,21 @@ export class TNBGuild {
 		}
 	}
 
-	private getRandomDuration() {
-		const timeUntilNextDrop = 1000 * 60;
-		return timeUntilNextDrop;
+	private getRandomDuration(discordGuild: Guild = this.discordGuild) {
+		if (discordGuild.id === '1091035789376360539') {
+			/// this is the test server... can change timer here
+		}
 
-		// if (this.timeSinceLastDrop !== null) {
-		// 	console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
+		if (this.timeSinceLastDrop !== null) {
+			console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
 
-		// 	const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
-		// 	const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
-		// 	return timeUntilNextDrop;
-		// } else {
-		// 	console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
-		// 	return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + 12 * 60 * 60 * 1000;
-		// }
+			const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
+			const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
+			return timeUntilNextDrop;
+		} else {
+			console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
+			return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + 12 * 60 * 60 * 1000;
+		}
 	}
 
 	private async handleInitialDrop() {
