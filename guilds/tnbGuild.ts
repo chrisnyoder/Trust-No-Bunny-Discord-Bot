@@ -119,7 +119,8 @@ export class TNBGuild {
       );
 
       const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
-      const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
+      const timeUntilNextDrop = 1000 * 60 - timeSinceLastDrop;
+      //   const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
       return timeUntilNextDrop;
     } else {
       console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
