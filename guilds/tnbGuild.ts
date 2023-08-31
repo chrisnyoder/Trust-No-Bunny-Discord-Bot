@@ -67,7 +67,7 @@ export class TNBGuild {
             const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
             await this.defaultChannel.send({ content: responseMessage });
         } else {
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To claim the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To roll for the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
             await this.defaultChannel.send({ content: responseMessage });
         }
     }
