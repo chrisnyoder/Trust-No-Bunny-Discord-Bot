@@ -91,8 +91,8 @@ const command = {
     const rewardImage = await retrieveAwardImage(reward);
     setTimeout(async () => {
       const randomResponse = getRandomResponse(d20Diceroll);
-      const orangeRandomResponse = '```css\n[' + `${randomResponse}` + ']\n```';
-      const responseMessage = `***${orangeRandomResponse}*** \n \n You received ${reward.title}. "Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward."`;
+      const blueRandomResponse = '```css\n[' + `${randomResponse}` + ']\n```';
+      const responseMessage = `***${blueRandomResponse}*** \n You found ${reward.title}. "Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward."`;
       await interaction.followUp({
         content: responseMessage,
         files: [rewardImage],
