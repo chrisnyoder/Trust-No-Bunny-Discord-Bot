@@ -43,45 +43,75 @@ const command = {
 
         if (playerHasAlreadyClaimedDrop) {
             console.log('player attempted to roll a drop when they have already claimed one');
-            const responseMessage = `I'm sorry, it looks like you've already roll for the current drop for this server. Come back later for more chances.`;
+            const responseMessage = `I'm sorry, it looks like you've already raided this caravan. Come back later for more chances.`;
             await interaction.reply({ content: responseMessage, ephemeral: true });
             return;
         }
 
-        var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
-        var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
-
+        // var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
+        var d20Diceroll = 1;
         await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
 
-        setTimeout(async () => {
-            await interaction.followUp({
-                content:
-                    'You rolled a ' +
-                    d20Diceroll +
-                    '! Your server size modifer is ' +
-                    serverSizeModifier +
-                    ' for a total of ' +
-                    (d20Diceroll + serverSizeModifier),
-                ephemeral: true,
-            });
-        }, 3000);
-
-        const reward = await getRewardId(d20Diceroll + serverSizeModifier);
-        await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, 'currency');
-        const rewardImage = await retrieveAwardImage(reward);
-
-        setTimeout(async () => {
-            const randomResponse = getRandomResponse(d20Diceroll);
-            const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
-            const responseMessage = `\n ***${blueRandomResponse}*** \n You found ${reward.title}. Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward.\n `;
-            await interaction.followUp({
-                content: responseMessage,
-                files: [rewardImage],
-                ephemeral: true,
-            });
-        }, 7000);
+        if (d20Diceroll === 1) { 
+            await processNat1Drop(interaction);
+        } else {
+            await processNormalDrop(interaction, drop, d20Diceroll);
+        }   
     },
 };
+
+async function processNat1Drop(interaction: ChatInputCommandInteraction) { 
+    setTimeout(async () => {
+        await interaction.followUp({
+            content:
+                'You rolled a 1! Bad luck, no server modifier applied!' ,
+            ephemeral: true,
+        });
+    }, 3000);
+
+    const natOneImage = await retrieveNat1Image();
+    setTimeout(async () => {
+        const randomResponse = getRandomResponse(1);
+        const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
+        const responseMessage = `\n ***${blueRandomResponse}*** \n You found nothing! Check back later \n `;
+        await interaction.followUp({
+            content: responseMessage,
+            files: [natOneImage],
+            ephemeral: true,
+        });
+    }, 7000);
+}
+
+async function processNormalDrop(interaction: ChatInputCommandInteraction, drop: Drop, d20Diceroll: number) {
+    var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
+    setTimeout(async () => {
+        await interaction.followUp({
+            content:
+                'You rolled a ' +
+                d20Diceroll +
+                '! Your server size modifer is ' +
+                serverSizeModifier +
+                ' for a total of ' +
+                (d20Diceroll + serverSizeModifier),
+            ephemeral: true,
+        });
+    }, 3000);
+
+    const reward = await getRewardId(d20Diceroll + serverSizeModifier);
+    await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, 'currency');
+    const rewardImage = await retrieveAwardImage(reward);
+
+    setTimeout(async () => {
+        const randomResponse = getRandomResponse(d20Diceroll);
+        const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
+        const responseMessage = `\n ***${blueRandomResponse}*** \n You found ${reward.title}. Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward.\n `;
+        await interaction.followUp({
+            content: responseMessage,
+            files: [rewardImage],
+            ephemeral: true,
+        });
+    }, 7000);
+}
 
 async function get20SidedDiceRoll(serverSize: number): Promise<number> {
     var d20Diceroll = Math.floor(Math.random() * 20) + 1;
@@ -140,6 +170,18 @@ async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder>
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), {
         name: `${item.friendlyId}.png`,
+    });
+    return attachment;
+}
+
+async function retrieveNat1Image(): Promise<AttachmentBuilder> {
+    const itemImage = await loadImage('./result_01.png');
+    const canvas = createCanvas(200, 200);
+    const context = canvas.getContext('2d');
+    context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
+
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), {
+        name: `nat1.png`,
     });
     return attachment;
 }
