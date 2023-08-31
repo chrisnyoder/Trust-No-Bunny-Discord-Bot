@@ -16,7 +16,7 @@ const command = {
         }
 
         // Construct the response message
-        const responseMessage = `Trust No Bunny allows users to roll for currency that can be spent in Trust No Bunny.  To roll for the current drop, use the ${inlineCode(`/roll`)} command. Use ${inlineCode(`/droptable`)} to see the roll requirements for different currency amounts. You can only claim the latest drop in any given server, but you there's no limit to the number of servers you can use to redeem rewards. To redeem rewards using your currency, go to play.friendlypixel.com`
+        const responseMessage = `When the Trust No Bunny bot is installed in your server, the nefarious Count Cornelio’s caravan will start making stops here. When he makes a stop, use the ${inlineCode(`/roll`)} command to raid his caravan. Use ${inlineCode(`/droptable`)} to see what the roll amounts grant you. You can only raid a caravan once each time it stops by, but there's no limit to the number of servers you can use to redeem rewards. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`
         await interaction.reply({ content: responseMessage, ephemeral: true })
     }
 };

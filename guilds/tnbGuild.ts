@@ -71,14 +71,14 @@ export class TNBGuild {
     const numberOfGuildMembers = await this.getMemberCount();
 
     if (numberOfGuildMembers < this.minimumNumberOfMembers) {
-      const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(
+      const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To claim the current drop, use the ${inlineCode(
         `/roll`
-      )} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+      )} command. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
       await this.defaultChannel.send({ content: responseMessage });
     } else {
-      const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To roll for the current drop, use the ${inlineCode(
+      const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make occasionally make stops in this server. When his caravan stops by, use the ${inlineCode(
         `/roll`
-      )} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+      )} command to raid his caravan. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
       await this.defaultChannel.send({ content: responseMessage });
     }
   }
@@ -113,18 +113,15 @@ export class TNBGuild {
 
   private getRandomDuration() {
     if (this.timeSinceLastDrop !== null) {
-      console.log(
-        'guild has processed drop before it got interrupted, calculating time until next drop for guild ' +
-          this.discordGuild.id
-      );
+        console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
 
-      const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
-      //   const timeUntilNextDrop = 1000 * 60 - timeSinceLastDrop;
-      const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
-      return timeUntilNextDrop;
+        const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
+        const timeUntilNextDrop = 1000 * 60 - timeSinceLastDrop;
+    //   const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
+        return timeUntilNextDrop;
     } else {
-      console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
-      return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + 12 * 60 * 60 * 1000;
+        console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
+        return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + 12 * 60 * 60 * 1000;
     }
   }
 

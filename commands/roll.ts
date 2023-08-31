@@ -40,6 +40,7 @@ const command = {
       drop.drop_id,
       interaction.user.id
     );
+      
     if (playerHasAlreadyClaimedDrop) {
       console.log('player attempted to roll a drop when they have already claimed one');
       const responseMessage = `I'm sorry, it looks like you've already roll for the current drop for this server. Come back later for more chances.`;
@@ -49,46 +50,26 @@ const command = {
 
     var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
     var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
-
-    const reward = await getRewardId(d20Diceroll + serverSizeModifier);
-
-    await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, 'currency');
+    
     await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
 
     setTimeout(async () => {
-      await interaction.followUp({
-        content:
-          'You rolled a ' +
-          d20Diceroll +
-          '! Your server size modifer is ' +
-          serverSizeModifier +
-          ' for a total of ' +
-          (d20Diceroll + serverSizeModifier),
-        ephemeral: true,
-      });
+        await interaction.followUp({
+            content:
+            'You rolled a ' +
+            d20Diceroll +
+            '! Your server size modifer is ' +
+            serverSizeModifier +
+            ' for a total of ' +
+            (d20Diceroll + serverSizeModifier),
+            ephemeral: true,
+        });
     }, 3000);
-
-    // The function to get a random response based on the dice roll.
-    function getRandomResponse(roll: number): string {
-      let responses: string[];
-      if (roll === 1) {
-        responses = jsonData.Natural_1;
-      } else if (roll >= 2 && roll <= 10) {
-        responses = jsonData.Roll_2_10;
-      } else if (roll >= 11 && roll <= 15) {
-        responses = jsonData.Roll_11_15;
-      } else if (roll >= 16 && roll <= 19) {
-        responses = jsonData.Roll_16_19;
-      } else if (roll === 20) {
-        responses = jsonData.Roll_Nat_20;
-      } else {
-        return 'Invalid roll!';
-      }
-      const randomIndex = Math.floor(Math.random() * responses.length);
-      return responses[randomIndex];
-    }
-
+      
+    const reward = await getRewardId(d20Diceroll + serverSizeModifier);
+    await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, 'currency');
     const rewardImage = await retrieveAwardImage(reward);
+    
     setTimeout(async () => {
       const randomResponse = getRandomResponse(d20Diceroll);
       const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
@@ -126,6 +107,25 @@ async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
 
   console.log('oops! something went wrong. Could not find a reward for diceroll ' + d20Diceroll);
   return items[0];
+}
+
+function getRandomResponse(roll: number): string {
+    let responses: string[];
+    if (roll === 1) {
+        responses = jsonData.Natural_1;
+    } else if (roll >= 2 && roll <= 10) {
+        responses = jsonData.Roll_2_10;
+    } else if (roll >= 11 && roll <= 15) {
+        responses = jsonData.Roll_11_15;
+    } else if (roll >= 16 && roll <= 19) {
+        responses = jsonData.Roll_16_19;
+    } else if (roll === 20) {
+        responses = jsonData.Roll_Nat_20;
+    } else {
+        return 'Invalid roll!';
+    }
+    const randomIndex = Math.floor(Math.random() * responses.length);
+    return responses[randomIndex];
 }
 
 async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> {
