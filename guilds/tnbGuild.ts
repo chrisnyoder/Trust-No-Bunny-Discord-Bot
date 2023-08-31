@@ -1,157 +1,173 @@
 import { Attachment, Guild, TextChannel, inlineCode, AttachmentBuilder } from 'discord.js';
-import { getDropFromGuild, insertItemIntoDropTable as insertDropIntoTable, updateLastDropTime } from '../database/queries';
+import {
+  getDropFromGuild,
+  insertItemIntoDropTable as insertDropIntoTable,
+  updateLastDropTime,
+} from '../database/queries';
 import { getItems, getRandomItemBasedOnWeight } from '../playfab/playfab_catalog';
 import { PlayfabItem } from '../playfab/playfab_item';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
 
 export class TNBGuild {
-    
-    discordGuild: Guild;
-    defaultChannel: TextChannel;
-    dropTimer: NodeJS.Timeout | null = null;
-    timeSinceLastDrop: Date | null = null;
-    minimumNumberOfMembers = 1;
+  discordGuild: Guild;
+  defaultChannel: TextChannel;
+  dropTimer: NodeJS.Timeout | null = null;
+  timeSinceLastDrop: Date | null = null;
+  minimumNumberOfMembers = 1;
 
-    constructor(guild: Guild, defaultChannel: TextChannel, timeSinceLastDrop: Date | null = null) {
-        this.discordGuild = guild;
-        this.defaultChannel = defaultChannel;
-        this.timeSinceLastDrop = timeSinceLastDrop;
+  constructor(guild: Guild, defaultChannel: TextChannel, timeSinceLastDrop: Date | null = null) {
+    this.discordGuild = guild;
+    this.defaultChannel = defaultChannel;
+    this.timeSinceLastDrop = timeSinceLastDrop;
+  }
+
+  setDefaultChannel(channel: TextChannel) {
+    this.defaultChannel = channel;
+  }
+
+  async activateBot() {
+    const currentMemberCount = await this.getMemberCount();
+
+    if (currentMemberCount >= this.minimumNumberOfMembers) {
+      console.log('activating bot for guild ' + this.discordGuild.id);
+      if ((await this.guildHasProcessedDropBefore()) === false) {
+        this.handleInitialDrop();
+      }
+      this.startDropTimer();
+    } else {
+      console.log(
+        'not activating bot for guild ' +
+          this.discordGuild.id +
+          ' because it does not have enough members'
+      );
     }
+  }
 
-    setDefaultChannel(channel: TextChannel) {
-        this.defaultChannel = channel;
+  deactiveBot() {
+    this.stopDropTimer();
+  }
+
+  async guildAddedMember() {
+    console.log('guild added a member');
+    const currentMemberCount = await this.getMemberCount();
+    if (this.dropTimer === null && currentMemberCount >= this.minimumNumberOfMembers) {
+      this.startDropTimer();
+
+      if (!this.guildHasProcessedDropBefore()) {
+        this.handleInitialDrop();
+      }
     }
+  }
 
-    async activateBot() { 
-        const currentMemberCount = await this.getMemberCount();
-
-        if (currentMemberCount >= this.minimumNumberOfMembers) {
-            console.log('activating bot for guild ' + this.discordGuild.id);
-            if (await this.guildHasProcessedDropBefore() === false) {
-                this.handleInitialDrop();
-            }
-            this.startDropTimer();
-        } else {
-            console.log('not activating bot for guild ' + this.discordGuild.id + ' because it does not have enough members');
-        }
+  async guildRemovedMember() {
+    console.log('guild removed a member');
+    const currentMemberCount = await this.getMemberCount();
+    if (this.dropTimer !== null && currentMemberCount < this.minimumNumberOfMembers) {
+      this.stopDropTimer();
     }
+  }
 
-    deactiveBot() {
-        this.stopDropTimer();
+  async sendStartMessage() {
+    const numberOfGuildMembers = await this.getMemberCount();
+
+    if (numberOfGuildMembers < this.minimumNumberOfMembers) {
+      const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(
+        `/roll`
+      )} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+      await this.defaultChannel.send({ content: responseMessage });
+    } else {
+      const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To roll for the current drop, use the ${inlineCode(
+        `/roll`
+      )} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
+      await this.defaultChannel.send({ content: responseMessage });
     }
+  }
 
-    async guildAddedMember() {
-        console.log('guild added a member');
-        const currentMemberCount = await this.getMemberCount();
-        if(this.dropTimer === null && currentMemberCount >= this.minimumNumberOfMembers) {
-            this.startDropTimer();
+  private async getMemberCount(): Promise<number> {
+    console.log('Getting member count...');
+    await this.discordGuild.members.fetch();
+    var numberOfGuildMembers = this.discordGuild.members.cache.filter(
+      (member) => !member.user.bot
+    ).size;
+    return numberOfGuildMembers;
+  }
 
-            if (!this.guildHasProcessedDropBefore()) {
-                this.handleInitialDrop();
-            }
-        }
+  private async guildHasProcessedDropBefore(): Promise<boolean> {
+    const drop = await getDropFromGuild(this.discordGuild.id);
+    console.log('guild has processed drop before: ' + (drop !== null));
+    return drop !== null;
+  }
+
+  private startDropTimer() {
+    console.log('starting drop timer for guild ' + this.discordGuild.id);
+    this.dropTimer = setTimeout(() => {
+      this.handleDrop();
+    }, this.getRandomDuration());
+  }
+
+  private stopDropTimer() {
+    if (this.dropTimer !== null) {
+      clearTimeout(this.dropTimer);
     }
+  }
 
-    async guildRemovedMember() {
-        console.log('guild removed a member');
-        const currentMemberCount = await this.getMemberCount();
-        if(this.dropTimer !== null && currentMemberCount < this.minimumNumberOfMembers) {
-            this.stopDropTimer();
-        }
+  private getRandomDuration() {
+    if (this.timeSinceLastDrop !== null) {
+      console.log(
+        'guild has processed drop before it got interrupted, calculating time until next drop for guild ' +
+          this.discordGuild.id
+      );
+
+      const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
+      const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
+      return timeUntilNextDrop;
+    } else {
+      console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
+      return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + 12 * 60 * 60 * 1000;
     }
+  }
 
-    async sendStartMessage() {
-        const numberOfGuildMembers = await this.getMemberCount();
+  private async handleInitialDrop() {
+    console.log('handling initial drop for guild ' + this.discordGuild.id);
+    setTimeout(() => {
+      this.handleDrop();
+    }, 1000 * 30);
+  }
 
-        if (numberOfGuildMembers < this.minimumNumberOfMembers) {
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-            await this.defaultChannel.send({ content: responseMessage });
-        } else {
-            const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To roll for the current drop, use the ${inlineCode(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-            await this.defaultChannel.send({ content: responseMessage });
-        }
-    }
+  private async handleDrop() {
+    console.log('handling random drop for guild ' + this.discordGuild.id);
 
-    private async getMemberCount(): Promise<number> {
-        console.log('Getting member count...');
-        await this.discordGuild.members.fetch();
-        var numberOfGuildMembers = this.discordGuild.members.cache.filter(member => !member.user.bot).size;
-        return numberOfGuildMembers;
-    }
+    await this.updateDropTables();
+    await this.sendMessageOfDropToGuild();
+  }
 
-    private async guildHasProcessedDropBefore(): Promise<boolean> {
-        const drop = await getDropFromGuild(this.discordGuild.id);
-        console.log('guild has processed drop before: ' + (drop !== null));
-        return drop !== null;
-    }
+  private async updateDropTables() {
+    console.log('updating drop tables for guild ' + this.discordGuild.id);
+    await insertDropIntoTable(this.discordGuild.id);
+    await updateLastDropTime(this.discordGuild.id);
+  }
 
-    private startDropTimer() {
-        console.log('starting drop timer for guild ' + this.discordGuild.id);
-        this.dropTimer = setTimeout(() => {
-            this.handleDrop();
-        }, this.getRandomDuration());
-    }
+  private async sendMessageOfDropToGuild() {
+    console.log('sending message of drop to guild ' + this.discordGuild.id);
 
-    private stopDropTimer() {
-        if (this.dropTimer !== null) {
-            clearTimeout(this.dropTimer);
-        }
-    }
+    // Construct the response message
+    const rollText = inlineCode(`/roll`);
+    const responseMessage = `The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infilrate and look for treasure!`;
+    const unknownSkImage = await this.retrieveUnkownSkImage();
+    await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
 
-    private getRandomDuration() {
+    this.timeSinceLastDrop = new Date();
+    this.startDropTimer();
+  }
 
-        if (this.timeSinceLastDrop !== null) {
-            console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
-
-            const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
-            const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
-            return timeUntilNextDrop;
-        } else {
-            
-            console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
-            return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + (12 * 60 * 60 * 1000);
-        }
-    }
-
-    private async handleInitialDrop() {
-        console.log('handling initial drop for guild ' + this.discordGuild.id);
-        setTimeout(() => {  
-            this.handleDrop();
-        }, 1000 * 30);
-    }
-
-    private async handleDrop() { 
-        console.log('handling random drop for guild ' + this.discordGuild.id);;
-    
-        await this.updateDropTables();
-        await this.sendMessageOfDropToGuild();
-    }
-
-    private async updateDropTables() { 
-        console.log('updating drop tables for guild ' + this.discordGuild.id);
-        await insertDropIntoTable(this.discordGuild.id);
-        await updateLastDropTime(this.discordGuild.id);
-    }
-
-    private async sendMessageOfDropToGuild() {
-        console.log('sending message of drop to guild ' + this.discordGuild.id);
-
-        // Construct the response message
-        const rollText = inlineCode(`/roll`);
-        const responseMessage = `A mysterious rabbit is handing out coins to stave off the werebunny attack! Use ${rollText} to see what you get!`;
-        const unknownSkImage = await this.retrieveUnkownSkImage();
-        await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
-
-        this.timeSinceLastDrop = new Date();
-        this.startDropTimer();
-    }
-
-    private async retrieveUnkownSkImage(): Promise<AttachmentBuilder> { 
-        const unknownSkImage = await loadImage('./unknown_sk.png');
-        const canvas = createCanvas(300, 300);
-        const context = canvas.getContext('2d');
-        context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
-        const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'avatar-image.png' });
-        return attachment;
-    }
+  private async retrieveUnkownSkImage(): Promise<AttachmentBuilder> {
+    const unknownSkImage = await loadImage('./unknown_sk.png');
+    const canvas = createCanvas(300, 300);
+    const context = canvas.getContext('2d');
+    context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), {
+      name: 'avatar-image.png',
+    });
+    return attachment;
+  }
 }
