@@ -71,12 +71,12 @@ export class TNBGuild {
 		if (numberOfGuildMembers < this.minimumNumberOfMembers) {
 			const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To claim the current drop, use the ${inlineCode(
 				`/roll`
-			)} command. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
+			)} command. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
 			await this.defaultChannel.send({ content: responseMessage });
 		} else {
 			const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make occasionally make stops in this server. When his caravan stops by, use the ${inlineCode(
 				`/roll`
-			)} command to raid his caravan. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
+			)} command to raid his caravan. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
 			await this.defaultChannel.send({ content: responseMessage });
 		}
 	}
