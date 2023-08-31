@@ -1,7 +1,7 @@
 import {
-  getDropFromGuild,
-  addNewClaim,
-  checkWhetherPlayerHasClaimedDrop,
+    getDropFromGuild,
+    addNewClaim,
+    checkWhetherPlayerHasClaimedDrop,
 } from '../database/queries';
 import { SlashCommandBuilder, ChatInputCommandInteraction, AttachmentBuilder } from 'discord.js';
 import { Drop } from '../database/drop';
@@ -14,99 +14,99 @@ import fs from 'fs';
 import * as jsonData from '../database/roll_responses.json';
 
 const command = {
-  data: new SlashCommandBuilder()
-    .setName('roll')
-    .setDescription(`Roll to infiltrate the Baron's Caravan`),
-  async execute(interaction: ChatInputCommandInteraction) {
-    if (!interaction.isChatInputCommand) {
-      return;
-    }
+    data: new SlashCommandBuilder()
+        .setName('roll')
+        .setDescription(`Roll to infiltrate the Baron's Caravan`),
+    async execute(interaction: ChatInputCommandInteraction) {
+        if (!interaction.isChatInputCommand) {
+            return;
+        }
 
-    if (typeof interaction.guild?.id === 'undefined') {
-      console.log('oops! this command was not made in a Discord server. Not processing');
-      return;
-    }
+        if (typeof interaction.guild?.id === 'undefined') {
+            console.log('oops! this command was not made in a Discord server. Not processing');
+            return;
+        }
 
-    const drop = (await getDropFromGuild(interaction.guild?.id as string)) as Drop;
+        const drop = (await getDropFromGuild(interaction.guild?.id as string)) as Drop;
 
-    if (drop === null) {
-      console.log('player attempted to roll for a drop in a server where there are none');
-      const responseMessage = `I'm sorry, we couldn't find a drop in this server`;
-      await interaction.reply({ content: responseMessage, ephemeral: true });
-      return;
-    }
+        if (drop === null) {
+            console.log('player attempted to roll for a drop in a server where there are none');
+            const responseMessage = `I'm sorry, we couldn't find a drop in this server`;
+            await interaction.reply({ content: responseMessage, ephemeral: true });
+            return;
+        }
 
-    const playerHasAlreadyClaimedDrop = await checkWhetherPlayerHasClaimedDrop(
-      drop.drop_id,
-      interaction.user.id
-    );
-      
-    if (playerHasAlreadyClaimedDrop) {
-      console.log('player attempted to roll a drop when they have already claimed one');
-      const responseMessage = `I'm sorry, it looks like you've already roll for the current drop for this server. Come back later for more chances.`;
-      await interaction.reply({ content: responseMessage, ephemeral: true });
-      return;
-    }
+        const playerHasAlreadyClaimedDrop = await checkWhetherPlayerHasClaimedDrop(
+            drop.drop_id,
+            interaction.user.id
+        );
 
-    var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
-    var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
-    
-    await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
+        if (playerHasAlreadyClaimedDrop) {
+            console.log('player attempted to roll a drop when they have already claimed one');
+            const responseMessage = `I'm sorry, it looks like you've already roll for the current drop for this server. Come back later for more chances.`;
+            await interaction.reply({ content: responseMessage, ephemeral: true });
+            return;
+        }
 
-    setTimeout(async () => {
-        await interaction.followUp({
-            content:
-            'You rolled a ' +
-            d20Diceroll +
-            '! Your server size modifer is ' +
-            serverSizeModifier +
-            ' for a total of ' +
-            (d20Diceroll + serverSizeModifier),
-            ephemeral: true,
-        });
-    }, 3000);
-      
-    const reward = await getRewardId(d20Diceroll + serverSizeModifier);
-    await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, 'currency');
-    const rewardImage = await retrieveAwardImage(reward);
-    
-    setTimeout(async () => {
-      const randomResponse = getRandomResponse(d20Diceroll);
-      const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
-      const responseMessage = `\n ***${blueRandomResponse}*** \n You found ${reward.title}. Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward.\n `;
-      await interaction.followUp({
-        content: responseMessage,
-        files: [rewardImage],
-        ephemeral: true,
-      });
-    }, 7000);
-  },
+        var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
+        var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
+
+        await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
+
+        setTimeout(async () => {
+            await interaction.followUp({
+                content:
+                    'You rolled a ' +
+                    d20Diceroll +
+                    '! Your server size modifer is ' +
+                    serverSizeModifier +
+                    ' for a total of ' +
+                    (d20Diceroll + serverSizeModifier),
+                ephemeral: true,
+            });
+        }, 3000);
+
+        const reward = await getRewardId(d20Diceroll + serverSizeModifier);
+        await addNewClaim(drop.drop_id, interaction.user.id, reward.friendlyId, 'currency');
+        const rewardImage = await retrieveAwardImage(reward);
+
+        setTimeout(async () => {
+            const randomResponse = getRandomResponse(d20Diceroll);
+            const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
+            const responseMessage = `\n ***${blueRandomResponse}*** \n You found ${reward.title}. Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward.\n `;
+            await interaction.followUp({
+                content: responseMessage,
+                files: [rewardImage],
+                ephemeral: true,
+            });
+        }, 7000);
+    },
 };
 
 async function get20SidedDiceRoll(serverSize: number): Promise<number> {
-  var d20Diceroll = Math.floor(Math.random() * 20) + 1;
-  return d20Diceroll;
+    var d20Diceroll = Math.floor(Math.random() * 20) + 1;
+    return d20Diceroll;
 }
 
 async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
-  const items = await getItems();
+    const items = await getItems();
 
-  /// sort items by dice roll requirement descending
-  var descendingSortedItems = items.sort((a, b) => b.diceRollRequirement - a.diceRollRequirement);
+    /// sort items by dice roll requirement descending
+    var descendingSortedItems = items.sort((a, b) => b.diceRollRequirement - a.diceRollRequirement);
 
-  for (var i = 0; i < descendingSortedItems.length; i++) {
-    console.log(
-      'checking item ' + descendingSortedItems[i].friendlyId + ' with diceroll ' + d20Diceroll
-    );
-    var item = descendingSortedItems[i];
-    if (d20Diceroll >= item.diceRollRequirement) {
-      console.log('found reward ' + item.friendlyId + ' for diceroll ' + d20Diceroll);
-      return item;
+    for (var i = 0; i < descendingSortedItems.length; i++) {
+        console.log(
+            'checking item ' + descendingSortedItems[i].friendlyId + ' with diceroll ' + d20Diceroll
+        );
+        var item = descendingSortedItems[i];
+        if (d20Diceroll >= item.diceRollRequirement) {
+            console.log('found reward ' + item.friendlyId + ' for diceroll ' + d20Diceroll);
+            return item;
+        }
     }
-  }
 
-  console.log('oops! something went wrong. Could not find a reward for diceroll ' + d20Diceroll);
-  return items[0];
+    console.log('oops! something went wrong. Could not find a reward for diceroll ' + d20Diceroll);
+    return items[0];
 }
 
 function getRandomResponse(roll: number): string {
@@ -129,24 +129,24 @@ function getRandomResponse(roll: number): string {
 }
 
 async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> {
-  if (!fs.existsSync(`./ ${item.friendlyId}.png`)) {
-    await downloadImage(item.friendlyId, item.imageUrl);
-  }
+    if (!fs.existsSync(`./ ${item.friendlyId}.png`)) {
+        await downloadImage(item.friendlyId, item.imageUrl);
+    }
 
-  const itemImage = await loadImage(`./ ${item.friendlyId}.png`);
-  const canvas = createCanvas(200, 200);
-  const context = canvas.getContext('2d');
-  context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
+    const itemImage = await loadImage(`./ ${item.friendlyId}.png`);
+    const canvas = createCanvas(200, 200);
+    const context = canvas.getContext('2d');
+    context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
 
-  const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-    name: `${item.friendlyId}.png`,
-  });
-  return attachment;
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), {
+        name: `${item.friendlyId}.png`,
+    });
+    return attachment;
 }
 
 async function downloadImage(itemId: string, url: string): Promise<void> {
-  const response = await axios.get(url, { responseType: 'arraybuffer' });
-  fs.writeFileSync(`./ ${itemId}.png`, response.data);
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    fs.writeFileSync(`./ ${itemId}.png`, response.data);
 }
 
 export = command;
