@@ -117,11 +117,11 @@ export class TNBGuild {
 			console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
 
 			const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
-			const timeUntilNextDrop = 1000 * 60 * 60 * 24 - timeSinceLastDrop;
+			const timeUntilNextDrop = (Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000) - timeSinceLastDrop;
 			return timeUntilNextDrop;
 		} else {
 			console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
-			return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + 12 * 60 * 60 * 1000;
+			return Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000;
 		}
 	}
 

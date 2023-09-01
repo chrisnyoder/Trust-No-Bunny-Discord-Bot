@@ -48,7 +48,7 @@ const command = {
             return;
         }
 
-        var d20Diceroll = await get20SidedDiceRoll(interaction.guild?.memberCount as number);
+        var d20Diceroll = await get20SidedDiceRoll();
         await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
 
         if (d20Diceroll === 1) { 
@@ -82,7 +82,8 @@ async function processNat1Drop(interaction: ChatInputCommandInteraction) {
 }
 
 async function processNormalDrop(interaction: ChatInputCommandInteraction, drop: Drop, d20Diceroll: number) {
-    var serverSizeModifier = getServerSizeModifier(interaction.guild?.memberCount as number);
+    var serverSize = await getMemberCount(interaction);
+    var serverSizeModifier = getServerSizeModifier(serverSize);
     setTimeout(async () => {
         await interaction.followUp({
             content:
@@ -112,7 +113,13 @@ async function processNormalDrop(interaction: ChatInputCommandInteraction, drop:
     }, 7000);
 }
 
-async function get20SidedDiceRoll(serverSize: number): Promise<number> {
+async function getMemberCount(interaction: ChatInputCommandInteraction): Promise<number> {
+    console.log('Getting member count...');
+    var numberOfGuildMembers = interaction.guild?.members.cache.filter((member) => !member.user.bot).size as number;
+    return numberOfGuildMembers;
+}
+
+async function get20SidedDiceRoll(): Promise<number> {
     var d20Diceroll = Math.floor(Math.random() * 20) + 1;
     return d20Diceroll;
 }
