@@ -83,9 +83,14 @@ export class TNBGuild {
 
 	private async getMemberCount(): Promise<number> {
 		console.log('Getting member count...');
-		await this.discordGuild.members.fetch();
-		var numberOfGuildMembers = this.discordGuild.members.cache.filter((member) => !member.user.bot).size;
-		return numberOfGuildMembers;
+		try { 
+			console.log('fetching members');
+			await this.discordGuild.members.fetch();
+			return this.discordGuild.members.cache.filter((member) => !member.user.bot).size;
+		} catch {
+			console.log('error fetching members, using the cached member count');
+			return this.discordGuild.members.cache.filter((member) => !member.user.bot).size;
+		}
 	}
 
 	private async guildHasProcessedDropBefore(): Promise<boolean> {
