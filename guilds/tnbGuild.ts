@@ -66,18 +66,28 @@ export class TNBGuild {
 	}
 
 	async sendStartMessage() {
+		
 		const numberOfGuildMembers = await this.getMemberCount();
-
 		if (numberOfGuildMembers < this.minimumNumberOfMembers) {
-			const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To claim the current drop, use the ${inlineCode(
-				`/roll`
-			)} command. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
-			await this.defaultChannel.send({ content: responseMessage });
+
+			try {
+				const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To claim the current drop, use the ${inlineCode(
+					`/roll`
+				)} command. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
+				await this.defaultChannel.send({ content: responseMessage });
+			} catch {
+				console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
+			}
 		} else {
-			const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make occasionally make stops in this server. When his caravan stops by, use the ${inlineCode(
-				`/roll`
-			)} command to raid his caravan. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
-			await this.defaultChannel.send({ content: responseMessage });
+			try {
+				const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make occasionally make stops in this server. When his caravan stops by, use the ${inlineCode(
+					`/roll`
+				)} command to raid his caravan. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
+				await this.defaultChannel.send({ content: responseMessage });
+			} catch {
+				console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
+			}
+			
 		}
 	}
 
