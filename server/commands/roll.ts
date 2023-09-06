@@ -11,6 +11,7 @@ import { getServerSizeModifier } from '../guilds/guilds';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
 import axios from 'axios';
 import fs from 'fs';
+import path from 'path';
 import * as jsonData from '../database/roll_responses.json';
 
 const command = {
@@ -165,36 +166,42 @@ function getRandomResponse(roll: number): string {
 }
 
 async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> {
-    if (!fs.existsSync(`./server/images/${item.friendlyId}.png`)) {
+    const imagePath = path.join(__dirname, `../images/${item.friendlyId}.png`);
+    console.log('checking if image exists at ' + imagePath);
+    if (!fs.existsSync(`${imagePath}`)) {
         await downloadImage(item.friendlyId, item.imageUrl);
     }
 
-    const itemImage = await loadImage(`./server/images/${item.friendlyId}.png`);
+    const itemImage = await loadImage(imagePath);
     const canvas = createCanvas(200, 200);
     const context = canvas.getContext('2d');
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-        name: `${item.friendlyId}.png`,
+        name: `${imagePath}`,
     });
     return attachment;
 }
 
 async function retrieveNat1Image(): Promise<AttachmentBuilder> {
-    const itemImage = await loadImage('./server/images/result_01.png');
+    const imagePath = path.join(__dirname, `../images/result_01.png`);
+    console.log('checking if image exists at ' + imagePath);
+    const itemImage = await loadImage(imagePath);
     const canvas = createCanvas(200, 200);
     const context = canvas.getContext('2d');
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-        name: `nat1.png`,
+        name: `${imagePath}`,
     });
     return attachment;
 }
 
 async function downloadImage(itemId: string, url: string): Promise<void> {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
-    fs.writeFileSync(`./server/images/${itemId}.png`, response.data);
+    const imagePath = path.join(__dirname, `../images/${itemId}.png`);
+    console.log('saving image to ' + imagePath);
+    fs.writeFileSync(imagePath, response.data);
 }
 
 export = command;

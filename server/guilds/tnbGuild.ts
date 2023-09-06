@@ -8,6 +8,7 @@ import { getItems, getRandomItemBasedOnWeight } from '../playfab/playfab_catalog
 import { PlayfabItem } from '../playfab/playfab_item';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
 import { time } from 'console';
+import path from 'path';
 
 export class TNBGuild {
 	discordGuild: Guild;
@@ -182,10 +183,11 @@ export class TNBGuild {
 	}
 
 	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder> {
-		const unknownSkImage = await loadImage('./server/images/Count_Cornelio.png');
+		const imagePath = path.join(__dirname, '../images/Count_Cornelio.png');
+		const countImage = await loadImage(imagePath);
 		const canvas = createCanvas(256, 256);
 		const context = canvas.getContext('2d');
-		context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
+		context.drawImage(countImage, 0, 0, canvas.width, canvas.height);
 		const attachment = new AttachmentBuilder(await canvas.encode('png'), {
 			name: 'avatar-image.png',
 		});
