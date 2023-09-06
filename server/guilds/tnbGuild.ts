@@ -122,13 +122,11 @@ export class TNBGuild {
 	}
 
 	private getRandomDuration() {
-		console.log(this.discordGuild.id + ' is the guild id. Has length of ' + this.discordGuild.id.length);
 		const testGuildId = '1091035789376360539';
-		console.log('test guild id is ' + testGuildId + ' and has length of ' + testGuildId.length);
 		if (this.discordGuild.id === testGuildId) {
 			/// this is the test server... uncomment the code below to make the drop happen every minute in the test server
 			console.log('guild is the test server, setting drop timer to 1 minute');
-			return 1000 * 60;
+			// return 1000 * 60;
 		}
 
 		if (this.timeSinceLastDrop !== null) {
@@ -182,10 +180,7 @@ export class TNBGuild {
 
 	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder | null> {
 		try { 
-			console.log('retrieving image of count cornelio');
-			const imagePath = './images/Count_Cornelio.png';
-			console.log('loading image with path ' + imagePath);
-	
+			const imagePath = './images/Count_Cornelio.png';	
 			const imageBuffer = fs.readFileSync(imagePath);
 			const countImage = await loadImage(imageBuffer);
 	
