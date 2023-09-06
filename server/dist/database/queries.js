@@ -121,12 +121,9 @@ function setGuildStatusToActive(guildId) {
 exports.setGuildStatusToActive = setGuildStatusToActive;
 function retrieveGuildsFromDB(guildManager) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('retrieving guilds from db');
-        console.log('db config is ' + JSON.stringify(config_1.dbConfig));
-        console.log('db password is ' + config_1.dbConfig.password);
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+            const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
             const guilds = rows.map(row => {
                 const guild = guildManager.cache.get(row.guild_id);
                 var guildChannel;
@@ -136,7 +133,7 @@ function retrieveGuildsFromDB(guildManager) {
                 else {
                     guildChannel = guild.channels.cache.get(row.channel_id_for_drops);
                 }
-                return new tnbGuild_1.TNBGuild(guild, guildChannel);
+                return new tnbGuild_1.TNBGuild(guild, guildChannel, row.time_since_last_drop);
             });
             return guilds;
         }

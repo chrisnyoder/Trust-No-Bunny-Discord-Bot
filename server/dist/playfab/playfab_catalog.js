@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomItemBasedOnWeight = exports.retrieveBodyImage = exports.getInitialDropItem = exports.getItems = exports.searchCatalogItems = void 0;
+exports.getRandomItemBasedOnWeight = exports.retrieveBodyImage = exports.getItems = exports.searchCatalogItems = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const playfab_item_1 = require("./playfab_item");
@@ -59,7 +59,7 @@ function searchCatalogItems() {
                 const contentType = item.ContentType;
                 const imageUrl = item.Images[0].Url;
                 var diceRollRequirement = 0;
-                if (item.DisplayProperties.base_drop_probability !== undefined) {
+                if (item.DisplayProperties.dice_roll_requirement !== undefined) {
                     diceRollRequirement = item.DisplayProperties.dice_roll_requirement;
                 }
                 console.log(`Found item: ${friendlyId} - ${title} - ${contentType} - ${imageUrl} - ${diceRollRequirement}`);
@@ -79,22 +79,12 @@ exports.searchCatalogItems = searchCatalogItems;
 function getItems() {
     return __awaiter(this, void 0, void 0, function* () {
         if (items.length === 0) {
-            searchCatalogItems();
+            yield searchCatalogItems();
         }
         return items;
     });
 }
 exports.getItems = getItems;
-function getInitialDropItem() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (items.length === 0) {
-            yield searchCatalogItems();
-        }
-        var initialDropItem = items.find(item => item.title === "100 Silver Karats");
-        return initialDropItem;
-    });
-}
-exports.getInitialDropItem = getInitialDropItem;
 function retrieveBodyImage() {
     return __awaiter(this, void 0, void 0, function* () {
         if (items.length === 0) {

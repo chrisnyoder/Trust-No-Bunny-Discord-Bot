@@ -83,11 +83,11 @@ function setDefaultChannel(guildId, channel) {
 exports.setDefaultChannel = setDefaultChannel;
 function getServerSizeModifier(serverSize) {
     if (serverSize > 10000)
-        return 3;
+        return 4;
     else if (serverSize > 1000)
-        return 2;
+        return 3;
     else if (serverSize > 100)
-        return 1;
+        return 2;
     return 0;
 }
 exports.getServerSizeModifier = getServerSizeModifier;

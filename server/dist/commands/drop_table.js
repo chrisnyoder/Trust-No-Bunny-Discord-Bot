@@ -29,16 +29,17 @@ const command = {
                 return;
             }
             /// create drop table (normalized as a percentage) based on the player's server size
-            var serverSize = (_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.memberCount;
+            var serverSizeWithoutBots = (_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.members.cache.filter(member => !member.user.bot).size;
             if (interaction.options.getNumber('server_size') !== null) {
-                serverSize = interaction.options.getNumber('server_size');
+                serverSizeWithoutBots = interaction.options.getNumber('server_size');
             }
             var items = yield (0, playfab_catalog_1.getItems)();
-            var responseMessage = `Here are the dice roll requirements for each item in the drop table for a server of size ${serverSize}:\n\n`;
-            items.forEach(el => {
-                responseMessage += `${el.friendlyId}: ${el.diceRollRequirement} or higher\n`;
+            var responseMessage = `Here are the base dice roll requirements for each item in the drop table for a server of size ${serverSizeWithoutBots}:\n\n`;
+            var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
+            sortedItems.forEach(el => {
+                responseMessage += `${el.diceRollRequirement} or higher: ${el.title}\n`;
             });
-            responseMessage += "This server has a size modifier of " + (0, guilds_1.getServerSizeModifier)(serverSize) + "\n\n";
+            responseMessage += "\nThis server has a size modifier of " + (0, guilds_1.getServerSizeModifier)(serverSizeWithoutBots) + "\n\n";
             yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }

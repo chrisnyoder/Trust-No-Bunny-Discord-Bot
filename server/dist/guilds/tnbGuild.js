@@ -12,14 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TNBGuild = void 0;
 const discord_js_1 = require("discord.js");
 const queries_1 = require("../database/queries");
-const playfab_catalog_1 = require("../playfab/playfab_catalog");
 const canvas_1 = require("@napi-rs/canvas");
 class TNBGuild {
-    constructor(guild, defaultChannel) {
+    constructor(guild, defaultChannel, timeSinceLastDrop = null) {
         this.dropTimer = null;
-        this.minimumNumberOfMembers = 1;
+        this.timeSinceLastDrop = null;
+        this.minimumNumberOfMembers = 10;
         this.discordGuild = guild;
         this.defaultChannel = defaultChannel;
+        this.timeSinceLastDrop = timeSinceLastDrop;
     }
     setDefaultChannel(channel) {
         this.defaultChannel = channel;
@@ -27,12 +28,13 @@ class TNBGuild {
     activateBot() {
         return __awaiter(this, void 0, void 0, function* () {
             const currentMemberCount = yield this.getMemberCount();
-            if (currentMemberCount >= this.minimumNumberOfMembers) {
+            ///ignores the minimum number of members for the test server
+            if (currentMemberCount >= this.minimumNumberOfMembers || this.discordGuild.id === '1091035789376360539') {
                 console.log('activating bot for guild ' + this.discordGuild.id);
                 if ((yield this.guildHasProcessedDropBefore()) === false) {
                     this.handleInitialDrop();
                 }
-                this.startDropTimer(currentMemberCount);
+                this.startDropTimer();
             }
             else {
                 console.log('not activating bot for guild ' + this.discordGuild.id + ' because it does not have enough members');
@@ -47,7 +49,7 @@ class TNBGuild {
             console.log('guild added a member');
             const currentMemberCount = yield this.getMemberCount();
             if (this.dropTimer === null && currentMemberCount >= this.minimumNumberOfMembers) {
-                this.startDropTimer(currentMemberCount);
+                this.startDropTimer();
                 if (!this.guildHasProcessedDropBefore()) {
                     this.handleInitialDrop();
                 }
@@ -67,21 +69,37 @@ class TNBGuild {
         return __awaiter(this, void 0, void 0, function* () {
             const numberOfGuildMembers = yield this.getMemberCount();
             if (numberOfGuildMembers < this.minimumNumberOfMembers) {
-                const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start occuring once it has reached at least 10 members. To claim the current drop, use the ${(0, discord_js_1.inlineCode)(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-                yield this.defaultChannel.send({ content: responseMessage });
+                try {
+                    const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To claim the current drop, use the ${(0, discord_js_1.inlineCode)(`/roll`)} command. Use ${(0, discord_js_1.inlineCode)(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
+                    yield this.defaultChannel.send({ content: responseMessage });
+                }
+                catch (_a) {
+                    console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
+                }
             }
             else {
-                const responseMessage = `The Trust No Bunny bot is now active in this server! Drops will start ocurring in this server. To claim the current drop, use the ${(0, discord_js_1.inlineCode)(`/roll`)} command. To redeem rewards using your currency, go to play.friendlypixel.com`;
-                yield this.defaultChannel.send({ content: responseMessage });
+                try {
+                    const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make occasionally make stops in this server. When his caravan stops by, use the ${(0, discord_js_1.inlineCode)(`/roll`)} command to raid his caravan. Use ${(0, discord_js_1.inlineCode)(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
+                    yield this.defaultChannel.send({ content: responseMessage });
+                }
+                catch (_b) {
+                    console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
+                }
             }
         });
     }
     getMemberCount() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('Getting member count...');
-            yield this.discordGuild.members.fetch();
-            var numberOfGuildMembers = this.discordGuild.members.cache.filter(member => !member.user.bot).size;
-            return numberOfGuildMembers;
+            try {
+                console.log('fetching members');
+                yield this.discordGuild.members.fetch();
+                return this.discordGuild.members.cache.filter((member) => !member.user.bot).size;
+            }
+            catch (_a) {
+                console.log('error fetching members, using the cached member count');
+                return this.discordGuild.members.cache.filter((member) => !member.user.bot).size;
+            }
         });
     }
     guildHasProcessedDropBefore() {
@@ -91,10 +109,10 @@ class TNBGuild {
             return drop !== null;
         });
     }
-    startDropTimer(serverSize) {
+    startDropTimer() {
         console.log('starting drop timer for guild ' + this.discordGuild.id);
         this.dropTimer = setTimeout(() => {
-            this.handleRandomDrop(serverSize);
+            this.handleDrop();
         }, this.getRandomDuration());
     }
     stopDropTimer() {
@@ -102,24 +120,33 @@ class TNBGuild {
             clearTimeout(this.dropTimer);
         }
     }
-    getRandomDuration() {
-        // Generate a random time between 12 and 24 hours in milliseconds
-        return Math.floor(Math.random() * (12 * 60 * 60 * 1000)) + (12 * 60 * 60 * 1000);
+    getRandomDuration(discordGuild = this.discordGuild) {
+        if (discordGuild.id === '1091035789376360539') {
+            /// this is the test server... uncomment the code below to make the drop happen every minute in the test server
+            // return 1000 * 60;
+        }
+        if (this.timeSinceLastDrop !== null) {
+            console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
+            const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
+            const timeUntilNextDrop = (Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000) - timeSinceLastDrop;
+            return timeUntilNextDrop;
+        }
+        else {
+            console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
+            return Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000;
+        }
     }
     handleInitialDrop() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('handling initial drop for guild ' + this.discordGuild.id);
-            const initialDropItem = yield (0, playfab_catalog_1.getInitialDropItem)();
             setTimeout(() => {
-                this.updateDropTables();
-                this.sendMessageOfInitialDroptToGuild(initialDropItem);
+                this.handleDrop();
             }, 1000 * 30);
         });
     }
-    handleRandomDrop(serverSize) {
+    handleDrop() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('handling random drop for guild ' + this.discordGuild.id);
-            ;
             yield this.updateDropTables();
             yield this.sendMessageOfDropToGuild();
         });
@@ -134,34 +161,29 @@ class TNBGuild {
     sendMessageOfDropToGuild() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('sending message of drop to guild ' + this.discordGuild.id);
-            // Retrieve the title and the image URL
             // Construct the response message
             const rollText = (0, discord_js_1.inlineCode)(`/roll`);
-            const responseMessage = `A reward just dropped! Use ${rollText} to claim it`;
-            const unknownSkImage = yield this.retrieveUnkownSkImage();
-            yield this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
-            this.startDropTimer(yield this.getMemberCount());
-            // if (avatarItemTypes.includes(randomItem.ContentType)) {
-            //     const attachment = await pasteItemOnBodyImage(itemId, imageUrl);
-            //     await firstTextChannel.send({ content: responseMessage, files: [attachment] });
-            //     fs.unlinkSync(`./ ${itemId}.png`);
-            // } 
+            const responseMessage = `The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infilrate and look for treasure!`;
+            const unknownSkImage = yield this.retrieveImageOfCountCornelio();
+            try {
+                yield this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
+                this.timeSinceLastDrop = new Date();
+                this.startDropTimer();
+            }
+            catch (_a) {
+                console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
+            }
         });
     }
-    sendMessageOfInitialDroptToGuild(itemToDrop) {
+    retrieveImageOfCountCornelio() {
         return __awaiter(this, void 0, void 0, function* () {
-            const claimText = (0, discord_js_1.inlineCode)(`/roll`);
-            const responseMessage = `Here's ${itemToDrop.title} to get you started! Use ${claimText} to claim it. Use them at play.friendlypixel.com`;
-            yield this.defaultChannel.send({ content: responseMessage, files: [itemToDrop.imageUrl] });
-        });
-    }
-    retrieveUnkownSkImage() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const unknownSkImage = yield (0, canvas_1.loadImage)('./unknown_sk.png');
-            const canvas = (0, canvas_1.createCanvas)(500, 500);
+            const unknownSkImage = yield (0, canvas_1.loadImage)('./Count_Cornelio.png');
+            const canvas = (0, canvas_1.createCanvas)(256, 256);
             const context = canvas.getContext('2d');
             context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
-            const attachment = new discord_js_1.AttachmentBuilder(yield canvas.encode('png'), { name: 'avatar-image.png' });
+            const attachment = new discord_js_1.AttachmentBuilder(yield canvas.encode('png'), {
+                name: 'avatar-image.png',
+            });
             return attachment;
         });
     }
