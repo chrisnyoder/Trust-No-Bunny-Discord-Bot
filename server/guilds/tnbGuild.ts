@@ -183,7 +183,7 @@ export class TNBGuild {
 	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder | null> {
 		try { 
 			console.log('retrieving image of count cornelio');
-			const imagePath = path.join(__dirname, '../images/Count_Cornelio.png');
+			const imagePath = './images/Count_Cornelio.png';
 			console.log('loading image with path ' + imagePath);
 	
 			const imageBuffer = fs.readFileSync(imagePath);
