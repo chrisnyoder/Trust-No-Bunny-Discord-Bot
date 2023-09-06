@@ -178,7 +178,7 @@ async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder>
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-        name: `${imagePath}`,
+        name: `${item.friendlyId}.png`,
     });
     return attachment;
 }
@@ -192,7 +192,7 @@ async function retrieveNat1Image(): Promise<AttachmentBuilder> {
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-        name: `${imagePath}`,
+        name: `result_01.png`,
     });
     return attachment;
 }

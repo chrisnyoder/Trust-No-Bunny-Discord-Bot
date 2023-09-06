@@ -183,13 +183,15 @@ export class TNBGuild {
 	}
 
 	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder> {
+		console.log('retrieving image of count cornelio');
 		const imagePath = path.join(__dirname, '../images/Count_Cornelio.png');
+		console.log('loading image with path ' + imagePath);
 		const countImage = await loadImage(imagePath);
 		const canvas = createCanvas(256, 256);
 		const context = canvas.getContext('2d');
 		context.drawImage(countImage, 0, 0, canvas.width, canvas.height);
 		const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-			name: 'avatar-image.png',
+			name: 'Count_Cornelio.png'
 		});
 		return attachment;
 	}

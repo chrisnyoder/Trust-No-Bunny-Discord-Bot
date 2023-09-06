@@ -41,6 +41,7 @@ const guilds_1 = require("../guilds/guilds");
 const canvas_1 = require("@napi-rs/canvas");
 const axios_1 = __importDefault(require("axios"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const jsonData = __importStar(require("../database/roll_responses.json"));
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
@@ -188,27 +189,31 @@ function getRandomResponse(roll) {
 }
 function retrieveAwardImage(item) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!fs_1.default.existsSync(`./ ${item.friendlyId}.png`)) {
+        const imagePath = path_1.default.join(__dirname, `../images/${item.friendlyId}.png`);
+        console.log('checking if image exists at ' + imagePath);
+        if (!fs_1.default.existsSync(`${imagePath}`)) {
             yield downloadImage(item.friendlyId, item.imageUrl);
         }
-        const itemImage = yield (0, canvas_1.loadImage)(`./ ${item.friendlyId}.png`);
+        const itemImage = yield (0, canvas_1.loadImage)(imagePath);
         const canvas = (0, canvas_1.createCanvas)(200, 200);
         const context = canvas.getContext('2d');
         context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
         const attachment = new discord_js_1.AttachmentBuilder(yield canvas.encode('png'), {
-            name: `${item.friendlyId}.png`,
+            name: `${imagePath}`,
         });
         return attachment;
     });
 }
 function retrieveNat1Image() {
     return __awaiter(this, void 0, void 0, function* () {
-        const itemImage = yield (0, canvas_1.loadImage)('./result_01.png');
+        const imagePath = path_1.default.join(__dirname, `../images/result_01.png`);
+        console.log('checking if image exists at ' + imagePath);
+        const itemImage = yield (0, canvas_1.loadImage)(imagePath);
         const canvas = (0, canvas_1.createCanvas)(200, 200);
         const context = canvas.getContext('2d');
         context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
         const attachment = new discord_js_1.AttachmentBuilder(yield canvas.encode('png'), {
-            name: `nat1.png`,
+            name: `${imagePath}`,
         });
         return attachment;
     });
@@ -216,7 +221,9 @@ function retrieveNat1Image() {
 function downloadImage(itemId, url) {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield axios_1.default.get(url, { responseType: 'arraybuffer' });
-        fs_1.default.writeFileSync(`./ ${itemId}.png`, response.data);
+        const imagePath = path_1.default.join(__dirname, `../images/${itemId}.png`);
+        console.log('saving image to ' + imagePath);
+        fs_1.default.writeFileSync(imagePath, response.data);
     });
 }
 module.exports = command;

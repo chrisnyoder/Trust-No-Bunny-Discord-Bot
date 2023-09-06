@@ -8,11 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TNBGuild = void 0;
 const discord_js_1 = require("discord.js");
 const queries_1 = require("../database/queries");
 const canvas_1 = require("@napi-rs/canvas");
+const path_1 = __importDefault(require("path"));
 class TNBGuild {
     constructor(guild, defaultChannel, timeSinceLastDrop = null) {
         this.dropTimer = null;
@@ -120,10 +124,14 @@ class TNBGuild {
             clearTimeout(this.dropTimer);
         }
     }
-    getRandomDuration(discordGuild = this.discordGuild) {
-        if (discordGuild.id === '1091035789376360539') {
+    getRandomDuration() {
+        console.log(this.discordGuild.id + ' is the guild id. Has length of ' + this.discordGuild.id.length);
+        const testGuildId = '1091035789376360539';
+        console.log('test guild id is ' + testGuildId + ' and has length of ' + testGuildId.length);
+        if (this.discordGuild.id === testGuildId) {
             /// this is the test server... uncomment the code below to make the drop happen every minute in the test server
-            // return 1000 * 60;
+            console.log('guild is the test server, setting drop timer to 1 minute');
+            return 1000 * 60;
         }
         if (this.timeSinceLastDrop !== null) {
             console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
@@ -177,10 +185,11 @@ class TNBGuild {
     }
     retrieveImageOfCountCornelio() {
         return __awaiter(this, void 0, void 0, function* () {
-            const unknownSkImage = yield (0, canvas_1.loadImage)('./Count_Cornelio.png');
+            const imagePath = path_1.default.join(__dirname, '../images/Count_Cornelio.png');
+            const countImage = yield (0, canvas_1.loadImage)(imagePath);
             const canvas = (0, canvas_1.createCanvas)(256, 256);
             const context = canvas.getContext('2d');
-            context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
+            context.drawImage(countImage, 0, 0, canvas.width, canvas.height);
             const attachment = new discord_js_1.AttachmentBuilder(yield canvas.encode('png'), {
                 name: 'avatar-image.png',
             });
