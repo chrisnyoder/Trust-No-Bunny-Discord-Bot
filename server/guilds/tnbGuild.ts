@@ -123,7 +123,10 @@ export class TNBGuild {
 	}
 
 	private getRandomDuration() {
-		if (this.discordGuild.id === '1091035789376360539') {
+		console.log(this.discordGuild.id + ' is the guild id. Has length of ' + this.discordGuild.id.length);
+		const testGuildId = '1091035789376360539';
+		console.log('test guild id is ' + testGuildId + ' and has length of ' + testGuildId.length);
+		if (this.discordGuild.id === testGuildId) {
 			/// this is the test server... uncomment the code below to make the drop happen every minute in the test server
 			console.log('guild is the test server, setting drop timer to 1 minute');
 			return 1000 * 60;
