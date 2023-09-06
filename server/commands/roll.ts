@@ -165,11 +165,11 @@ function getRandomResponse(roll: number): string {
 }
 
 async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> {
-    if (!fs.existsSync(`./ ${item.friendlyId}.png`)) {
+    if (!fs.existsSync(`./images/${item.friendlyId}.png`)) {
         await downloadImage(item.friendlyId, item.imageUrl);
     }
 
-    const itemImage = await loadImage(`./ ${item.friendlyId}.png`);
+    const itemImage = await loadImage(`./images/${item.friendlyId}.png`);
     const canvas = createCanvas(200, 200);
     const context = canvas.getContext('2d');
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
@@ -181,7 +181,7 @@ async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder>
 }
 
 async function retrieveNat1Image(): Promise<AttachmentBuilder> {
-    const itemImage = await loadImage('./result_01.png');
+    const itemImage = await loadImage('../images/result_01.png');
     const canvas = createCanvas(200, 200);
     const context = canvas.getContext('2d');
     context.drawImage(itemImage, 0, 0, canvas.width, canvas.height);
@@ -194,7 +194,7 @@ async function retrieveNat1Image(): Promise<AttachmentBuilder> {
 
 async function downloadImage(itemId: string, url: string): Promise<void> {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
-    fs.writeFileSync(`./ ${itemId}.png`, response.data);
+    fs.writeFileSync(`./images/${itemId}.png`, response.data);
 }
 
 export = command;

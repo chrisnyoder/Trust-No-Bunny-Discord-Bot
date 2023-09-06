@@ -125,7 +125,7 @@ export class TNBGuild {
 	private getRandomDuration(discordGuild: Guild = this.discordGuild) {
 		if (discordGuild.id === '1091035789376360539') {
 			/// this is the test server... uncomment the code below to make the drop happen every minute in the test server
-			// return 1000 * 60;
+			return 1000 * 60;
 		}
 
 		if (this.timeSinceLastDrop !== null) {
@@ -178,7 +178,7 @@ export class TNBGuild {
 	}
 
 	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder> {
-		const unknownSkImage = await loadImage('./Count_Cornelio.png');
+		const unknownSkImage = await loadImage('../images/Count_Cornelio.png');
 		const canvas = createCanvas(256, 256);
 		const context = canvas.getContext('2d');
 		context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
