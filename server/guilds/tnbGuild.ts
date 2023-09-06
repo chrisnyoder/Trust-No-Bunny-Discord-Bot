@@ -4,11 +4,9 @@ import {
 	insertItemIntoDropTable as insertDropIntoTable,
 	updateLastDropTime,
 } from '../database/queries';
-import { getItems, getRandomItemBasedOnWeight } from '../playfab/playfab_catalog';
-import { PlayfabItem } from '../playfab/playfab_item';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
-import { time } from 'console';
 import path from 'path';
+import fs from 'fs';
 
 export class TNBGuild {
 	discordGuild: Guild;
@@ -186,7 +184,10 @@ export class TNBGuild {
 		console.log('retrieving image of count cornelio');
 		const imagePath = path.join(__dirname, '../images/Count_Cornelio.png');
 		console.log('loading image with path ' + imagePath);
-		const countImage = await loadImage(imagePath);
+
+		const imageBuffer = fs.readFileSync(imagePath);
+		const countImage = await loadImage(imageBuffer);
+
 		const canvas = createCanvas(256, 256);
 		const context = canvas.getContext('2d');
 		context.drawImage(countImage, 0, 0, canvas.width, canvas.height);
