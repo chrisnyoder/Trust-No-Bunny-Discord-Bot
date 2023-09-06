@@ -169,10 +169,10 @@ export class TNBGuild {
 		// Construct the response message
 		const rollText = inlineCode(`/roll`);
 		const responseMessage = `The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infilrate and look for treasure!`;
-		const unknownSkImage = await this.retrieveImageOfCountCornelio();
+		const countCornelioImage = await this.retrieveImageOfCountCornelio();
 
 		try {
-			await this.defaultChannel.send({ content: responseMessage, files: [unknownSkImage] });
+			await this.defaultChannel.send({ content: responseMessage, files: [countCornelioImage as AttachmentBuilder] });
 			this.timeSinceLastDrop = new Date();
 			this.startDropTimer();
 		} catch {
@@ -180,20 +180,25 @@ export class TNBGuild {
 		}
 	}
 
-	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder> {
-		console.log('retrieving image of count cornelio');
-		const imagePath = path.join(__dirname, '../images/Count_Cornelio.png');
-		console.log('loading image with path ' + imagePath);
-
-		const imageBuffer = fs.readFileSync(imagePath);
-		const countImage = await loadImage(imageBuffer);
-
-		const canvas = createCanvas(256, 256);
-		const context = canvas.getContext('2d');
-		context.drawImage(countImage, 0, 0, canvas.width, canvas.height);
-		const attachment = new AttachmentBuilder(await canvas.encode('png'), {
-			name: 'Count_Cornelio.png'
-		});
-		return attachment;
+	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder | null> {
+		try { 
+			console.log('retrieving image of count cornelio');
+			const imagePath = path.join(__dirname, '../images/Count_Cornelio.png');
+			console.log('loading image with path ' + imagePath);
+	
+			const imageBuffer = fs.readFileSync(imagePath);
+			const countImage = await loadImage(imageBuffer);
+	
+			const canvas = createCanvas(256, 256);
+			const context = canvas.getContext('2d');
+			context.drawImage(countImage, 0, 0, canvas.width, canvas.height);
+			const attachment = new AttachmentBuilder(await canvas.encode('png'), {
+				name: 'Count_Cornelio.png'
+			});
+			return attachment;
+		} catch {
+			console.log('error retrieving image of count cornelio');
+			return null;
+		}
 	}
 }
