@@ -165,7 +165,7 @@ function getRandomResponse(roll: number): string {
 }
 
 async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> {
-    if (!fs.existsSync(`./images/${item.friendlyId}.png`)) {
+    if (!fs.existsSync(`../images/${item.friendlyId}.png`)) {
         await downloadImage(item.friendlyId, item.imageUrl);
     }
 
@@ -194,7 +194,7 @@ async function retrieveNat1Image(): Promise<AttachmentBuilder> {
 
 async function downloadImage(itemId: string, url: string): Promise<void> {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
-    fs.writeFileSync(`./images/${itemId}.png`, response.data);
+    fs.writeFileSync(`../images/${itemId}.png`, response.data);
 }
 
 export = command;

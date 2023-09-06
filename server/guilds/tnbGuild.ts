@@ -178,7 +178,7 @@ export class TNBGuild {
 	}
 
 	private async retrieveImageOfCountCornelio(): Promise<AttachmentBuilder> {
-		const unknownSkImage = await loadImage('../images/Count_Cornelio.png');
+		const unknownSkImage = await loadImage('./server/images/Count_Cornelio.png');
 		const canvas = createCanvas(256, 256);
 		const context = canvas.getContext('2d');
 		context.drawImage(unknownSkImage, 0, 0, canvas.width, canvas.height);
