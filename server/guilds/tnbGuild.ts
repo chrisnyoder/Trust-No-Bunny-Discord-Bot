@@ -134,10 +134,13 @@ export class TNBGuild {
 
 			const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
 			const timeUntilNextDrop = (Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000) - timeSinceLastDrop;
+			console.log(`Next drop occuring in ${timeUntilNextDrop} for guild ${this.discordGuild.id}`)
 			return timeUntilNextDrop;
 		} else {
 			console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
-			return Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000;
+			const timeUntilNextDrop = Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000;
+			console.log(`Next drop occuring in ${timeUntilNextDrop} for guild ${this.discordGuild.id}`)
+			return timeUntilNextDrop;
 		}
 	}
 
