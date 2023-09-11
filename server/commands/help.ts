@@ -1,9 +1,10 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode } from 'discord.js';
+import { getLocalizedText } from '../localization/localization_manager';
 
 const command = {
     data: new SlashCommandBuilder()
         .setName('help')
-        .setDescription('help with the Trust No Bunny bot'),
+        .setDescription('Help with the Count Cornelio bot'),
     async execute(interaction: ChatInputCommandInteraction) {
         
         if (!interaction.isChatInputCommand) { 
@@ -16,8 +17,13 @@ const command = {
         }
 
         // Construct the response message
-        const responseMessage = `When the Trust No Bunny bot is installed in your server, the nefarious Count Cornelio’s caravan will start making stops here. When he makes a stop, use the ${inlineCode(`/roll`)} command to raid his caravan. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. Use ${inlineCode(`/droptable`)} to see what the roll amounts grant you. You can only raid a caravan once each time it stops by, but there's no limit to the number of servers you can use to redeem rewards. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`
-        await interaction.reply({ content: responseMessage, ephemeral: true })
+        const responseMessageUnformatted = getLocalizedText(interaction.locale, 'command_interactions.help_command.message') as string;
+        
+        const responseMessageFormatted = responseMessageUnformatted
+            .replace('{roll}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.roll_command.name') as string))
+            .replace('{channel_set_command}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.channel_set_command.name') as string));
+
+        await interaction.reply({ content: responseMessageFormatted, ephemeral: true })
     }
 };
 

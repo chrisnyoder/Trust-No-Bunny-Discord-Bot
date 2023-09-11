@@ -7,6 +7,8 @@ import {
 import { loadImage, createCanvas } from '@napi-rs/canvas';
 import path from 'path';
 import fs from 'fs';
+import { getLocalizedText } from '../localization/localization_manager';
+import { get } from 'http';
 
 export class TNBGuild {
 	discordGuild: Guild;
@@ -29,7 +31,7 @@ export class TNBGuild {
 		const currentMemberCount = await this.getMemberCount();
 
 		///ignores the minimum number of members for the test server
-		if (currentMemberCount >= this.minimumNumberOfMembers || this.discordGuild.id === '1091035789376360539') {
+		if (this.dropTimer === null && (currentMemberCount >= this.minimumNumberOfMembers || this.discordGuild.id === '1091035789376360539')) {
 			console.log('activating bot for guild ' + this.discordGuild.id);
 			if ((await this.guildHasProcessedDropBefore()) === false) {
 				this.handleInitialDrop();
@@ -70,23 +72,26 @@ export class TNBGuild {
 		if (numberOfGuildMembers < this.minimumNumberOfMembers) {
 
 			try {
-				const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To claim the current drop, use the ${inlineCode(
-					`/roll`
-				)} command. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
-				await this.defaultChannel.send({ content: responseMessage });
+				const responseMessageUnformatted = getLocalizedText(this.discordGuild.preferredLocale, 'bot_messages.start_message_under_10_members') as string;
+				var responseMessageFormated = responseMessageUnformatted
+					.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string))
+					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name') as string));
+				
+				await this.defaultChannel.send({ content: responseMessageFormated });
 			} catch {
 				console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
 			}
 		} else {
 			try {
-				const responseMessage = `The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make occasionally make stops in this server. When his caravan stops by, use the ${inlineCode(
-					`/roll`
-				)} command to raid his caravan. Use ${inlineCode(`/channel set`)} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
-				await this.defaultChannel.send({ content: responseMessage });
+				const responseMessageUnformatted = getLocalizedText(this.discordGuild.preferredLocale, 'bot_messages.start_message_10_members') as string;
+				const responseMessageFormated = responseMessageUnformatted
+					.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string))
+					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name') as string));
+				
+				await this.defaultChannel.send({ content: responseMessageFormated });
 			} catch {
 				console.log("can't send message to guild, likely as a result of the bot having been uninstalled in the guild");
 			}
-			
 		}
 	}
 
@@ -134,10 +139,13 @@ export class TNBGuild {
 
 			const timeSinceLastDrop = new Date().getTime() - this.timeSinceLastDrop.getTime();
 			const timeUntilNextDrop = (Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000) - timeSinceLastDrop;
+			console.log(`Processing next drop at ${timeUntilNextDrop}`);
 			return timeUntilNextDrop;
 		} else {
 			console.log('Calculating the discord drop timer the normal way ' + this.discordGuild.id);
-			return Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000;
+			const timeUntilNextDrop = Math.floor(Math.random() * (24 * 60 * 60 * 1000)) + 24 * 60 * 60 * 1000;
+			console.log(`Processing next drop at ${timeUntilNextDrop}`);
+			return timeUntilNextDrop;
 		}
 	}
 
@@ -165,12 +173,12 @@ export class TNBGuild {
 		console.log('sending message of drop to guild ' + this.discordGuild.id);
 
 		// Construct the response message
-		const rollText = inlineCode(`/roll`);
-		const responseMessage = `The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infilrate and look for treasure!`;
+		const responseMessageUnformatted = getLocalizedText(this.discordGuild.preferredLocale, 'bot_messages.caravan_stop') as string;
+		const responseMessageFormatted = responseMessageUnformatted.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string));
 		const countCornelioImage = await this.retrieveImageOfCountCornelio();
 
 		try {
-			await this.defaultChannel.send({ content: responseMessage, files: [countCornelioImage as AttachmentBuilder] });
+			await this.defaultChannel.send({ content: responseMessageFormatted, files: [countCornelioImage as AttachmentBuilder] });
 			this.timeSinceLastDrop = new Date();
 			this.startDropTimer();
 		} catch {

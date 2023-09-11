@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { getItems } from '../playfab/playfab_catalog';
 import { getServerSizeModifier } from '../guilds/guilds';
+import { getLocalizedText } from '../localization/localization_manager';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -30,17 +31,22 @@ const command = {
         }
 
         var items = await getItems();
-        var responseMessage = `Here are the base dice roll requirements for each item in the drop table for a server of size ${serverSizeWithoutBots}:\n\n`
+
+        var unformattedResponse = getLocalizedText(interaction.locale, 'command_interactions.droptable_command.base_dice_roll_requirements') as string;
 
         var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
 
         sortedItems.forEach(el => {
-            responseMessage += `${el.diceRollRequirement} or higher: ${el.title}\n`;
+            unformattedResponse += `${el.diceRollRequirement}+ -> ${el.title}\n`;
         });
 
-        responseMessage += "\nThis server has a size modifier of " + getServerSizeModifier(serverSizeWithoutBots) + "\n\n";
+        unformattedResponse += getLocalizedText(interaction.locale, 'command_interactions.droptable_command.server_size_modifier') as string;
+
+        const formattedResponse = unformattedResponse
+            .replace('{server_size}', serverSizeWithoutBots.toString())
+            .replace('{server_size_modifier}', getServerSizeModifier(serverSizeWithoutBots).toString());
         
-        await interaction.reply({ content: responseMessage, ephemeral: true })
+        await interaction.reply({ content: formattedResponse, ephemeral: true })
     }
 };
 

@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, inlineCode, ChannelType, TextChannel, PermissionFlagsBits } from 'discord.js';
 import { setDefaultChannel } from '../guilds/guilds';
+import { getLocalizedText } from '../localization/localization_manager';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -32,7 +33,7 @@ const command = {
         const channel = interaction.options.getChannel('channel_name') as TextChannel;
         setDefaultChannel(interaction.guild?.id as string, channel);
 
-        const responseMessage = `Default channel for drops has been successfully set`;
+        const responseMessage = getLocalizedText(interaction.locale, 'command_interactions.channel_set_command.message') as string;
         await interaction.reply({content: responseMessage, ephemeral: true})      
     }
 };
