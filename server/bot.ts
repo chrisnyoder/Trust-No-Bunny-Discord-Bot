@@ -4,6 +4,7 @@ import { searchCatalogItems } from './playfab/playfab_catalog';
 config();
 import fs from 'node:fs';
 import path from 'node:path';
+import { loadLanguages } from './localization/localization_manager';
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
@@ -88,6 +89,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 async function initialize() {
     try {
         client.login(token);
+        loadLanguages();
         // You can add more startup tasks here if needed
     } catch (error) {
         console.error("Error during initialization:", error);

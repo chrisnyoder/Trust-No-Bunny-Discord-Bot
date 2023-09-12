@@ -2,9 +2,6 @@ import { Locale } from "discord.js";
 import fs from 'fs';
 import path from 'path';
 
-
-var currentLanguage: Locale = Locale.EnglishUS;
-
 type LocalizationDict = Record<string, any>;
 var localizationData: Record<string, LocalizationDict> = {};
 const locales: string[] = ["en-us", "ko", "ja", "zh-cn"];
