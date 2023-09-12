@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const discord_js_1 = require("discord.js");
+const localization_manager_1 = require("../localization/localization_manager");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('help')
-        .setDescription('help with the Trust No Bunny bot'),
+        .setDescription('Help with the Count Cornelio bot'),
     execute(interaction) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,8 +25,11 @@ const command = {
                 return;
             }
             // Construct the response message
-            const responseMessage = `When the Trust No Bunny bot is installed in your server, the nefarious Count Cornelio’s caravan will start making stops here. When he makes a stop, use the ${(0, discord_js_1.inlineCode)(`/roll`)} command to raid his caravan. Use ${(0, discord_js_1.inlineCode)(`/channel set`)} to set which channel the caravn will stop in. Use ${(0, discord_js_1.inlineCode)(`/droptable`)} to see what the roll amounts grant you. You can only raid a caravan once each time it stops by, but there's no limit to the number of servers you can use to redeem rewards. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com`;
-            yield interaction.reply({ content: responseMessage, ephemeral: true });
+            const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.help_command.message');
+            const responseMessageFormatted = responseMessageUnformatted
+                .replace('{roll}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.roll_command.name')))
+                .replace('{channel_set_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.channel_set_command.name')));
+            yield interaction.reply({ content: responseMessageFormatted, ephemeral: true });
         });
     }
 };

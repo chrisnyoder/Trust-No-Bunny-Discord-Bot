@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const discord_js_1 = require("discord.js");
 const guilds_1 = require("../guilds/guilds");
+const localization_manager_1 = require("../localization/localization_manager");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('channel')
@@ -35,7 +36,7 @@ const command = {
             }
             const channel = interaction.options.getChannel('channel_name');
             (0, guilds_1.setDefaultChannel)((_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.id, channel);
-            const responseMessage = `Default channel for drops has been successfully set`;
+            const responseMessage = (0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.channel_set_command.message');
             yield interaction.reply({ content: responseMessage, ephemeral: true });
         });
     }

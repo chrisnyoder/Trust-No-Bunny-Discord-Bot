@@ -17,17 +17,17 @@ const command = {
     data: new SlashCommandBuilder()
         .setName('roll')
         .setNameLocalizations({
-            en: 'roll',
-            ko: 'roll',
-            ja: 'roll',
-            zh: 'roll',
+            "en-US": 'roll',
+            "ko": 'roll',
+            "ja": 'roll',
+            "zh-CN": 'roll',
         } as any)
         .setDescription(`Roll to infiltrate the Baron's Caravan`)
         .setDescriptionLocalizations({
-            en: 'Roll to infiltrate the Baron\'s Caravan',
-            ko: 'Roll to infiltrate the Baron\'s Caravan',
-            ja: 'Roll to infiltrate the Baron\'s Caravan',
-            zh: 'Roll to infiltrate the Baron\'s Caravan',
+            "en-US": 'Roll to infiltrate the Baron\'s Caravan',
+            "ko": 'Roll to infiltrate the Baron\'s Caravan',
+            "ja": 'Roll to infiltrate the Baron\'s Caravan',
+            "zh-CN": 'Roll to infiltrate the Baron\'s Caravan',
         } as any),
     async execute(interaction: ChatInputCommandInteraction) {
         if (!interaction.isChatInputCommand) {

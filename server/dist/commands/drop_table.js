@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const discord_js_1 = require("discord.js");
 const playfab_catalog_1 = require("../playfab/playfab_catalog");
 const guilds_1 = require("../guilds/guilds");
+const localization_manager_1 = require("../localization/localization_manager");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('droptable')
@@ -34,13 +35,16 @@ const command = {
                 serverSizeWithoutBots = interaction.options.getNumber('server_size');
             }
             var items = yield (0, playfab_catalog_1.getItems)();
-            var responseMessage = `Here are the base dice roll requirements for each item in the drop table for a server of size ${serverSizeWithoutBots}:\n\n`;
+            var unformattedResponse = (0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.droptable_command.base_dice_roll_requirements');
             var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
             sortedItems.forEach(el => {
-                responseMessage += `${el.diceRollRequirement} or higher: ${el.title}\n`;
+                unformattedResponse += `${el.diceRollRequirement}+ -> ${el.title}\n`;
             });
-            responseMessage += "\nThis server has a size modifier of " + (0, guilds_1.getServerSizeModifier)(serverSizeWithoutBots) + "\n\n";
-            yield interaction.reply({ content: responseMessage, ephemeral: true });
+            unformattedResponse += (0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.droptable_command.server_size_modifier');
+            const formattedResponse = unformattedResponse
+                .replace('{server_size}', serverSizeWithoutBots.toString())
+                .replace('{server_size_modifier}', (0, guilds_1.getServerSizeModifier)(serverSizeWithoutBots).toString());
+            yield interaction.reply({ content: formattedResponse, ephemeral: true });
         });
     }
 };
