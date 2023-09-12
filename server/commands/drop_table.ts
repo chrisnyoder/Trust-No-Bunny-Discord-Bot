@@ -6,12 +6,19 @@ import { getLocalizedText } from '../localization/localization_manager';
 const command = {
     data: new SlashCommandBuilder()
         .setName('droptable')
+        .setNameLocalizations({
+            "en-US": 'droptable',
+            "ko": '드롭테이블',
+            "ja": 'ドロップテーブル',
+            "zh-CN": '掉落表',
+        } as any)
         .setDescription('Gets the dice roll requirements for each item in the drop table')
-        .addNumberOption(option => 
-            option.setName('server_size')
-                .setDescription('Optional parameter to see what drop table would look like for a server of a different size')
-                .setRequired(false))
-    ,
+        .setDescriptionLocalizations({
+            "en-US": 'Gets the dice roll requirements for each item in the drop table',
+            "ko": '드롭테이블에 있는 각 아이템의 주사위 굴림 요구 사항을 가져옵니다.',
+            "ja": 'ドロップテーブルにある各アイテムのダイスロール要件を取得します。',
+            "zh-CN": '获取掉落表中每个物品的骰子要求。',
+        } as any),
     async execute(interaction: ChatInputCommandInteraction) {
             
         if (!interaction.isChatInputCommand) { 
@@ -25,11 +32,6 @@ const command = {
         
         /// create drop table (normalized as a percentage) based on the player's server size
         var serverSizeWithoutBots = interaction.guild?.members.cache.filter(member => !member.user.bot).size;
-
-        if (interaction.options.getNumber('server_size') !== null) { 
-            serverSizeWithoutBots = interaction.options.getNumber('server_size') as number;   
-        }
-
         var items = await getItems();
 
         var unformattedResponse = getLocalizedText(interaction.locale, 'command_interactions.droptable_command.base_dice_roll_requirements') as string;

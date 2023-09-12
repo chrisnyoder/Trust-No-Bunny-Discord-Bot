@@ -1,9 +1,9 @@
 {
     "bot_messages" : 
     {
-        "start_message_under_10_members" : "The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To roll for the current drop, use the {roll_command} command. Use {channel_set_command} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com",
-        "start_message_10_members": "The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To roll for the current drop, use the {roll_command} command. Use {channel_set_command} to set which channel the caravn will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com",
-        "caravan_stop": "The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infilrate and look for treasure!"
+        "start_message_under_10_members" : "The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To roll for the current drop, use the {roll_command} command. Use {channel_set_command} to set which channel the caravan will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com",
+        "start_message_10_members": "The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To roll for the current drop, use the {roll_command} command. Use {channel_set_command} to set which channel the caravan will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com",
+        "caravan_stop": "The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infiltrate and look for treasure!"
     },
     "command_interactions" :
     {
@@ -22,13 +22,14 @@
         "channel_set_command" : 
         {
             "name": "/channel set",
-            "description": "Sets the channel where the caravan will stop.",
-            "message": "Default channel for drops has been successfully set"
+            "description": "Sets the channel where Count Cornelio's caravan will stop.",
+            "channel_set_option": "Channel you want Count Cornelio's caravan to stop in",
+            "message": "Default channel for Count Corneli's caravan has been successfully set"
         }, 
         "droptable_command" : 
         {
             "name": "/droptable",
-            "description": "Shows the current drop table.",
+            "description": "Gets the dice roll requirements for each item in the drop table.",
             "base_dice_roll_requirements": "Here are the base dice roll requirements for each item in the drop table for a server of size {server_size}:\n\n",
             "server_size_modifier": "\nThe server size modifier for this server is {server_size_modifier}.\n\n"
         },

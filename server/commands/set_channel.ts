@@ -5,20 +5,54 @@ import { getLocalizedText } from '../localization/localization_manager';
 const command = {
     data: new SlashCommandBuilder()
         .setName('channel')
-        .setDescription('Sets the default text channel for where drops occur')
+        .setNameLocalizations({
+            "en-US": 'channel',
+            "ko": '채널',
+            "ja": 'チャンネル',
+            "zh-CN": '频道',
+        } as any)
+        .setDescription("Sets the channel where Count Cornelio's caravan will stop.")
+        .setDescriptionLocalizations({
+            "en-US": "Sets the channel where Count Cornelio's caravan will stop.",
+            "ko": '카운트 코르넬리오의 캐러밴이 멈출 채널을 설정합니다.',
+            "ja": 'カウント・コルネリオの店が置かれるチャンネルを設定します。',
+            "zh-CN": '设置康特·科尔内利奥的商队将停留的频道。',
+        } as any)
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
         .addSubcommand(subcommand => 
             subcommand
                 .setName('set')
-                .setDescription('Sets the default text channel for where drops occur')
+                .setNameLocalizations({
+                    "en-US": 'set',
+                    "ko": '설정',
+                    "ja": '設定',
+                    "zh-CN": '设置',
+                } as any)
+                .setDescription("Sets the channel where Count Cornelio's caravan will stop.")
+                .setDescriptionLocalizations({
+                    "en-US": "Sets the channel where Count Cornelio's caravan will stop.",
+                    "ko": '카운트 코르넬리오의 캐러밴이 멈출 채널을 설정합니다.',
+                    "ja": 'カウント・コルネリオの店が置かれるチャンネルを設定します。',
+                    "zh-CN": '设置康特·科尔内利奥的商队将停留的频道。',
+                } as any)
                 .addChannelOption(option =>
                     option
                         .setName('channel_name')
-                        .setDescription("Channel you want the TNB bot to post drops in")
+                        .setNameLocalizations({
+                            "en-US": 'channel',
+                            "ko": '채널',
+                            "ja": 'チャンネル',
+                            "zh-CN": '频道',
+                        } as any)
+                        .setDescription("Channel you want Count Cornelio's caravan to stop in")
+                        .setDescriptionLocalizations({
+                            "en-US": "Sets the channel where Count Cornelio's caravan will stop.",
+                            "ko": '카운트 코르넬리오의 캐러밴이 멈출 채널을 선택하세요',
+                            "ja": 'カウント・コルネリオのキャラバンが停止するチャンネル',
+                            "zh-CN": '您希望康特·科尔内利奥的商队停留的频道',
+                        } as any)
                         .addChannelTypes(ChannelType.GuildText)
-                        .setRequired(true))
-        )
-    ,
+                        .setRequired(true))),
     async execute(interaction: ChatInputCommandInteraction) {
         
         if (!interaction.isChatInputCommand) { 
