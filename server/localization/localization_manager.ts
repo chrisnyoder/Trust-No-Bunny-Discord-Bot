@@ -8,7 +8,8 @@ const locales: string[] = ["en-us", "ko", "ja", "zh-cn"];
 
 export function loadLanguages() {
     for (const lang in locales) {
-        const filePath = path.join(__dirname, `${lang.toLowerCase()}.json`);
+        const filePath = path.dirname(`../../localization/${lang.toLowerCase()}.json`);
+        console.log('reading file from ' + filePath);
         if (fs.existsSync(filePath)) {
           const fileContent = fs.readFileSync(filePath, 'utf8');
           localizationData[lang] = JSON.parse(fileContent);
