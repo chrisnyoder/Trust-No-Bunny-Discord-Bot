@@ -13,7 +13,19 @@ const localization_manager_1 = require("../localization/localization_manager");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('help')
-        .setDescription('Help with the Count Cornelio bot'),
+        .setNameLocalizations({
+        "en-US": 'help',
+        "ko": '도움',
+        "ja": 'ヘルプ',
+        "zh-CN": '帮助',
+    })
+        .setDescription('Help with the Trust No Bunny bot')
+        .setDescriptionLocalizations({
+        "en-US": 'Help with the Trust No Bunny bot',
+        "ko": 'Trust No Bunny 봇 도움말',
+        "ja": 'Trust No Bunny ボットのヘルプ',
+        "zh-CN": 'Trust No Bunny 机器人帮助',
+    }),
     execute(interaction) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {

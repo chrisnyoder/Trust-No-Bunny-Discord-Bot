@@ -115,7 +115,7 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
             const guild = guildManager.cache.get(row.guild_id) as Guild;
             
             var guildChannel: TextChannel;
-            if (row.channel_id_for_drops === null) {
+            if (row.channel_id_for_drops === null || guild.channels.cache.get(row.channel_id_for_drops) === undefined) {
                 guildChannel = guild.systemChannel as TextChannel;
             } else {
                 guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as TextChannel;

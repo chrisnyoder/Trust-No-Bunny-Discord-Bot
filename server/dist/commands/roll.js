@@ -24,16 +24,16 @@ const command = {
         .setName('roll')
         .setNameLocalizations({
         "en-US": 'roll',
-        "ko": 'roll',
-        "ja": 'roll',
-        "zh-CN": 'roll',
+        "ko": '주사위',
+        "ja": 'サイコロ',
+        "zh-CN": '掷骰',
     })
         .setDescription(`Roll to infiltrate the Baron's Caravan`)
         .setDescriptionLocalizations({
-        "en-US": 'Roll to infiltrate the Baron\'s Caravan',
-        "ko": 'Roll to infiltrate the Baron\'s Caravan',
-        "ja": 'Roll to infiltrate the Baron\'s Caravan',
-        "zh-CN": 'Roll to infiltrate the Baron\'s Caravan',
+        "en-US": 'Roll a 20-sided dice to infiltrate the Baron\'s Caravan',
+        "ko": '바론의 짐마차에 침투하기 위해 20면 주사위를 굴립니다',
+        "ja": 'バロンのキャラバンに侵入するために20面のサイコロを振る',
+        "zh-CN": '投掷20面骰子以渗透男爵的商队',
     }),
     execute(interaction) {
         var _a, _b;

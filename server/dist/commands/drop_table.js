@@ -15,10 +15,19 @@ const localization_manager_1 = require("../localization/localization_manager");
 const command = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName('droptable')
+        .setNameLocalizations({
+        "en-US": 'droptable',
+        "ko": '드롭테이블',
+        "ja": 'ドロップテーブル',
+        "zh-CN": '掉落表',
+    })
         .setDescription('Gets the dice roll requirements for each item in the drop table')
-        .addNumberOption(option => option.setName('server_size')
-        .setDescription('Optional parameter to see what drop table would look like for a server of a different size')
-        .setRequired(false)),
+        .setDescriptionLocalizations({
+        "en-US": 'Gets the dice roll requirements for each item in the drop table',
+        "ko": '드롭테이블에 있는 각 아이템의 주사위 굴림 요구 사항을 가져옵니다.',
+        "ja": 'ドロップテーブルにある各アイテムのダイスロール要件を取得します。',
+        "zh-CN": '获取掉落表中每个物品的骰子要求。',
+    }),
     execute(interaction) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -31,9 +40,6 @@ const command = {
             }
             /// create drop table (normalized as a percentage) based on the player's server size
             var serverSizeWithoutBots = (_b = interaction.guild) === null || _b === void 0 ? void 0 : _b.members.cache.filter(member => !member.user.bot).size;
-            if (interaction.options.getNumber('server_size') !== null) {
-                serverSizeWithoutBots = interaction.options.getNumber('server_size');
-            }
             var items = yield (0, playfab_catalog_1.getItems)();
             var unformattedResponse = (0, localization_manager_1.getLocalizedText)(interaction.locale, 'command_interactions.droptable_command.base_dice_roll_requirements');
             var sortedItems = items.sort((a, b) => (a.diceRollRequirement > b.diceRollRequirement) ? 1 : -1);
