@@ -111,9 +111,14 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
     try {
         const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
 
-        const guilds = (rows as any[]).map(row => {
+        var guilds: TNBGuild[] = [];
+
+        for (var i = 0; i < (rows as any[]).length; i++) {
+            const row = (rows as any[])[i];
             const guild = guildManager.cache.get(row.guild_id) as Guild;
-            
+
+            if(guild === undefined) continue;
+
             var guildChannel: TextChannel;
             if (row.channel_id_for_drops === null || guild.channels === undefined) {
                 guildChannel = guild.systemChannel as TextChannel;
@@ -121,8 +126,8 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
                 guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as TextChannel;
             }
            
-            return new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date);
-        });
+            guilds.push(new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date));
+        }
 
         return guilds;
     } finally {
