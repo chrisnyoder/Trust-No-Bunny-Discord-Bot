@@ -20,13 +20,13 @@ export function loadLanguages() {
 }
 
 export function getLocalizedText(lang: string, key: string): string | null {
-    if (!localizationData[lang]) {
+    if (!localizationData[lang.toLowerCase()]) {
         console.error(`Localization for language ${lang} not loaded.`);
         return null;
     }
   
     const keys = key.split('.');
-    let currentObj = localizationData[lang];
+    let currentObj = localizationData[lang.toLowerCase()];
 
     for (const k of keys) {
         if (typeof currentObj === 'object' && currentObj !== null) { 
