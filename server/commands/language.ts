@@ -59,7 +59,7 @@ const command = {
             .addComponents(englishButton, koreanButton, japaneseButton, chineseButton);
         
         const response = await interaction.reply({ components: [actionRow] as any, ephemeral: true });
-        const filter = (i: any) => i.customId === 'language_select' && i.user.id === interaction.user.id;
+        const filter = (i: any) => i.user.id === interaction.user.id;
 
         try {
             const confirmation = await response.awaitMessageComponent({ filter, time: 60000 });
