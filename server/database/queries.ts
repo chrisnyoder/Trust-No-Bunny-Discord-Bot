@@ -109,7 +109,7 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+        const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop`, `locale` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
 
         var guilds: TNBGuild[] = [];
 
@@ -126,7 +126,7 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
                 guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as TextChannel;
             }
            
-            guilds.push(new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date));
+            guilds.push(new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date, row.locale));
         }
 
         return guilds;

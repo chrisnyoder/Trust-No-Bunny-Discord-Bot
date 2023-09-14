@@ -1,6 +1,7 @@
 import { Locale } from "discord.js";
 import fs from 'fs';
 import path from 'path';
+import axios from 'axios';
 
 type LocalizationDict = Record<string, any>;
 var localizationData: Record<string, LocalizationDict> = {};
@@ -16,6 +17,32 @@ export function loadLanguages() {
         } else {
           console.error(`Language file for ${lang} not found.`);
         }
+    }
+}
+
+export async function getDefaultLanguage(guildId: string): Promise<string> { 
+    try {
+        const response = await axios.get(`https://discord.com/api/guilds/${guildId}`, {
+            headers: {
+                Authorization: 'Bot ' + process.env.BOT_TOKEN
+            }
+        });
+        const region = response.data.region;
+
+        console.log('found guild region ' + region + ' returning default language for that region');
+
+        if (region === "japan") {
+            return "ja";
+        } else if (region === "korea") {
+            return "ko";
+        } else if (region === "china") {
+            return "zh-cn";
+        } else {
+            return "en-us";
+        }
+    } catch {
+        console.error(`Failed to retrieve guild region for ${guildId}.`);
+        return "en-us";
     }
 }
 

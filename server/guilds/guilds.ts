@@ -1,7 +1,8 @@
 import { ChannelType, Guild, TextChannel, AttachmentBuilder, bold, italic, strikethrough, underscore, spoiler, quote, blockQuote, inlineCode } from 'discord.js';
 import { addNewGuild, removeGuild, setGuildStatusToActive, retrieveGuildsFromDB, guildIsInDatabase, setDefaultChannelForGuild } from '../database/queries';
 import { client } from '../bot';
-import { TNBGuild} from './tnbGuild';
+import { TNBGuild } from './tnbGuild';
+import { getDefaultLanguage } from '../localization/localization_manager';
 
 var activeTNBGuilds = new Array<TNBGuild>();
 
@@ -21,7 +22,9 @@ client.on('guildCreate', async (guild) => {
     const matchingTNBGuilds = activeTNBGuilds.filter(tnbGuild => tnbGuild.discordGuild.id === guild.id);
     if (matchingTNBGuilds.length === 0) { 
         var systemChannel = guild.systemChannel as TextChannel;
-        const tnbGuild = new TNBGuild(guild, systemChannel);
+        var locale = await getDefaultLanguage(guild.id)
+
+        const tnbGuild = new TNBGuild(guild, systemChannel, null, locale);
         activeTNBGuilds.push(tnbGuild);
 
         if (await guildIsInDatabase(guild.id)) {

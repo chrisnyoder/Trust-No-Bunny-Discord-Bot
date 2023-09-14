@@ -8,24 +8,30 @@ import { loadImage, createCanvas } from '@napi-rs/canvas';
 import path from 'path';
 import fs from 'fs';
 import { getLocalizedText } from '../localization/localization_manager';
-import { get } from 'http';
+import { getDefaultLanguage } from '../localization/localization_manager';
 
 export class TNBGuild {
 	discordGuild: Guild;
-	defaultChannel: TextChannel;
+    defaultChannel: TextChannel;
+    locale: string = 'en-us';
 	dropTimer: NodeJS.Timeout | null = null;
 	timeSinceLastDrop: Date | null = null;
 	minimumNumberOfMembers = 10;
 
-	constructor(guild: Guild, defaultChannel: TextChannel, timeSinceLastDrop: Date | null = null) {
+	constructor(guild: Guild, defaultChannel: TextChannel, timeSinceLastDrop: Date | null = null, locale: string = 'en-us') {
 		this.discordGuild = guild;
 		this.defaultChannel = defaultChannel;
-		this.timeSinceLastDrop = timeSinceLastDrop;
+        this.timeSinceLastDrop = timeSinceLastDrop;
+        this.locale = locale;
 	}
 
 	setDefaultChannel(channel: TextChannel) {
 		this.defaultChannel = channel;
-	}
+    }
+    
+    setLocale(locale: string) {
+        this.locale = locale;
+    }
 
 	async activateBot() {
 		const currentMemberCount = await this.getMemberCount();
@@ -71,8 +77,8 @@ export class TNBGuild {
 		const numberOfGuildMembers = await this.getMemberCount();
 		if (numberOfGuildMembers < this.minimumNumberOfMembers) {
 
-			try {
-				const responseMessageUnformatted = getLocalizedText(this.discordGuild.preferredLocale, 'bot_messages.start_message_under_10_members') as string;
+            try {
+				const responseMessageUnformatted = getLocalizedText(this.locale, 'bot_messages.start_message_under_10_members') as string;
 				var responseMessageFormated = responseMessageUnformatted
 					.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string))
 					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name') as string));
