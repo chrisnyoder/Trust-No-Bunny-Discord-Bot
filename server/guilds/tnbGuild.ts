@@ -135,7 +135,7 @@ export class TNBGuild {
 		if (this.discordGuild.id === testGuildId) {
 			/// this is the test server... uncomment the code below to make the drop happen every minute in the test server
 			console.log('guild is the test server, setting drop timer to 1 minute');
-			// return 1000 * 60;
+			return 1000 * 60;
 		}
 
 		if (this.timeSinceLastDrop !== null) {
