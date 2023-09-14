@@ -5,10 +5,8 @@ import {
 	updateLastDropTime,
 } from '../database/queries';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
-import path from 'path';
 import fs from 'fs';
 import { getLocalizedText } from '../localization/localization_manager';
-import { getDefaultLanguage } from '../localization/localization_manager';
 
 export class TNBGuild {
 	discordGuild: Guild;

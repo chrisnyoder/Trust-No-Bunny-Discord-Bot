@@ -70,13 +70,13 @@ export async function guildIsInDatabase(guildId: string): Promise<boolean> {
     }
 }
 
-export async function addNewGuild(guildId: string, memberCount: number): Promise<void> {
+export async function addNewGuild(guildId: string, memberCount: number, guildLocale: string): Promise<void> {
     const connection = await mysql.createConnection(dbConfig);
 
     console.log('adding new guild ' + guildId + ' to db');
 
     try {
-        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`)  VALUES (?, true, ?, null)', [guildId, memberCount]);
+        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`, `locale`)  VALUES (?, true, ?, null, ?)', [guildId, memberCount, guildLocale]);
     } finally {
         await connection.end();
     }
@@ -179,6 +179,18 @@ export async function retrieveUnclaimedDrops(guildId: string): Promise<string[]>
     try {
         const [rows] = await connection.execute('SELECT DISTINCT `reward_id` FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);
         return  (rows as any[]).map(row => row.reward_id);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function setLocaleForGuild(guildId: string, locale: string): Promise<void> { 
+    console.log('setting locale for guild ' + guildId + ' to ' + locale);
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_discord_guilds` SET `locale` = ? WHERE `guild_id` = ?', [locale, guildId]);
     } finally {
         await connection.end();
     }

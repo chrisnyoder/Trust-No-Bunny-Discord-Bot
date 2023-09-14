@@ -32,7 +32,7 @@ client.on('guildCreate', async (guild) => {
             setGuildStatusToActive(guild.id);
         } else {
             console.log('adding guild ' + guild.id + ' to the database')
-            addNewGuild(guild.id, guild.memberCount);
+            addNewGuild(guild.id, guild.memberCount, locale);
         }
         
         tnbGuild.activateBot();
@@ -87,4 +87,12 @@ export function getServerSizeModifier(serverSize: number) {
     else if (serverSize > 1000) return 3;
     else if (serverSize > 100) return 2;
     return 0;
+}
+
+export function getGuildById(guildId: string): TNBGuild | null {
+    const matchingTNBGuilds = activeTNBGuilds.filter(tnbGuild => tnbGuild.discordGuild.id === guildId);
+    if (matchingTNBGuilds.length === 0) {
+        return null;
+    }
+    return matchingTNBGuilds[0];
 }
