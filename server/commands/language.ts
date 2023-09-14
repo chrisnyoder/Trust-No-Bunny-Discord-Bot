@@ -8,16 +8,16 @@ const command = {
         .setName('language')
         .setNameLocalizations({
             "en-US": 'language',
-            "ko": 'language',
-            "ja": 'language',
-            "zh-CN": 'language',
+            "ko": '언어',
+            "ja": '言語',
+            "zh-CN": '语言',
         } as any)
         .setDescription('Set the language for the bot')
         .setDescriptionLocalizations({
             "en-US": 'Set the language for the bot',
-            "ko": 'Set the language for the bot',
-            "ja": 'Set the language for the bot',
-            "zh-CN": 'Set the language for the bot',
+            "ko": '봇의 언어를 설정합니다',
+            "ja": 'ボットの言語を設定する',
+            "zh-CN": '设置机器人的语言',
         } as any)
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction: ChatInputCommandInteraction) {
@@ -79,8 +79,10 @@ const command = {
                 newLocale = 'zh-cn';
             }
 
-            await getGuildById(interaction.guild?.id as string)?.setLocale(newLocale);
+            getGuildById(interaction.guild?.id as string)?.setLocale(newLocale);
             await setLocaleForGuild(interaction.guild?.id as string, newLocale);
+
+            confirmation.update({ content: 'Language set!', components: [] });    
         } catch {
             console.error('No response after 60 seconds');
         }
