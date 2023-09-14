@@ -7,6 +7,12 @@
     },
     "command_interactions" :
     {
+        "language_command" : 
+        {
+            "name": "/语言",
+            "description": "更改机器人的语言。",
+            "language_set": "机器人语言已成功设置为{language}"
+        },
         "roll_command" : 
         {
             "name": "/掷骰",

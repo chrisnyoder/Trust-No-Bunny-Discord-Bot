@@ -7,6 +7,12 @@
     },
     "command_interactions" :
     {
+        "language_command" : 
+        {
+            "name": "/language",
+            "description": "Sets the language for the bot.",
+            "language_set": "Language for the Trust No Bunny bot successfully set"
+        },
         "roll_command" : 
         {
             "name": "/roll",

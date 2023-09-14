@@ -7,6 +7,12 @@
     }   ,
     "command_interactions" :
     {
+        "language_command" :
+        {
+            "name": "/言語",
+            "description": "ボットの言語を設定します。",
+            "language_set": "ボットの言語が正常に設定されました。"
+        },
         "roll_command" : 
         {
             "name": "/サイコロ",

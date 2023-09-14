@@ -82,7 +82,8 @@ const command = {
             getGuildById(interaction.guild?.id as string)?.setLocale(newLocale);
             await setLocaleForGuild(interaction.guild?.id as string, newLocale);
 
-            confirmation.update({ content: 'Language set!', components: [] });    
+            const languageSetText = getLocalizedText(newLocale, 'command_interactions.language_command.language_set') as string;
+            confirmation.update({ content: languageSetText, components: [] });    
         } catch {
             console.error('No response after 60 seconds');
         }
