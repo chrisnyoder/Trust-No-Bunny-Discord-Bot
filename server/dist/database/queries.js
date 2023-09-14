@@ -123,18 +123,22 @@ function retrieveGuildsFromDB(guildManager) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         try {
-            const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
-            const guilds = rows.map(row => {
+            const [rows] = yield connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop`, `locale` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+            var guilds = [];
+            for (var i = 0; i < rows.length; i++) {
+                const row = rows[i];
                 const guild = guildManager.cache.get(row.guild_id);
+                if (guild === undefined)
+                    continue;
                 var guildChannel;
-                if (row.channel_id_for_drops === null) {
+                if (row.channel_id_for_drops === null || guild.channels === undefined) {
                     guildChannel = guild.systemChannel;
                 }
                 else {
                     guildChannel = guild.channels.cache.get(row.channel_id_for_drops);
                 }
-                return new tnbGuild_1.TNBGuild(guild, guildChannel, row.time_since_last_drop);
-            });
+                guilds.push(new tnbGuild_1.TNBGuild(guild, guildChannel, row.time_since_last_drop, row.locale));
+            }
             return guilds;
         }
         finally {

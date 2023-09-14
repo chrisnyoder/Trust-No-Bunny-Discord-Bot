@@ -17,8 +17,7 @@ const command = {
             "ja": 'Set the language for the bot',
             "zh-CN": 'Set the language for the bot',
         } as any)
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-    ,
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     async execute(interaction: ChatInputCommandInteraction) {
         
         if (!interaction.isChatInputCommand) { 

@@ -41,6 +41,7 @@ const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 const node_fs_1 = __importDefault(require("node:fs"));
 const node_path_1 = __importDefault(require("node:path"));
+const localization_manager_1 = require("./localization/localization_manager");
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
     throw new Error("Missing BOT_TOKEN in .env file.");
@@ -103,6 +104,7 @@ function initialize() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             exports.client.login(token);
+            (0, localization_manager_1.loadLanguages)();
             // You can add more startup tasks here if needed
         }
         catch (error) {

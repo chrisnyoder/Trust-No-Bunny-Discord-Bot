@@ -19,16 +19,21 @@ const canvas_1 = require("@napi-rs/canvas");
 const fs_1 = __importDefault(require("fs"));
 const localization_manager_1 = require("../localization/localization_manager");
 class TNBGuild {
-    constructor(guild, defaultChannel, timeSinceLastDrop = null) {
+    constructor(guild, defaultChannel, timeSinceLastDrop = null, locale = 'en-us') {
+        this.locale = 'en-us';
         this.dropTimer = null;
         this.timeSinceLastDrop = null;
         this.minimumNumberOfMembers = 10;
         this.discordGuild = guild;
         this.defaultChannel = defaultChannel;
         this.timeSinceLastDrop = timeSinceLastDrop;
+        this.locale = locale;
     }
     setDefaultChannel(channel) {
         this.defaultChannel = channel;
+    }
+    setLocale(locale) {
+        this.locale = locale;
     }
     activateBot() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -75,7 +80,7 @@ class TNBGuild {
             const numberOfGuildMembers = yield this.getMemberCount();
             if (numberOfGuildMembers < this.minimumNumberOfMembers) {
                 try {
-                    const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'bot_messages.start_message_under_10_members');
+                    const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.locale, 'bot_messages.start_message_under_10_members');
                     var responseMessageFormated = responseMessageUnformatted
                         .replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name')))
                         .replace('{channel_set_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name')));

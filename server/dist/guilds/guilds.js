@@ -13,6 +13,7 @@ exports.getServerSizeModifier = exports.setDefaultChannel = void 0;
 const queries_1 = require("../database/queries");
 const bot_1 = require("../bot");
 const tnbGuild_1 = require("./tnbGuild");
+const localization_manager_1 = require("../localization/localization_manager");
 var activeTNBGuilds = new Array();
 bot_1.client.once('ready', () => {
     (() => __awaiter(void 0, void 0, void 0, function* () {
@@ -28,7 +29,8 @@ bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, func
     const matchingTNBGuilds = activeTNBGuilds.filter(tnbGuild => tnbGuild.discordGuild.id === guild.id);
     if (matchingTNBGuilds.length === 0) {
         var systemChannel = guild.systemChannel;
-        const tnbGuild = new tnbGuild_1.TNBGuild(guild, systemChannel);
+        var locale = yield (0, localization_manager_1.getDefaultLanguage)(guild.id);
+        const tnbGuild = new tnbGuild_1.TNBGuild(guild, systemChannel, null, locale);
         activeTNBGuilds.push(tnbGuild);
         if (yield (0, queries_1.guildIsInDatabase)(guild.id)) {
             console.log('guild ' + guild.id + ' is already in the database');
