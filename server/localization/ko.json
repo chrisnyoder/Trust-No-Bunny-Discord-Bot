@@ -3,7 +3,7 @@
     {
         "start_message_under_10_members": "Trust No Bunny 봇이 이 서버에서 활동을 시작했습니다! 서버가 적어도 10명의 멤버에 도달하면 Count Cornelio의 대상은 여기에서 정차합니다. 현재 드롭을 위해 {roll_command} 명령을 사용하세요. 대상이 정차할 채널을 설정하려면 {channel_set_command}을 사용하세요. 부정하게 얻은 이익으로 보상을 받으려면 play.friendlypixel.com으로 이동하세요.",
         "start_message_10_members": "Trust No Bunny 봇이 이 서버에서 활동을 시작했습니다! 서버가 적어도 10명의 멤버에 도달하면 Count Cornelio의 대상은 여기에서 정차합니다. 현재 드롭을 위해 {roll_command} 명령을 사용하세요. 대상이 정차할 채널을 설정하려면 {channel_set_command}을 사용하세요. 부정하게 얻은 이익으로 보상을 받으려면 play.friendlypixel.com으로 이동하세요.",
-        "caravan_stop": "사악한 Count Cornelio의 대상이 오늘 밤 마을에서 정차하고 있습니다. 그의 부정하게 얻은 이익 중 일부를 습득하려면 어떻습니까? ${rollText}를 사용하여 침투하고 보물을 찾아보세요!"
+        "caravan_stop": "사악한 Count Cornelio의 대상이 오늘 밤 마을에서 정차하고 있습니다. 그의 부정하게 얻은 이익 중 일부를 습득하려면 어떻습니까? {roll_command}를 사용하여 침투하고 보물을 찾아보세요!"
     },
     "command_interactions" :
     {

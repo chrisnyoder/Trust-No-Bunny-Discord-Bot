@@ -3,7 +3,7 @@
     {
         "start_message_under_10_members": "Trust No Bunny 机器人现在在这个服务器中活跃！一旦服务器达到至少10名成员，Count Cornelio的商队就会在这里停留。使用{roll_command}命令来抢夺当前的掉落物。使用{channel_set_command}来设置商队将停留的频道。要使用你不正当获得的收益兑换奖励，请前往 play.friendlypixel.com。",
         "start_message_10_members": "Trust No Bunny 机器人现在在这个服务器中活跃！一旦服务器达到至少10名成员，Count Cornelio的商队就会在这里停留。使用{roll_command}命令来抢夺当前的掉落物。使用{channel_set_command}来设置商队将停留的频道。要使用你不正当获得的收益兑换奖励，请前往 play.friendlypixel.com。",
-        "caravan_stop": "邪恶的 Count Cornelio 的商队今晚将停留在城里。你敢不敢冒险拿走他不正当获得的财富？使用 ${rollText} 来潜入并寻找财宝！"
+        "caravan_stop": "邪恶的 Count Cornelio 的商队今晚将停留在城里。你敢不敢冒险拿走他不正当获得的财富？使用 {roll_command} 来潜入并寻找财宝！"
     },
     "command_interactions" :
     {
