@@ -82,8 +82,8 @@ class TNBGuild {
                 try {
                     const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.locale, 'bot_messages.start_message_under_10_members');
                     var responseMessageFormated = responseMessageUnformatted
-                        .replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name')))
-                        .replace('{channel_set_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name')));
+                        .replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.locale, 'command_interactions.roll_command.name')))
+                        .replace('{channel_set_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.locale, 'command_interactions.channel_set_command.name')));
                     yield this.defaultChannel.send({ content: responseMessageFormated });
                 }
                 catch (_a) {
@@ -92,10 +92,10 @@ class TNBGuild {
             }
             else {
                 try {
-                    const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'bot_messages.start_message_10_members');
+                    const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.locale, 'bot_messages.start_message_10_members');
                     const responseMessageFormated = responseMessageUnformatted
-                        .replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name')))
-                        .replace('{channel_set_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name')));
+                        .replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.locale, 'command_interactions.roll_command.name')))
+                        .replace('{channel_set_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.locale, 'command_interactions.channel_set_command.name')));
                     yield this.defaultChannel.send({ content: responseMessageFormated });
                 }
                 catch (_b) {
@@ -141,7 +141,7 @@ class TNBGuild {
         if (this.discordGuild.id === testGuildId) {
             /// this is the test server... uncomment the code below to make the drop happen every minute in the test server
             console.log('guild is the test server, setting drop timer to 1 minute');
-            // return 1000 * 60;
+            return 1000 * 60;
         }
         if (this.timeSinceLastDrop !== null) {
             console.log('guild has processed drop before it got interrupted, calculating time until next drop for guild ' + this.discordGuild.id);
@@ -183,8 +183,8 @@ class TNBGuild {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('sending message of drop to guild ' + this.discordGuild.id);
             // Construct the response message
-            const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'bot_messages.caravan_stop');
-            const responseMessageFormatted = responseMessageUnformatted.replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name')));
+            const responseMessageUnformatted = (0, localization_manager_1.getLocalizedText)(this.locale, 'bot_messages.caravan_stop');
+            const responseMessageFormatted = responseMessageUnformatted.replace('{roll_command}', (0, discord_js_1.inlineCode)((0, localization_manager_1.getLocalizedText)(this.locale, 'command_interactions.roll_command.name')));
             const countCornelioImage = yield this.retrieveImageOfCountCornelio();
             try {
                 yield this.defaultChannel.send({ content: responseMessageFormatted, files: [countCornelioImage] });

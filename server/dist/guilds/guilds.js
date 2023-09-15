@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getServerSizeModifier = exports.setDefaultChannel = void 0;
+exports.getGuildById = exports.getServerSizeModifier = exports.setDefaultChannel = void 0;
 const queries_1 = require("../database/queries");
 const bot_1 = require("../bot");
 const tnbGuild_1 = require("./tnbGuild");
@@ -38,7 +38,7 @@ bot_1.client.on('guildCreate', (guild) => __awaiter(void 0, void 0, void 0, func
         }
         else {
             console.log('adding guild ' + guild.id + ' to the database');
-            (0, queries_1.addNewGuild)(guild.id, guild.memberCount);
+            (0, queries_1.addNewGuild)(guild.id, guild.memberCount, locale);
         }
         tnbGuild.activateBot();
         tnbGuild.sendStartMessage();
@@ -93,3 +93,11 @@ function getServerSizeModifier(serverSize) {
     return 0;
 }
 exports.getServerSizeModifier = getServerSizeModifier;
+function getGuildById(guildId) {
+    const matchingTNBGuilds = activeTNBGuilds.filter(tnbGuild => tnbGuild.discordGuild.id === guildId);
+    if (matchingTNBGuilds.length === 0) {
+        return null;
+    }
+    return matchingTNBGuilds[0];
+}
+exports.getGuildById = getGuildById;

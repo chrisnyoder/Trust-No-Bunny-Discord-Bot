@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.setDefaultChannelForGuild = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.guildIsInDatabase = exports.addNewClaim = exports.checkWhetherPlayerHasClaimedDrop = exports.getDropFromGuild = void 0;
+exports.setLocaleForGuild = exports.retrieveUnclaimedDrops = exports.updateLastDropTime = exports.insertItemIntoDropTable = exports.setDefaultChannelForGuild = exports.retrieveGuildsFromDB = exports.setGuildStatusToActive = exports.removeGuild = exports.addNewGuild = exports.guildIsInDatabase = exports.addNewClaim = exports.checkWhetherPlayerHasClaimedDrop = exports.getDropFromGuild = void 0;
 const promise_1 = __importDefault(require("mysql2/promise")); // Using mysql2 for promise-based interaction.
 // This assumes you have a connection configuration set up somewhere.
 const config_1 = require("../config");
@@ -81,12 +81,12 @@ function guildIsInDatabase(guildId) {
     });
 }
 exports.guildIsInDatabase = guildIsInDatabase;
-function addNewGuild(guildId, memberCount) {
+function addNewGuild(guildId, memberCount, guildLocale) {
     return __awaiter(this, void 0, void 0, function* () {
         const connection = yield promise_1.default.createConnection(config_1.dbConfig);
         console.log('adding new guild ' + guildId + ' to db');
         try {
-            yield connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`)  VALUES (?, true, ?, null)', [guildId, memberCount]);
+            yield connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`, `locale`)  VALUES (?, true, ?, null, ?)', [guildId, memberCount, guildLocale]);
         }
         finally {
             yield connection.end();
@@ -200,3 +200,16 @@ function retrieveUnclaimedDrops(guildId) {
     });
 }
 exports.retrieveUnclaimedDrops = retrieveUnclaimedDrops;
+function setLocaleForGuild(guildId, locale) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('setting locale for guild ' + guildId + ' to ' + locale);
+        const connection = yield promise_1.default.createConnection(config_1.dbConfig);
+        try {
+            yield connection.execute('UPDATE `tnb_discord_guilds` SET `locale` = ? WHERE `guild_id` = ?', [locale, guildId]);
+        }
+        finally {
+            yield connection.end();
+        }
+    });
+}
+exports.setLocaleForGuild = setLocaleForGuild;
