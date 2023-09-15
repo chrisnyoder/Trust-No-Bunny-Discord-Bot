@@ -70,13 +70,13 @@ export async function guildIsInDatabase(guildId: string): Promise<boolean> {
     }
 }
 
-export async function addNewGuild(guildId: string, memberCount: number): Promise<void> {
+export async function addNewGuild(guildId: string, memberCount: number, guildLocale: string): Promise<void> {
     const connection = await mysql.createConnection(dbConfig);
 
     console.log('adding new guild ' + guildId + ' to db');
 
     try {
-        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`)  VALUES (?, true, ?, null)', [guildId, memberCount]);
+        await connection.execute('INSERT INTO `tnb_discord_guilds` (`guild_id`, `is_active`, `member_count`, `time_since_last_drop`, `locale`)  VALUES (?, true, ?, null, ?)', [guildId, memberCount, guildLocale]);
     } finally {
         await connection.end();
     }
@@ -109,20 +109,25 @@ export async function retrieveGuildsFromDB(guildManager: GuildManager): Promise<
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-        const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
+        const [rows] = await connection.execute('SELECT `guild_id`, `channel_id_for_drops`, `time_since_last_drop`, `locale` FROM `tnb_discord_guilds` WHERE `is_active` = 1');
 
-        const guilds = (rows as any[]).map(row => {
+        var guilds: TNBGuild[] = [];
+
+        for (var i = 0; i < (rows as any[]).length; i++) {
+            const row = (rows as any[])[i];
             const guild = guildManager.cache.get(row.guild_id) as Guild;
-            
+
+            if(guild === undefined) continue;
+
             var guildChannel: TextChannel;
-            if (row.channel_id_for_drops === null) {
+            if (row.channel_id_for_drops === null || guild.channels === undefined) {
                 guildChannel = guild.systemChannel as TextChannel;
             } else {
                 guildChannel = guild.channels.cache.get(row.channel_id_for_drops) as TextChannel;
             }
            
-            return new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date);
-        });
+            guilds.push(new TNBGuild(guild, guildChannel, row.time_since_last_drop as Date, row.locale));
+        }
 
         return guilds;
     } finally {
@@ -174,6 +179,18 @@ export async function retrieveUnclaimedDrops(guildId: string): Promise<string[]>
     try {
         const [rows] = await connection.execute('SELECT DISTINCT `reward_id` FROM `tnb_drops` WHERE `guild_id` = ? AND `has_been_claimed` = false', [guildId]);
         return  (rows as any[]).map(row => row.reward_id);
+    } finally {
+        await connection.end();
+    }
+}
+
+export async function setLocaleForGuild(guildId: string, locale: string): Promise<void> { 
+    console.log('setting locale for guild ' + guildId + ' to ' + locale);
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    try {
+        await connection.execute('UPDATE `tnb_discord_guilds` SET `locale` = ? WHERE `guild_id` = ?', [locale, guildId]);
     } finally {
         await connection.end();
     }

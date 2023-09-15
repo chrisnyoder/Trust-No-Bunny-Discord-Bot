@@ -3,7 +3,7 @@ import {
     addNewClaim,
     checkWhetherPlayerHasClaimedDrop,
 } from '../database/queries';
-import { SlashCommandBuilder, ChatInputCommandInteraction, AttachmentBuilder } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, AttachmentBuilder, Locale } from 'discord.js';
 import { Drop } from '../database/drop';
 import { getItems } from '../playfab/playfab_catalog';
 import { PlayfabItem } from '../playfab/playfab_item';
@@ -11,13 +11,24 @@ import { getServerSizeModifier } from '../guilds/guilds';
 import { loadImage, createCanvas } from '@napi-rs/canvas';
 import axios from 'axios';
 import fs from 'fs';
-import path from 'path';
-import * as jsonData from '../database/roll_responses.json';
+import { getLocalizedText } from '../localization/localization_manager';
 
 const command = {
     data: new SlashCommandBuilder()
         .setName('roll')
-        .setDescription(`Roll to infiltrate the Baron's Caravan`),
+        .setNameLocalizations({
+            "en-US": 'roll',
+            "ko": '주사위',
+            "ja": 'サイコロ',
+            "zh-CN": '掷骰',
+        } as any)
+        .setDescription(`Roll to infiltrate the Baron's Caravan`)
+        .setDescriptionLocalizations({
+            "en-US": 'Roll a 20-sided dice to infiltrate the Baron\'s Caravan',
+            "ko": '바론의 짐마차에 침투하기 위해 20면 주사위를 굴립니다',
+            "ja": 'バロンのキャラバンに侵入するために20面のサイコロを振る',
+            "zh-CN": '投掷20面骰子以渗透男爵的商队',
+        } as any),
     async execute(interaction: ChatInputCommandInteraction) {
         if (!interaction.isChatInputCommand) {
             return;
@@ -28,11 +39,13 @@ const command = {
             return;
         }
 
+
+        const interactionLanguage = interaction.locale;
         const drop = (await getDropFromGuild(interaction.guild?.id as string)) as Drop;
 
         if (drop === null) {
-            console.log('player attempted to roll for a drop in a server where there are none');
-            const responseMessage = `I'm sorry, we couldn't find a drop in this server`;
+            console.log('player attempted to raid a caravan server where there are none');
+            const responseMessage = getLocalizedText(interactionLanguage, 'command_interactions.roll_command.no_drops') as string;
             await interaction.reply({ content: responseMessage, ephemeral: true });
             return;
         }
@@ -43,14 +56,15 @@ const command = {
         );
 
         if (playerHasAlreadyClaimedDrop) {
-            console.log('player attempted to roll a drop when they have already claimed one');
-            const responseMessage = `I'm sorry, it looks like you've already raided this caravan. Come back later for more chances.`;
+            console.log('player attempted to raid a caravan when they have already raided one');
+            const responseMessage = getLocalizedText(interactionLanguage, 'command_interactions.roll_command.already_raided') as string;
             await interaction.reply({ content: responseMessage, ephemeral: true });
             return;
         }
 
         var d20Diceroll = await get20SidedDiceRoll();
-        await interaction.reply({ content: 'Rolling a 20 sided dice...', ephemeral: true });
+        const responseMessage = getLocalizedText(interactionLanguage, 'command_interactions.roll_command.rolling_dice') as string;
+        await interaction.reply({ content: responseMessage, ephemeral: true });
 
         if (d20Diceroll === 1) { 
             await processNat1Drop(interaction);
@@ -62,18 +76,19 @@ const command = {
 
 async function processNat1Drop(interaction: ChatInputCommandInteraction) { 
     setTimeout(async () => {
+        const responseMessage = getLocalizedText(interaction.locale, 'command_interactions.roll_command.rolled_1') as string;
         await interaction.followUp({
-            content:
-                'You rolled a 1! Bad luck, no server modifier applied!' ,
+            content: responseMessage,
             ephemeral: true,
         });
     }, 3000);
 
     const natOneImage = await retrieveNat1Image();
     setTimeout(async () => {
-        const randomResponse = getRandomResponse(1);
-        const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
-        const responseMessage = `\n ***${blueRandomResponse}*** \n You found nothing! Check back later when the caravan stops again.\n `;
+        const randomResponse = getRandomResponse(1, interaction.locale);
+        const flavorText = '```css\n[' + `" ${randomResponse} "` + ']\n```';
+        const foundNothingResponse = getLocalizedText(interaction.locale, 'command_interactions.roll_command.rolled_1_found') as string;
+        const responseMessage = `\n ***${flavorText}*** \n ${foundNothingResponse}\n `;
         await interaction.followUp({
             content: responseMessage,
             files: [natOneImage],
@@ -86,14 +101,15 @@ async function processNormalDrop(interaction: ChatInputCommandInteraction, drop:
     var serverSize = await getMemberCount(interaction);
     var serverSizeModifier = getServerSizeModifier(serverSize);
     setTimeout(async () => {
+        const responseMessageUnformatted = getLocalizedText(interaction.locale, 'command_interactions.roll_command.rolled_result') as string;
+        
+        const responseMessageFormatted = responseMessageUnformatted
+            .replace('{diceroll}', d20Diceroll.toString())
+            .replace('{server_size_modifier}', serverSizeModifier.toString())
+            .replace('{combined}', (d20Diceroll + serverSizeModifier).toString());
+        
         await interaction.followUp({
-            content:
-                'You rolled a ' +
-                d20Diceroll +
-                '! Your server size modifer is ' +
-                serverSizeModifier +
-                ' for a total of ' +
-                (d20Diceroll + serverSizeModifier),
+            content:responseMessageFormatted,
             ephemeral: true,
         });
     }, 3000);
@@ -103,9 +119,14 @@ async function processNormalDrop(interaction: ChatInputCommandInteraction, drop:
     const rewardImage = await retrieveAwardImage(reward);
 
     setTimeout(async () => {
-        const randomResponse = getRandomResponse(d20Diceroll);
-        const blueRandomResponse = '```css\n[' + `" ${randomResponse} "` + ']\n```';
-        const responseMessage = `\n ***${blueRandomResponse}*** \n You found ${reward.title}. Redeem in Trust No Bunny (play.friendlypixel.com). Ensure your Discord is connected in-game to see your reward.\n `;
+        const randomResponse = getRandomResponse(d20Diceroll, interaction.locale);
+        const randomFlavorText = '```css\n[' + `" ${randomResponse} "` + ']\n```';
+        const foundSomethingResponseUnformatted = getLocalizedText(interaction.locale, 'command_interactions.roll_command.rolled_found') as string;
+        const foundSomethingResponseFormatted = foundSomethingResponseUnformatted
+            .replace('{reward_title}', reward.title)
+
+        const responseMessage = `\n ***${randomFlavorText}*** \n ${foundSomethingResponseFormatted} \n `;
+
         await interaction.followUp({
             content: responseMessage,
             files: [rewardImage],
@@ -146,23 +167,26 @@ async function getRewardId(d20Diceroll: number): Promise<PlayfabItem> {
     return items[0];
 }
 
-function getRandomResponse(roll: number): string {
-    let responses: string[];
-    if (roll === 1) {
-        responses = jsonData.Natural_1;
+function getRandomResponse(roll: number, language: Locale): string {
+    let response: string | null;
+    if (roll === 1) {    
+        response = getLocalizedText(language, 'roll_responses.Roll_Nat_1');
     } else if (roll >= 2 && roll <= 10) {
-        responses = jsonData.Roll_2_10;
+        response = getLocalizedText(language, 'roll_responses.Roll_2_10');
     } else if (roll >= 11 && roll <= 15) {
-        responses = jsonData.Roll_11_15;
+        response = getLocalizedText(language, 'roll_responses.Roll_11_15');
     } else if (roll >= 16 && roll <= 19) {
-        responses = jsonData.Roll_16_19;
+        response = getLocalizedText(language, 'roll_responses.Roll_16_19');
     } else if (roll === 20) {
-        responses = jsonData.Roll_Nat_20;
+        response = getLocalizedText(language, 'roll_responses.Roll_20');
     } else {
         return 'Invalid roll!';
     }
-    const randomIndex = Math.floor(Math.random() * responses.length);
-    return responses[randomIndex];
+    
+    if (response === null) {
+        return 'Invalid roll!';
+    }
+    return response;
 }
 
 async function retrieveAwardImage(item: PlayfabItem): Promise<AttachmentBuilder> {

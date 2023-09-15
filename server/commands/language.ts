@@ -1,0 +1,93 @@
+import {ButtonStyle, SlashCommandBuilder, ChatInputCommandInteraction, inlineCode, PermissionFlagsBits, StringSelectMenuBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
+import { getLocalizedText } from '../localization/localization_manager';
+import { getGuildById } from '../guilds/guilds';
+import { setLocaleForGuild } from '../database/queries';
+
+const command = {
+    data: new SlashCommandBuilder()
+        .setName('language')
+        .setNameLocalizations({
+            "en-US": 'language',
+            "ko": '언어',
+            "ja": '言語',
+            "zh-CN": '语言',
+        } as any)
+        .setDescription('Set the language for the bot')
+        .setDescriptionLocalizations({
+            "en-US": 'Set the language for the bot',
+            "ko": '봇의 언어를 설정합니다',
+            "ja": 'ボットの言語を設定する',
+            "zh-CN": '设置机器人的语言',
+        } as any)
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+    async execute(interaction: ChatInputCommandInteraction) {
+        
+        if (!interaction.isChatInputCommand) { 
+            return;
+        }
+
+        if (typeof interaction.guild?.id === 'undefined') { 
+            console.log('oops! this command was not made in a Discord server. Not processing');
+            return; 
+        }
+
+        const englishButton = new ButtonBuilder()
+            .setCustomId('english_button')
+            .setLabel('English')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('🇺🇸');
+        
+        const koreanButton = new ButtonBuilder()
+            .setCustomId('korean_button')
+            .setLabel('한국어')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('🇰🇷');
+        
+        const japaneseButton = new ButtonBuilder() 
+            .setCustomId('japanese_button')
+            .setLabel('日本語')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('🇯🇵');
+        
+        const chineseButton = new ButtonBuilder()
+            .setCustomId('chinese_button')
+            .setLabel('中文')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('🇨🇳');
+        
+        const actionRow = new ActionRowBuilder()
+            .addComponents(englishButton, koreanButton, japaneseButton, chineseButton);
+        
+        const response = await interaction.reply({ components: [actionRow] as any, ephemeral: true });
+        const filter = (i: any) => i.user.id === interaction.user.id;
+
+        try {
+            const confirmation = await response.awaitMessageComponent({ filter, time: 60000 });
+            var newLocale = 'en-us';
+
+            if(confirmation.customId === 'english_button') { 
+                await confirmation.update({ content: 'English', components: [] });
+                newLocale = 'en-us';
+            } else if (confirmation.customId === 'korean_button') {
+                await confirmation.update({ content: '한국어', components: [] });
+                newLocale = 'ko';
+            } else if (confirmation.customId === 'japanese_button') {
+                await confirmation.update({ content: '日本語', components: [] });
+                newLocale = 'ja';
+            } else if (confirmation.customId === 'chinese_button') {
+                await confirmation.update({ content: '中文', components: [] });
+                newLocale = 'zh-cn';
+            }
+
+            getGuildById(interaction.guild?.id as string)?.setLocale(newLocale);
+            await setLocaleForGuild(interaction.guild?.id as string, newLocale);
+
+            const languageSetText = getLocalizedText(newLocale, 'command_interactions.language_command.language_set') as string;
+            confirmation.update({ content: languageSetText, components: [] });    
+        } catch {
+            console.error('No response after 60 seconds');
+        }
+    }
+};
+
+export = command;
