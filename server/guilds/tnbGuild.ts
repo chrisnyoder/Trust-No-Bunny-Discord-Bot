@@ -78,8 +78,8 @@ export class TNBGuild {
             try {
 				const responseMessageUnformatted = getLocalizedText(this.locale, 'bot_messages.start_message_under_10_members') as string;
 				var responseMessageFormated = responseMessageUnformatted
-					.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string))
-					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name') as string));
+					.replace('{roll_command}', inlineCode(getLocalizedText(this.locale, 'command_interactions.roll_command.name') as string))
+					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.locale, 'command_interactions.channel_set_command.name') as string));
 				
 				await this.defaultChannel.send({ content: responseMessageFormated });
 			} catch {
@@ -87,10 +87,10 @@ export class TNBGuild {
 			}
 		} else {
 			try {
-				const responseMessageUnformatted = getLocalizedText(this.discordGuild.preferredLocale, 'bot_messages.start_message_10_members') as string;
+				const responseMessageUnformatted = getLocalizedText(this.locale, 'bot_messages.start_message_10_members') as string;
 				const responseMessageFormated = responseMessageUnformatted
-					.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string))
-					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.channel_set_command.name') as string));
+					.replace('{roll_command}', inlineCode(getLocalizedText(this.locale, 'command_interactions.roll_command.name') as string))
+					.replace('{channel_set_command}', inlineCode(getLocalizedText(this.locale, 'command_interactions.channel_set_command.name') as string));
 				
 				await this.defaultChannel.send({ content: responseMessageFormated });
 			} catch {
@@ -177,8 +177,9 @@ export class TNBGuild {
 		console.log('sending message of drop to guild ' + this.discordGuild.id);
 
 		// Construct the response message
-		const responseMessageUnformatted = getLocalizedText(this.discordGuild.preferredLocale, 'bot_messages.caravan_stop') as string;
-		const responseMessageFormatted = responseMessageUnformatted.replace('{roll_command}', inlineCode(getLocalizedText(this.discordGuild.preferredLocale, 'command_interactions.roll_command.name') as string));
+        
+		const responseMessageUnformatted = getLocalizedText(this.locale, 'bot_messages.caravan_stop') as string;
+		const responseMessageFormatted = responseMessageUnformatted.replace('{roll_command}', inlineCode(getLocalizedText(this.locale, 'command_interactions.roll_command.name') as string));
 		const countCornelioImage = await this.retrieveImageOfCountCornelio();
 
 		try {
