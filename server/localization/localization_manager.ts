@@ -33,9 +33,9 @@ export async function getDefaultLanguage(guildId: string): Promise<string> {
 
         if (region === "japan") {
             return "ja";
-        } else if (region === "korea") {
+        } else if (region === "south-korea") {
             return "ko";
-        } else if (region === "china") {
+        } else if (region === "china" || region === "hongkong" || region === "taiwan") {
             return "zh-cn";
         } else {
             return "en-us";
