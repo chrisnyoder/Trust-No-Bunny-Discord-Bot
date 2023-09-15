@@ -3,7 +3,7 @@
     {
         "start_message_under_10_members" : "The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To roll for the current drop, use the {roll_command} command. Use {channel_set_command} to set which channel the caravan will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com",
         "start_message_10_members": "The Trust No Bunny bot is now active in this server! Count Cornelio’s caravan will make stops here once the server has reached at least 10 members. To roll for the current drop, use the {roll_command} command. Use {channel_set_command} to set which channel the caravan will stop in. To redeem rewards using your ill-gotten gains, go to play.friendlypixel.com",
-        "caravan_stop": "The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use ${rollText} to infiltrate and look for treasure!"
+        "caravan_stop": "The nefarious Count Cornelio’s caravan is stopping in town for the night. Dare you help yourself to some of his ill gotten gains? ! Use {roll_command} to infiltrate and look for treasure!"
     },
     "command_interactions" :
     {
