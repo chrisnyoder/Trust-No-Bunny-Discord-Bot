@@ -32,8 +32,9 @@ const command = {
         const responseMessageUnformatted = getLocalizedText(interaction.locale, 'command_interactions.help_command.message') as string;
         
         const responseMessageFormatted = responseMessageUnformatted
-            .replace('{roll}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.roll_command.name') as string))
-            .replace('{channel_set_command}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.channel_set_command.name') as string));
+            .replace('{roll_command}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.roll_command.name') as string))
+            .replace('{channel_set_command}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.channel_set_command.name') as string))
+            .replace('{droptable_command}', inlineCode(getLocalizedText(interaction.locale, 'command_interactions.droptable_command.name') as string));
 
         await interaction.reply({ content: responseMessageFormatted, ephemeral: true })
     }
