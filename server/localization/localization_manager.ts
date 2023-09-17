@@ -48,8 +48,8 @@ export async function getDefaultLanguage(guildId: string): Promise<string> {
 
 export function getLocalizedText(lang: string, key: string): string | null {
     if (!localizationData[lang.toLowerCase()]) {
-        console.error(`Localization for language ${lang} not loaded.`);
-        return null;
+        console.log(`Localization for language ${lang} does not exist. Using English`);
+        lang = 'en-us';
     }
   
     const keys = key.split('.');
@@ -65,7 +65,7 @@ export function getLocalizedText(lang: string, key: string): string | null {
 
         if (currentObj === undefined) {
             console.error(`Invalid key ${key} for language ${lang}.`);
-            return null;
+            return null;    
         }
     }
   
