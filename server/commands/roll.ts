@@ -178,7 +178,7 @@ function getRandomResponse(roll: number, language: Locale): string {
     } else if (roll >= 16 && roll <= 19) {
         response = getLocalizedText(language, 'roll_responses.Roll_16_19');
     } else if (roll === 20) {
-        response = getLocalizedText(language, 'roll_responses.Roll_20');
+        response = getLocalizedText(language, 'roll_responses.Roll_Nat_20');
     } else {
         return 'Invalid roll!';
     }
