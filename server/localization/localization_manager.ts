@@ -69,7 +69,6 @@ export function getLocalizedText(lang: string, key: string): string | null {
         }
     }
   
-    console.log(`Found localized text for ${key} in ${lang}. Returning ${currentObj.toString()}}`);
     if (typeof currentObj === 'string') {
         return currentObj as string;
     }
